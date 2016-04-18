@@ -55,7 +55,7 @@ char * replace(
 FILE  *yyin;
 int yylval;
 float real;
-char string[300];
+char cadena[300];
 unsigned long entero64bits;
 char *puntero;
 
@@ -89,7 +89,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "real"				{ return REAL;}
 "entero"			{ return ENTERO;}
 "cadena"			{ return CADENA;}
-{ID}				{ return ID;}
+{ID}				{ strcpy(cadena,yytext); return ID;}
 
 {CONST_ENTERO}	   { 
 						 	yylval = atoi( yytext ); 
@@ -101,7 +101,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 				}
 
 {CONST_CADENA}	{	
-					strcpy(string,replace(yytext,"\"",""));
+					strcpy(cadena,replace(yytext,"\"",""));
 					return CONST_CADENA;
 				}
 "\n"      		

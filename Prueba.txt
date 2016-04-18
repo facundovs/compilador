@@ -1,8 +1,8 @@
 programa 
 definiciones	
- real n
- integer a,b,i
- cadena t, s
+ real n=0, t=0, s=0
+ entero a, b, c
+ cadena cadena1, cadena2, cadena3
 fin_definiciones
 fin_programa
 

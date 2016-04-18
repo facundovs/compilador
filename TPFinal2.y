@@ -20,7 +20,7 @@ int yyerror();
 //DECLARACION DE VARIABLES
 int yylval;
 float real;
-char string[300];
+char cadena[300];
 int yystopparser=0;
 FILE  *yyin;
 char *yyltext;
@@ -63,14 +63,14 @@ declaraciones:
     	     ;
 
 declaracion:  
-            REAL lista_var 
-	       |CADENA lista_var 
-           |ENTERO lista_var
+            REAL  {	printf("Declaracion de reales: "); } lista_var 	   
+	       |CADENA { 	printf("Declaracion de cadenas: "); 	} lista_var   
+           |ENTERO {	printf("Declaracion de enteros: "); } lista_var   
            ;
 
-lista_var:  
-	 ID
-	 |ID COMA lista_var 
+lista_var:
+      asignacion | ID { printf("Id: %s. ", cadena); }
+	 | asignacion COMA  lista_var | ID { printf("Id: %s, ", cadena); } COMA  lista_var 
  	 ;
 
 asignaciones: 
@@ -78,7 +78,7 @@ asignaciones:
 	| asignaciones asignacion 
 	;
 	
-asignacion: ID ASIG expresion
+asignacion: ID { printf("Id: %s", cadena); } ASIG expresion
 ;
 		
 expresion:
@@ -102,7 +102,7 @@ factor:
             yyerrormsj(itoa(yylval,entero,10),ErrorSemantico,ErrorIntFueraDeRango);
           }
           $1 = yylval;
-          printf("ENTERO es: %d\n", yylval);
+          printf(", Valor: %d\n", yylval);
       }
       | OP_RESTA CONST_ENTERO {
           if(yylval > 32768){
@@ -117,9 +117,9 @@ factor:
           printf("REAL es: %f\n", real);
       }
       | CONST_CADENA {
-          if(strlen(string)>30)
-              yyerrormsj(string,ErrorSemantico,ErrorStringFueraDeRango);
-          printf("STRING es: %s\n",string);
+          if(strlen(cadena)>30)
+              yyerrormsj(cadena,ErrorSemantico,ErrorStringFueraDeRango);
+          printf("CADENA es: %s\n",cadena);
       }
 
       |P_A expresion P_C  
@@ -156,7 +156,7 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
             printf("Entero %s fuera de rango\n",info);
             break ;
         case ErrorStringFueraDeRango:
-            printf("String : \"%s\" fuera de rango\n", info);
+            printf("Cadena: \"%s\" fuera de rango\n", info);
             break ; 
       }
 
