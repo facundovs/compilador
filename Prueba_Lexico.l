@@ -66,36 +66,43 @@ char *puntero;
 DIGITO			[0-9]
 LETRA			[a-zA-Z]
 ID			{LETRA}({LETRA}|{DIGITO}|_)*
-STRING   \"([^\"\\\\]|\\\\.)*\"
-ENTERO		{DIGITO}+
-REAL		([0-9]*\.[0-9]+|[0-9]+)
+CONST_CADENA   \"([^\"\\\\]|\\\\.)*\"
+CONST_ENTERO		{DIGITO}+
+CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 
 %%
-"="			{ return ASIG;}
-"+"			{ return OP_SUMA;}
-"-"			{ return OP_RESTA;}
-"*"			{ return OP_MUL;}
-"/"			{ return OP_DIV;}
-"("			{ return P_A;}
-")"			{ return P_C;}
-"{"			{ return LL_A; }
-"}"			{ return LL_C; }
-"\""		{ return COMILLA;}
+"="					{ return ASIG;}
+"+"					{ return OP_SUMA;}
+"-"					{ return OP_RESTA;}
+"*"					{ return OP_MUL;}
+"/"					{ return OP_DIV;}
+"("					{ return P_A;}
+")"					{ return P_C;}
+"{"					{ return LL_A; }
+"}"					{ return LL_C; }
+"\""				{ return COMILLA;}
+"programa"			{ return PROGRAMA;}
+"fin_programa"		{ return FIN_PROGRAMA; }
+"definiciones"		{ return DEFINICIONES; }
+"fin_definiciones"	{ return FIN_DEFINICIONES; }
+","					{ return COMA; }
+"real"				{ return REAL;}
+"entero"			{ return ENTERO;}
+"cadena"			{ return CADENA;}
+{ID}				{ return ID;}
 
-{ID}			{ return ID;}
-
-{ENTERO}	   { 
+{CONST_ENTERO}	   { 
 						 	yylval = atoi( yytext ); 
-						 	return ENTERO;
+						 	return CONST_ENTERO;
 					}
-{REAL}			{ 
+{CONST_REAL}			{ 
 					real = atof( yytext );
-					return REAL;
+					return CONST_REAL;
 				}
 
-{STRING}	{	
+{CONST_CADENA}	{	
 					strcpy(string,replace(yytext,"\"",""));
-					return STRING;
+					return CONST_CADENA;
 				}
 "\n"      		
 "\t"		

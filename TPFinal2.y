@@ -5,15 +5,19 @@
 #include <conio.h>
 #include "y.tab.h"
 #include <string.h>
-
+//DEFINES
 //TIPOS DE ERROR
 #define ErrorSintactico 1
 #define ErrorSemantico 2
 //ERRORES
 #define ErrorIntFueraDeRango 3
 #define ErrorStringFueraDeRango 4
-int yyerrormsj(const char *,int,int); // error sintactico  1, error semantico 2
+
+//DECLARACION DE FUNCIONES
+int yyerrormsj(const char *,int,int); 
 int yyerror();
+
+//DECLARACION DE VARIABLES
 int yylval;
 float real;
 char string[300];
@@ -25,10 +29,55 @@ char *yytext;
 %}
 
 %token ID
-%token ENTERO OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG P_A P_C LL_A LL_C REAL COMILLA STRING
-%%
-programa : asignacion {printf("Compilación OK\n");}
 
+//TOKEN SIMBOLOS
+%token COMILLA COMA
+
+
+//TOKEN OPERANDOS
+%token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG P_A P_C LL_A LL_C 
+
+//TOKEN TIPOS DE DATO
+%token REAL CADENA ENTERO
+
+//TOKEN CONSTANTES
+
+%token CONST_REAL CONST_CADENA CONST_ENTERO
+//TOKEN PALABRAS RESERVADAS
+%token PROGRAMA FIN_PROGRAMA DEFINICIONES FIN_DEFINICIONES  
+%%
+programa:  	   
+	PROGRAMA {printf(" Inicia COMPILADOR\n");} bloque_declaraciones     
+	FIN_PROGRAMA
+	{printf(" Fin COMPILADOR ok\n");}
+	
+
+bloque_declaraciones:
+	DEFINICIONES {printf("     DECLARACIONES\n");} declaraciones 
+	FIN_DEFINICIONES
+	{printf(" Fin de las Declaraciones\n");}
+	;
+declaraciones:         	        	
+             declaracion
+             | declaraciones declaracion
+    	     ;
+
+declaracion:  
+            REAL lista_var 
+	       |CADENA lista_var 
+           |ENTERO lista_var
+           ;
+
+lista_var:  
+	 ID
+	 |ID COMA lista_var 
+ 	 ;
+
+asignaciones: 
+	asignacion 
+	| asignaciones asignacion 
+	;
+	
 asignacion: ID ASIG expresion
 ;
 		
@@ -47,7 +96,7 @@ termino:
 
 factor: 
       ID 
-      | ENTERO {
+      | CONST_ENTERO {
           if(yylval >=32768){
             char entero[10];
             yyerrormsj(itoa(yylval,entero,10),ErrorSemantico,ErrorIntFueraDeRango);
@@ -55,7 +104,7 @@ factor:
           $1 = yylval;
           printf("ENTERO es: %d\n", yylval);
       }
-      | OP_RESTA ENTERO {
+      | OP_RESTA CONST_ENTERO {
           if(yylval > 32768){
             char entero[10];
             yyerrormsj(itoa(yylval,entero,10),ErrorSemantico,ErrorIntFueraDeRango);
@@ -63,11 +112,11 @@ factor:
           $1 = yylval;
           printf("ENTERO es: -%d\n", yylval);
       }
-      | REAL {
+      | CONST_REAL {
           $1 = yylval;
           printf("REAL es: %f\n", real);
       }
-      | STRING {
+      | CONST_CADENA {
           if(strlen(string)>30)
               yyerrormsj(string,ErrorSemantico,ErrorStringFueraDeRango);
           printf("STRING es: %s\n",string);

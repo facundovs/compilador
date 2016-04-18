@@ -1,1 +1,8 @@
-a = "HOLAA" + "12345" + "?¿" + 1235 - 3  - 3.2 
+programa 
+definiciones	
+ real n
+ integer a,b,i
+ cadena t, s
+fin_definiciones
+fin_programa
+
