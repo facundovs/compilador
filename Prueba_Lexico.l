@@ -4,7 +4,6 @@
 #include <conio.h>
 #include "y.tab.h"
 #include <string.h>
-
 char * replace(
     char const * const original, 
     char const * const pattern, 
@@ -53,9 +52,6 @@ char * replace(
 
 
 FILE  *yyin;
-int yylval;
-float real;
-char cadena[300];
 unsigned long entero64bits;
 char *puntero;
 
@@ -78,33 +74,37 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "/"					{ return OP_DIV;}
 "("					{ return P_A;}
 ")"					{ return P_C;}
+"["					{ return C_A; }
+"]"					{ return C_C; }
 "{"					{ return LL_A; }
 "}"					{ return LL_C; }
 "\""				{ return COMILLA;}
 "programa"			{ return PROGRAMA;}
 "fin_programa"		{ return FIN_PROGRAMA; }
-"definiciones"		{ return DEFINICIONES; }
-"fin_definiciones"	{ return FIN_DEFINICIONES; }
+"declaraciones"		{ return DECLARACIONES; }
+"fin_declaraciones"	{ return FIN_DECLARACIONES; }
 ","					{ return COMA; }
-"real"				{ return REAL;}
-"entero"			{ return ENTERO;}
-"cadena"			{ return CADENA;}
-{ID}				{ strcpy(cadena,yytext); return ID;}
+"real"				{ strcpy(yylval.cadena,"real");     return REAL;}
+"entero"			{ strcpy(yylval.cadena,"entero");  return ENTERO;}
+"cadena"			{ strcpy(yylval.cadena,"cadena"); return CADENA;}
+"DIM"				{   return DIM; }
+"AS"					{  return AS; }
+{ID}				{ strcpy(yylval.cadena,yytext); return ID;}
 
 {CONST_ENTERO}	   { 
-						 	yylval = atoi( yytext ); 
+						 	yylval.entero = atoi( yytext ); 
 						 	return CONST_ENTERO;
 					}
 {CONST_REAL}			{ 
-					real = atof( yytext );
+					yylval.real = atof( yytext );
 					return CONST_REAL;
 				}
 
 {CONST_CADENA}	{	
-					strcpy(cadena,replace(yytext,"\"",""));
+					strcpy(yylval.cadena,replace(yytext,"\"",""));
 					return CONST_CADENA;
 				}
-"\n"      		
+"\n"	   		
 "\t"		
 
 %%

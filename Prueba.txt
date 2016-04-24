@@ -1,8 +1,6 @@
 programa 
-definiciones	
- real n=0, t=0, s=0
- entero a, b, c
- cadena cadena1, cadena2, cadena3
-fin_definiciones
+declaraciones	
+	DIM [a,b,c] AS [entero,cadena,entero]
+fin_declaraciones
+	a = b
 fin_programa
-
