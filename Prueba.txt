@@ -2,5 +2,13 @@ programa
 declaraciones	
 	DIM [a,b,c] AS [entero,cadena,entero]
 fin_declaraciones
-	a = b
+	if (a == c || b<a-/comentario intermedio /-) {				-/prueba if/-
+		while(a != c && b>=c){			-/si funciona un while dentro del if, entonces 										funcionan if anidados/-
+			a=b+a
+		}
+	}
+	else
+	{
+	 a=c 
+	}
 fin_programa

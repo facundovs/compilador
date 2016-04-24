@@ -81,13 +81,14 @@ char *yytext;
 //TOKEN OPERANDOS
 %token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  
 
+//TOKEN COMPARADORES
+%token IGUAL DISTINTO MAYOR MENOR MAYORI MENORI AND OR
 
 //TOKEN CONSTANTES
-
 %token CONST_REAL CONST_CADENA CONST_ENTERO
 
 //TOKEN PALABRAS RESERVADAS
-%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES  DIM AS 
+%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE WHILE
 %%
 programa:  	   
 	PROGRAMA {printf(" Inicia COMPILADOR\n");} bloque_declaraciones     
@@ -135,7 +136,7 @@ lista_var:
 tipo: 
 		ENTERO
 		| REAL
-		 | CADENA
+		| CADENA
 		 ;
 
 lista_tipo : 
@@ -146,17 +147,40 @@ bloque_sentencias:
 		sentencia
 		| sentencia bloque_sentencias
 		;
+
 sentencia: 
 		asignacion
+		| IF P_A condicion P_C LL_A bloque_sentencias LL_C ELSE LL_A bloque_sentencias LL_C
+		| IF P_A condicion P_C LL_A bloque_sentencias LL_C
+		| WHILE P_A condicion P_C LL_A bloque_sentencias LL_C
 		;
-	
+
+condicion:
+		ID comparador expresion
+		| ID comparador expresion and_or condicion
+		;
+
+and_or:
+		AND
+		| OR
+		;
+
+comparador:
+		IGUAL
+		| DISTINTO
+		| MAYOR
+		| MENOR
+		| MAYORI
+		| MENORI
+		;
+
 asignacion: ID  ASIG  expresion  {  
 													int indice1, indice2;
 													if((indice1=existeId($<cadena>1))<0){
 														yyerrormsj(yylval.cadena,ErrorSemantico,ErrorIdNoDeclarado);
 													}
 												
-													if((indice2=existeId(yylval.cadena))<0){
+													if(yylval.cadena !="" && (indice2=existeId(yylval.cadena))<0){
 														yyerrormsj(yylval.cadena,ErrorSemantico,ErrorIdNoDeclarado);
 													}
 													if(obtenerTipo(indice1) != obtenerTipo(indice2)){
@@ -208,7 +232,6 @@ factor:
     ;
 
 %%
-
 
 int main(int argc,char *argv[])
 {

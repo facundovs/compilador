@@ -62,6 +62,7 @@ char *puntero;
 DIGITO			[0-9]
 LETRA			[a-zA-Z]
 ID			{LETRA}({LETRA}|{DIGITO}|_)*
+COMENTARIO      (-\/)([^-/]|[^/-])*(\/-)
 CONST_CADENA   \"([^\"\\\\]|\\\\.)*\"
 CONST_ENTERO		{DIGITO}+
 CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
@@ -79,6 +80,14 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "{"					{ return LL_A; }
 "}"					{ return LL_C; }
 "\""				{ return COMILLA;}
+"=="				{ return IGUAL; }
+"!="				{ return DISTINTO; }
+">"					{ return MAYOR; }
+"<"					{ return MENOR; }
+"<="				{ return MENORI; }
+">="				{ return MAYORI; }
+"&&"				{ return AND; }
+"||"				{ return OR; }
 "programa"			{ return PROGRAMA;}
 "fin_programa"		{ return FIN_PROGRAMA; }
 "declaraciones"		{ return DECLARACIONES; }
@@ -87,8 +96,11 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "real"				{ strcpy(yylval.cadena,"real");     return REAL;}
 "entero"			{ strcpy(yylval.cadena,"entero");  return ENTERO;}
 "cadena"			{ strcpy(yylval.cadena,"cadena"); return CADENA;}
-"DIM"				{   return DIM; }
-"AS"					{  return AS; }
+"DIM"				{ return DIM; }
+"AS"				{ return AS; }
+"if"				{ return IF; }
+"else"				{ return ELSE; }
+"while"				{ return WHILE; }
 {ID}				{ strcpy(yylval.cadena,yytext); return ID;}
 
 {CONST_ENTERO}	   { 
@@ -104,6 +116,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 					strcpy(yylval.cadena,replace(yytext,"\"",""));
 					return CONST_CADENA;
 				}
+{COMENTARIO}		{printf("Comentario: %s\n", yytext);} //se podrian simplemente ignorar
 "\n"	   		
 "\t"		
 
