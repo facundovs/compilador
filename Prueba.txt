@@ -1,15 +1,21 @@
 programa 
 declaraciones	
-	DIM [a,b,c] AS [entero,cadena,entero]
+	DIM [a,b,c] AS [entero,entero,entero]
 fin_declaraciones
-	if (a == c or b<a-/comentario intermedio /-) {				-/prueba if/-
-			if(5 != 4 and a > b){
-				a=b+a
-			}
-			a=c
-	}
-	else
-	{
-	 a=c 
-	}
+	while(a==a)					-/sintaxis: while (...) ... endwhile /-
+		a=a+b
+		while(b==b)			-/whiles anidados/-
+			a=a+b
+			a=a+b
+			while(c==c)
+				a=a+b
+				while(a==b)
+					a=a+b
+					b=b+c
+					c=c+a
+				endwhile
+			endwhile
+		endwhile
+	endwhile
+	a=a+b
 fin_programa

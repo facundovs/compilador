@@ -101,7 +101,10 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "AS"				{ return AS; }
 "if"				{ return IF; }
 "else"				{ return ELSE; }
+"then"				{ return THEN; }
+"endif"				{ return ENDIF; }
 "while"				{ return WHILE; }
+"endwhile"			{ return ENDWHILE; }
 {ID}				{ strcpy(yylval.cadena,yytext); return ID;}
 
 {CONST_ENTERO}	   { 
@@ -117,7 +120,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 					strcpy(yylval.cadena,replace(yytext,"\"",""));
 					return CONST_CADENA;
 				}
-{COMENTARIO}		{printf("Comentario: %s\n", yytext);} //se podrian simplemente ignorar
+{COMENTARIO}
 "\n"	   		
 "\t"		
 

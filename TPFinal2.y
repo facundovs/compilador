@@ -88,7 +88,9 @@ char *yytext;
 %token CONST_REAL CONST_CADENA CONST_ENTERO
 
 //TOKEN PALABRAS RESERVADAS
-%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE WHILE
+%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE
+
+
 
 %%
 programa:  	   
@@ -151,9 +153,9 @@ bloque_sentencias:
 
 sentencia: 
 		asignacion
-		| IF P_A condicion P_C LL_A bloque_sentencias LL_C {printf("if sin else OK\n");}
-		| IF P_A condicion P_C LL_A bloque_sentencias LL_C ELSE LL_A bloque_sentencias LL_C {printf("if con else OK\n");}
-		| WHILE P_A condicion P_C LL_A bloque_sentencias LL_C {printf("while OK\n");}
+		| IF P_A condicion P_C THEN {printf("if sin else OK\n");} bloque_sentencias ENDIF
+		| IF P_A condicion P_C {printf("if con else OK\n");} bloque_sentencias ELSE bloque_sentencias ENDIF
+		| WHILE P_A condicion P_C {printf("while OK\n");} bloque_sentencias ENDWHILE
 		;
 
 condicion:
