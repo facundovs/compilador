@@ -86,8 +86,9 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "<"					{ return MENOR; }
 "<="				{ return MENORI; }
 ">="				{ return MAYORI; }
-"&&"				{ return AND; }
-"||"				{ return OR; }
+"and"				{ return AND; }
+"or"				{ return OR; }
+"not"       { return OP_NOT; }
 "programa"			{ return PROGRAMA;}
 "fin_programa"		{ return FIN_PROGRAMA; }
 "declaraciones"		{ return DECLARACIONES; }

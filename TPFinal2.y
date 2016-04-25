@@ -82,13 +82,14 @@ char *yytext;
 %token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  
 
 //TOKEN COMPARADORES
-%token IGUAL DISTINTO MAYOR MENOR MAYORI MENORI AND OR
+%token IGUAL DISTINTO MAYOR MENOR MAYORI MENORI AND OR OP_NOT
 
 //TOKEN CONSTANTES
 %token CONST_REAL CONST_CADENA CONST_ENTERO
 
 //TOKEN PALABRAS RESERVADAS
 %token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE WHILE
+
 %%
 programa:  	   
 	PROGRAMA {printf(" Inicia COMPILADOR\n");} bloque_declaraciones     
@@ -150,14 +151,15 @@ bloque_sentencias:
 
 sentencia: 
 		asignacion
-		| IF P_A condicion P_C LL_A bloque_sentencias LL_C ELSE LL_A bloque_sentencias LL_C
-		| IF P_A condicion P_C LL_A bloque_sentencias LL_C
-		| WHILE P_A condicion P_C LL_A bloque_sentencias LL_C
+		| IF P_A condicion P_C LL_A bloque_sentencias LL_C {printf("if sin else OK\n");}
+		| IF P_A condicion P_C LL_A bloque_sentencias LL_C ELSE LL_A bloque_sentencias LL_C {printf("if con else OK\n");}
+		| WHILE P_A condicion P_C LL_A bloque_sentencias LL_C {printf("while OK\n");}
 		;
 
 condicion:
-		ID comparador expresion
-		| ID comparador expresion and_or condicion
+		expresion comparador expresion
+		| OP_NOT expresion comparador expresion
+		| expresion comparador expresion and_or expresion comparador expresion
 		;
 
 and_or:
