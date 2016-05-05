@@ -25,6 +25,9 @@
 //VALORES_MAXIMOS
 #define ENTERO_MAXIMO 32768
 #define CADENA_MAXIMA 30
+#define TAM 100					/*habria que hacer los vectores con asig dinamica de
+									memoria para que puedan poner la cant de 
+								elementos que se les cante jaja*/
 
 
 
@@ -34,6 +37,8 @@ void imprimirVariables();
 int existeId(char *);
 int yyerror();
 int obtenerTipo(int);
+int longLEsValidas();
+void limpiarVector(int *,int);
 
 typedef struct{
 	char id[30];
@@ -58,8 +63,7 @@ indicesVariable indices= { 0, 0, 0};
 int yystopparser=0;
 int  contadorDeIds=0;
 int contadorDeTipos=0;
-int contadorElementosLE1=0;
-int contadorElementosLE2=0;
+int cantExpLE[100];
 int contadorListaExp=0;
 FILE  *yyin;
 char *yyltext;
@@ -173,23 +177,22 @@ condicion:
 		;
 
 allequal: 
-		ALLEQUAL P_A listas_exp P_C {if(contadorListaExp==1)
+		{ limpiarVector(cantExpLE,TAM); } ALLEQUAL P_A listas_exp P_C {   if(! longLEsValidas())
+											yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSemantico,ErrorAllEqual);
+										if(contadorListaExp==1)
 											yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSemantico,ErrorAllEqual);
-									contadorListaExp=0; printf("AllEqual OK \n");}
+									contadorListaExp=0; printf("AllEqual OK \n");
+									}
 		;
 
 listas_exp:
-		lista_exp { contadorListaExp++; contadorElementosLE2=contadorElementosLE1; contadorElementosLE1=0; }
-		|lista_exp { contadorListaExp++; contadorElementosLE2=contadorElementosLE1; contadorElementosLE1=0; } COMA listas_exp 
-								{ if(contadorElementosLE1 != contadorElementosLE2)
-										yyerrormsj("las lista de expresiones tienen diferentes longitudes",ErrorSemantico,ErrorAllEqual); }
+		C_A expresiones C_C { contadorListaExp++; }
+		|C_A expresiones C_C { contadorListaExp++; } COMA listas_exp
 		;
 
-lista_exp: C_A expresiones C_C ;
-
 expresiones:
-			expresion { contadorElementosLE1++; }
-			|expresion { contadorElementosLE1++; } COMA expresiones
+			expresion { cantExpLE[contadorListaExp] ++;}
+			|expresion { cantExpLE[contadorListaExp] ++;} COMA expresiones
 			;
 
 and_or:
@@ -356,7 +359,20 @@ int obtenerTipo(int indice){
 					return TipoCadena;
 }
 
+//se fija que las longitudes de todas las listas de expresiones del allequal sean iguales
+int longLEsValidas(){
+	int i;
+	for(i=0; i<contadorListaExp; i++)
+		if(cantExpLE[0] != cantExpLE[i])
+			return 0;
+	return 1;
+}
 
+void limpiarVector(int * vec,int max){
+	int i;
+	for(i=0; i<max; i++)
+		vec[i]= 0;
+}
 
 
 

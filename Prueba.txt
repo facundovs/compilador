@@ -2,7 +2,7 @@ programa
 declaraciones	
 	DIM [a,b,c] AS [entero,entero,entero]
 fin_declaraciones
-	while(AllEqual([1,2],[3],[5,6]))					-/sintaxis: while (...) ... endwhile /-
+	while(AllEqual([1,1],[2,2],[4,4],[5,5]))					-/sintaxis: while (...) ... endwhile /-
 		a=a+b
 		while(b==b)			-/whiles anidados/-
 			a=a+b
