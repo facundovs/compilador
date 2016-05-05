@@ -105,6 +105,8 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "endif"				{ return ENDIF; }
 "while"				{ return WHILE; }
 "endwhile"			{ return ENDWHILE; }
+"AllEqual"			{ return ALLEQUAL; }
+"FILTER"			{ return FILTER; }
 {ID}				{ strcpy(yylval.cadena,yytext); return ID;}
 
 {CONST_ENTERO}	   { 

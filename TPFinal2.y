@@ -16,10 +16,12 @@
 #define ErrorIdRepetida 6
 #define ErrorIdNoDeclarado 7
 #define ErrorIdDistintoTipo 8
+#define ErrorAllEqual 9
+#define ErrorFILTER 10
 //TIPOS DE DATOS
-#define TipoEntero 9
-#define TipoReal 10
-#define TipoCadena 11
+#define TipoEntero 11
+#define TipoReal 12
+#define TipoCadena 13
 //VALORES_MAXIMOS
 #define ENTERO_MAXIMO 32768
 #define CADENA_MAXIMA 30
@@ -56,6 +58,9 @@ indicesVariable indices= { 0, 0, 0};
 int yystopparser=0;
 int  contadorDeIds=0;
 int contadorDeTipos=0;
+int contadorElementosLE1=0;
+int contadorElementosLE2=0;
+int contadorListaExp=0;
 FILE  *yyin;
 char *yyltext;
 char *yytext;
@@ -88,7 +93,7 @@ char *yytext;
 %token CONST_REAL CONST_CADENA CONST_ENTERO
 
 //TOKEN PALABRAS RESERVADAS
-%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE
+%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE ALLEQUAL FILTER
 
 
 
@@ -159,10 +164,33 @@ sentencia:
 		;
 
 condicion:
-		expresion comparador expresion
+		allequal
+		| expresion comparador expresion
+		| OP_NOT allequal
 		| OP_NOT expresion comparador expresion
+		| allequal and_or allequal
 		| expresion comparador expresion and_or expresion comparador expresion
 		;
+
+allequal: 
+		ALLEQUAL P_A listas_exp P_C {if(contadorListaExp==1)
+											yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSemantico,ErrorAllEqual);
+									contadorListaExp=0; printf("AllEqual OK \n");}
+		;
+
+listas_exp:
+		lista_exp { contadorListaExp++; contadorElementosLE2=contadorElementosLE1; contadorElementosLE1=0; }
+		|lista_exp { contadorListaExp++; contadorElementosLE2=contadorElementosLE1; contadorElementosLE1=0; } COMA listas_exp 
+								{ if(contadorElementosLE1 != contadorElementosLE2)
+										yyerrormsj("las lista de expresiones tienen diferentes longitudes",ErrorSemantico,ErrorAllEqual); }
+		;
+
+lista_exp: C_A expresiones C_C ;
+
+expresiones:
+			expresion { contadorElementosLE1++; }
+			|expresion { contadorElementosLE1++; } COMA expresiones
+			;
 
 and_or:
 		AND
@@ -282,6 +310,9 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
 			break;
 		case ErrorIdDistintoTipo: 
 			printf("Descripcion: Las variables son de distinto tipo\n");
+			break;
+		case ErrorAllEqual: 
+			printf("Descripcion: Error AllEqual: %s\n",info);
 			break;
 		
       }
