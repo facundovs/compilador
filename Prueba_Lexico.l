@@ -70,6 +70,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 %%
 "="					{ return ASIG;}
 "+"					{ return OP_SUMA;}
+"++"				{ return OP_CONCAT; }
 "-"					{ return OP_RESTA;}
 "*"					{ return OP_MUL;}
 "/"					{ return OP_DIV;}
@@ -94,7 +95,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "declaraciones"		{ return DECLARACIONES; }
 "fin_declaraciones"	{ return FIN_DECLARACIONES; }
 ","					{ return COMA; }
-"real"				{ strcpy(yylval.cadena,"real");     return REAL;}
+"real"				{ strcpy(yylval.cadena,"real");   return REAL;}
 "entero"			{ strcpy(yylval.cadena,"entero");  return ENTERO;}
 "cadena"			{ strcpy(yylval.cadena,"cadena"); return CADENA;}
 "DIM"				{ return DIM; }
@@ -106,20 +107,26 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "while"				{ return WHILE; }
 "endwhile"			{ return ENDWHILE; }
 "AllEqual"			{ return ALLEQUAL; }
+"WRITE"				{ return WRITE; }
+"READ"				{ return READ; } 
 "FILTER"			{ return FILTER; }
+"_"					{ return GB;}
 {ID}				{ strcpy(yylval.cadena,yytext); return ID;}
 
 {CONST_ENTERO}	   { 
 						 	yylval.entero = atoi( yytext ); 
+							strcpy(yylval.cadena,yytext);
 						 	return CONST_ENTERO;
 					}
 {CONST_REAL}			{ 
 					yylval.real = atof( yytext );
+					strcpy(yylval.cadena,yytext);
 					return CONST_REAL;
 				}
 
 {CONST_CADENA}	{	
 					strcpy(yylval.cadena,replace(yytext,"\"",""));
+					
 					return CONST_CADENA;
 				}
 {COMENTARIO}

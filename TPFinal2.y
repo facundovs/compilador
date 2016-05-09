@@ -17,7 +17,9 @@
 #define ErrorIdNoDeclarado 7
 #define ErrorIdDistintoTipo 8
 #define ErrorAllEqual 9
-#define ErrorFILTER 10
+#define ErrorRead 15
+#define ErrorConstanteDistintoTipo 16
+
 //TIPOS DE DATOS
 #define TipoEntero 11
 #define TipoReal 12
@@ -39,7 +41,7 @@ int yyerror();
 int obtenerTipo(int);
 int longLEsValidas();
 void limpiarVector(int *,int);
-
+char * obtenerTipoLiteral(int);
 typedef struct{
 	char id[30];
 	char valor[50];
@@ -56,7 +58,8 @@ typedef struct{
 
 
 //DECLARACION DE VARIABLES
-
+int tipoAsignacion;
+int esAsignacion=0;
 variable variables[100];
 extern int yylineno;
 indicesVariable indices= { 0, 0, 0};
@@ -85,10 +88,9 @@ char *yytext;
 
 
 //TOKEN SIMBOLOS
-%token COMILLA COMA C_A C_C P_A P_C LL_A LL_C
-
+%token COMILLA COMA C_A C_C  P_C LL_A LL_C P_A GB
 //TOKEN OPERANDOS
-%token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  
+%token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  OP_CONCAT
 
 //TOKEN COMPARADORES
 %token IGUAL DISTINTO MAYOR MENOR MAYORI MENORI AND OR OP_NOT
@@ -97,22 +99,22 @@ char *yytext;
 %token CONST_REAL CONST_CADENA CONST_ENTERO
 
 //TOKEN PALABRAS RESERVADAS
-%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE ALLEQUAL FILTER
+%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE ALLEQUAL WRITE READ FILTER
 
 
 
 %%
 programa:  	   
-	PROGRAMA {printf(" Inicia COMPILADOR\n");} bloque_declaraciones     
+	PROGRAMA {printf("INICIA PROGRAMA\n");} bloque_declaraciones     
 	bloque_sentencias
 	FIN_PROGRAMA
-	{printf(" Fin COMPILADOR ok\n");} 
+	{printf("FIN DEL PROGRAMA, COMPILACION OK\n");} 
 	;
 
 bloque_declaraciones:
-	DECLARACIONES {printf("		DECLARACIONES\n");} declaraciones 
+	DECLARACIONES {printf("DECLARACIONES\n");} declaraciones 
 	FIN_DECLARACIONES
-	{printf(" Fin de las Declaraciones\n");}
+	{printf("FIN DE LAS DECLARACIONES\n");}
 	;
 declaraciones:         	        	
              declaracion
@@ -130,19 +132,28 @@ declaracion:
 
 		 
 lista_var:
-			ID	   { 
+			ID	  
+			 { 
 					  if(existeId(yylval.cadena)>=0){
-						  yyerrormsj(yylval.cadena,ErrorSemantico,ErrorIdRepetida);
+						  					
+						  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdRepetida);
 					  }
 					  contadorDeIds++;  
 					  strcpy(variables[indices.id++].id,yylval.cadena);
 					}
 			| ID {
-					  if(existeId(yylval.cadena)>=0){
-						  yyerrormsj(yylval.cadena,ErrorSemantico,ErrorIdRepetida);
+					
+			if(existeId(yylval.cadena)>=0){
+						  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdRepetida);
 					  }
 					 contadorDeIds++;  strcpy(variables[indices.id++].id,yylval.cadena); 
 					 } COMA lista_var 
+ 	 ;
+	 
+
+lista_var_filter:
+			ID	  {if(existeId(yylval.cadena)== -1 ){  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} }
+			| ID   {if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} } COMA  lista_var_filter 
  	 ;
 
 tipo: 
@@ -161,7 +172,10 @@ bloque_sentencias:
 		;
 
 sentencia: 
-		asignacion
+		write
+		| filter
+		| read
+		| asignacion
 		| IF P_A condicion P_C THEN {printf("if sin else OK\n");} bloque_sentencias ENDIF
 		| IF P_A condicion P_C {printf("if con else OK\n");} bloque_sentencias ELSE bloque_sentencias ENDIF
 		| WHILE P_A condicion P_C {printf("while OK\n");} bloque_sentencias ENDWHILE
@@ -175,16 +189,40 @@ condicion:
 		| allequal and_or allequal
 		| expresion comparador expresion and_or expresion comparador expresion
 		;
-
+		
+condicion_filter:
+		GB comparador expresion
+		| OP_NOT GB comparador expresion
+		| GB comparador expresion and_or GB comparador expresion
+		;
+		
 allequal: 
 		{ limpiarVector(cantExpLE,TAM); } ALLEQUAL P_A listas_exp P_C {   if(! longLEsValidas())
-											yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSemantico,ErrorAllEqual);
+											yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSintactico,ErrorAllEqual);
 										if(contadorListaExp==1)
-											yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSemantico,ErrorAllEqual);
+											yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSintactico,ErrorAllEqual);
 									contadorListaExp=0; printf("AllEqual OK \n");
 									}
 		;
-
+		
+filter:
+	{ printf("Funcion filter\n"); }
+	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  
+	;
+write: WRITE {printf("Funcion Write\n");} CONST_CADENA |
+		WRITE ID { 
+					if(existeId($<cadena>2)==-1){
+						yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
+					}
+				}
+		;
+read:   READ {printf("Funcion Read\n");} ID { 
+					if(existeId($<cadena>2)==-1){
+						yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
+				
+					}
+			}
+		;
 listas_exp:
 		C_A expresiones C_C { contadorListaExp++; }
 		|C_A expresiones C_C { contadorListaExp++; } COMA listas_exp
@@ -209,28 +247,34 @@ comparador:
 		| MENORI
 		;
 
-asignacion: ID  ASIG  expresion  {  
-													int indice1, indice2;
-													if((indice1=existeId($<cadena>1))<0){
-														yyerrormsj(yylval.cadena,ErrorSemantico,ErrorIdNoDeclarado);
-													}
-												
-													if(yylval.cadena !="" && (indice2=existeId(yylval.cadena))<0){
-														yyerrormsj(yylval.cadena,ErrorSemantico,ErrorIdNoDeclarado);
-													}
-													if(obtenerTipo(indice1) != obtenerTipo(indice2)){
-														yyerrormsj("",ErrorSemantico,ErrorIdDistintoTipo);
-													}
-														
-												}
+asignacion: ID  {	
+					int indice;
+					if((indice=existeId(yylval.cadena))<0){
+						yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);
+					}
+					tipoAsignacion=obtenerTipo(indice);
+					esAsignacion=1;
+				} 
+					ASIG  expresion
+				{  printf("Asignacion OK\n"); esAsignacion=0; }
+			|
+			asignacion_cadena
 ;
-		
+
+
 expresion:
          termino
 	 |expresion OP_RESTA termino {printf("Resta OK\n");}
        |expresion OP_SUMA termino  {printf("Suma OK\n");}
-
  	 ;
+asignacion_cadena:
+	ID ASIG expresion_cadena
+
+expresion_cadena:
+	factor
+	| factor OP_CONCAT expresion_cadena
+	;
+
 
 termino: 
        factor
@@ -238,31 +282,47 @@ termino:
        |termino OP_DIV factor  {printf("División OK\n");}
        ;
 
-factor: 
-      ID 
+factor:  
+      ID {
+		  if(esAsignacion==1){			  
+			if(obtenerTipo(existeId(yylval.cadena))!= tipoAsignacion){
+				yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdDistintoTipo);  
+			}
+		  }
+		  if(existeId(yylval.cadena)== -1 )
+			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);
+		 }
       | CONST_ENTERO {
+		  if(esAsignacion==1&&tipoAsignacion!=TipoEntero){
+			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
+		  }
           if(yylval.entero >= ENTERO_MAXIMO ){
             char entero[10];
-            yyerrormsj(itoa(yylval.entero,entero,10),ErrorSemantico,ErrorIntFueraDeRango);
+            yyerrormsj(itoa(yylval.entero,entero,10),ErrorSintactico,ErrorIntFueraDeRango);
           }
-          printf(", Valor: %d\n", yylval);
+          printf("Constante entera, Valor: %d\n", yylval);
       }
       | OP_RESTA CONST_ENTERO {
           if(yylval.entero > ENTERO_MAXIMO){
             char entero[10];
-            yyerrormsj(itoa(yylval.entero,entero,10),ErrorSemantico,ErrorIntFueraDeRango);
+            yyerrormsj(itoa(yylval.entero,entero,10),ErrorSintactico,ErrorIntFueraDeRango);
            }
-          printf("ENTERO es: -%d\n", yylval);
+          printf("Constante entera, valor: -%d\n", yylval.entero);
       }
       | CONST_REAL {
-          printf("REAL es: %f\n", yylval.real);
+		  if(esAsignacion==1&&tipoAsignacion!=TipoReal){
+			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
+		  }
+          printf("Constante real, valor: %f\n", yylval.real);
       }
-      | CONST_CADENA {
+	  	 | CONST_CADENA {
+		  if(esAsignacion==1&&tipoAsignacion!=TipoCadena){
+			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
+		  }
           if(strlen(yylval.cadena)>CADENA_MAXIMA)
-              yyerrormsj(yylval.cadena,ErrorSemantico,ErrorStringFueraDeRango);
+              yyerrormsj(yylval.cadena,ErrorSintactico,ErrorStringFueraDeRango);
           printf("CADENA es: %s\n",yylval.cadena);
       }
-
       |P_A expresion P_C  
     ;
 
@@ -303,7 +363,7 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
             printf("Cadena: \"%s\" fuera de rango\n", info);
             break ; 
 		case ErrorEnDeclaracionCantidad:
-			printf("Descripcion: no coinciden la cantidad de ids declaradas con la cantidad de tipos declarados\n",yylineno);
+			printf("Descripcion: no coinciden la cantidad de ids declaradas con la cantidad de tipos declarados\n");
 			break ; 
 		case ErrorIdRepetida:
 			printf("Descripcion: el id '%s' ha sido declarado mas de una vez\n",info);
@@ -312,12 +372,14 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
 			printf("Descripcion: el id '%s' no ha sido declarado\n",info);
 			break;
 		case ErrorIdDistintoTipo: 
-			printf("Descripcion: Las variables son de distinto tipo\n");
+			printf("Descripcion: La variable '%s' no es de tipo %s\n",info,obtenerTipoLiteral(tipoAsignacion));
+			break;
+		case ErrorConstanteDistintoTipo: 
+			printf("Descripcion: La constante %s no es de tipo %s\n", info, obtenerTipoLiteral(tipoAsignacion));
 			break;
 		case ErrorAllEqual: 
 			printf("Descripcion: Error AllEqual: %s\n",info);
 			break;
-		
       }
 
        system ("Pause");
@@ -326,7 +388,7 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
 
 int yyerror(void)
      {
-       printf("Error sintatico\n");
+       printf("Error sintatico \n");
        system ("Pause");
        exit (1);
      }
@@ -373,6 +435,18 @@ void limpiarVector(int * vec,int max){
 	for(i=0; i<max; i++)
 		vec[i]= 0;
 }
+
+char * obtenerTipoLiteral(int indice){
+	switch (indice){ 
+		case TipoEntero:
+			return "entero";
+		case TipoCadena:
+			return "cadena";
+		case TipoReal:
+			return "real";
+	}
+}
+
 
 
 

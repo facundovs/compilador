@@ -1,21 +1,9 @@
 programa 
 declaraciones	
-	DIM [a,b,c] AS [entero,entero,entero]
+	DIM [a,b,c] AS [cadena,entero,real]
 fin_declaraciones
-	while(AllEqual([1,1],[2,2],[4,4],[5,5]))					-/sintaxis: while (...) ... endwhile /-
-		a=a+b
-		while(b==b)			-/whiles anidados/-
-			a=a+b
-			a=a+b
-			while(c==c)
-				a=a+b
-				while(a==b)
-					a=a+b
-					b=b+c
-					c=c+a
-				endwhile
-			endwhile
-		endwhile
-	endwhile
-	a=a+b
+	WRITE "b"
+	READ a
+	FILTER (_ >= a and _ <= b,[a,b,c])
+	b = 2 + b
 fin_programa
