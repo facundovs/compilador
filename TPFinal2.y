@@ -377,16 +377,15 @@ factor:
           if(strlen(yylval.cadena)>CADENA_MAXIMA)
 				yyerrormsj(yylval.cadena,ErrorLexico,ErrorStringFueraDeRango);
          printf("CADENA es: %s\n",yylval.cadena);
-		// int ret=existeCte();
-		// printf("DEVOLVIO: %d\n",ret);
-		 //if(ret==0){
+		int ret=existeCte();
+		 if(ret==0){
 			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
 			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
 			  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
 			  indiceConstante++;
-		//}
+		}
       }
       |P_A expresion P_C  
 	  |filter
@@ -488,17 +487,13 @@ int existeId(char * id){
 
 int existeCte(){
 	int  j;
-	char aux[4]="_";
+	char aux[50]="_";
 	strcat(aux,yylval.cadena);
-	//printf("BUSCANDO: %s\n",aux);
 	for(j = 0; j<indiceConstante; j++){
-		printf("%d\t%s\n",j,tablaConstantes[j].nombre);
 		if(strcmp(tablaConstantes[j].nombre,aux) == 0){
-			//printf("ENCONTRADO %s\n",aux);
 			return 1;
 			}
 	}
-	//printf("NO ENCONTRADO\n");
 	return 0;
 }
 
