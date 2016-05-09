@@ -5,10 +5,11 @@
 #include <conio.h>
 #include "y.tab.h"
 #include <string.h>
+#include <float.h>
 //DEFINES
 //TIPOS DE ERROR
 #define ErrorSintactico 1
-#define ErrorSemantico 2
+#define ErrorLexico 2
 //ERRORES
 #define ErrorIntFueraDeRango 3
 #define ErrorStringFueraDeRango 4
@@ -19,11 +20,13 @@
 #define ErrorAllEqual 9
 #define ErrorRead 15
 #define ErrorConstanteDistintoTipo 16
-
+#define ErrorOperacionNoValida 17
+#define ErrorFloatFueraDeRango 18
 //TIPOS DE DATOS
 #define TipoEntero 11
 #define TipoReal 12
 #define TipoCadena 13
+
 //VALORES_MAXIMOS
 #define ENTERO_MAXIMO 32768
 #define CADENA_MAXIMA 30
@@ -88,7 +91,7 @@ char *yytext;
 
 
 //TOKEN SIMBOLOS
-%token COMILLA COMA C_A C_C  P_C LL_A LL_C P_A GB
+%token COMILLA COMA C_A C_C  P_C P_A GB
 //TOKEN OPERANDOS
 %token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  OP_CONCAT
 
@@ -100,9 +103,8 @@ char *yytext;
 
 //TOKEN PALABRAS RESERVADAS
 %token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE ALLEQUAL WRITE READ FILTER
-
-
-
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 %%
 programa:  	   
 	PROGRAMA {printf("INICIA PROGRAMA\n");} bloque_declaraciones     
@@ -176,8 +178,8 @@ sentencia:
 		| filter
 		| read
 		| asignacion
-		| IF P_A condicion P_C THEN {printf("if sin else OK\n");} bloque_sentencias ENDIF
-		| IF P_A condicion P_C {printf("if con else OK\n");} bloque_sentencias ELSE bloque_sentencias ENDIF
+		| IF P_A condicion P_C {printf("if con else OK\n");} bloque_sentencias  ELSE bloque_sentencias ENDIF 
+		| IF P_A condicion P_C {printf("if sin else OK\n");} bloque_sentencias  %prec LOWER_THAN_ELSE ENDIF
 		| WHILE P_A condicion P_C {printf("while OK\n");} bloque_sentencias ENDWHILE
 		;
 
@@ -257,30 +259,25 @@ asignacion: ID  {
 				} 
 					ASIG  expresion
 				{  printf("Asignacion OK\n"); esAsignacion=0; }
-			|
-			asignacion_cadena
 ;
 
 
 expresion:
-         termino
-	 |expresion OP_RESTA termino {printf("Resta OK\n");}
-       |expresion OP_SUMA termino  {printf("Suma OK\n");}
+     termino
+	 |expresion OP_RESTA termino {printf("Resta OK\n");} {if(tipoAsignacion == TipoCadena) yyerrormsj("resta",ErrorSintactico,ErrorOperacionNoValida); 
+															else printf("RESTA OK\n");}
+     |expresion OP_SUMA termino  {printf("Suma OK\n");} {if(tipoAsignacion == TipoCadena) yyerrormsj("suma",ErrorSintactico,ErrorOperacionNoValida); 
+															else printf("Suma OK\n");}
+	 |expresion OP_CONCAT termino  {if(tipoAsignacion != TipoCadena) yyerrormsj("concatenacion",ErrorSintactico,ErrorOperacionNoValida); 
+										else printf("Concatenacion OK\n");}
  	 ;
-asignacion_cadena:
-	ID ASIG expresion_cadena
-
-expresion_cadena:
-	factor
-	| factor OP_CONCAT expresion_cadena
-	;
 
 
 termino: 
        factor
        |termino OP_MUL factor  {printf("Multiplicación OK\n");}
        |termino OP_DIV factor  {printf("División OK\n");}
-       ;
+	   ;
 
 factor:  
       ID {
@@ -298,7 +295,7 @@ factor:
 		  }
           if(yylval.entero >= ENTERO_MAXIMO ){
             char entero[10];
-            yyerrormsj(itoa(yylval.entero,entero,10),ErrorSintactico,ErrorIntFueraDeRango);
+            yyerrormsj(itoa(yylval.entero,entero,10),ErrorLexico,ErrorIntFueraDeRango);
           }
           printf("Constante entera, Valor: %d\n", yylval);
       }
@@ -307,20 +304,36 @@ factor:
             char entero[10];
             yyerrormsj(itoa(yylval.entero,entero,10),ErrorSintactico,ErrorIntFueraDeRango);
            }
+		   if(esAsignacion==1&&tipoAsignacion!=TipoEntero){
+			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
+		  }
           printf("Constante entera, valor: -%d\n", yylval.entero);
       }
       | CONST_REAL {
-		  if(esAsignacion==1&&tipoAsignacion!=TipoReal){
+          if(yylval.real >= FLT_MAX ){
+			yyerrormsj(yylval.cadena,ErrorLexico,ErrorFloatFueraDeRango);
+		  }
+		 if(esAsignacion==1&&tipoAsignacion!=TipoReal){
 			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
           printf("Constante real, valor: %f\n", yylval.real);
-      }
-	  	 | CONST_CADENA {
+      }  
+	  | OP_RESTA CONST_REAL {
+		  printf("%f",FLT_MAX);
+          if(yylval.real >= FLT_MAX ){
+			yyerrormsj(yylval.cadena,ErrorLexico,ErrorFloatFueraDeRango);
+		  }
+		 if(esAsignacion==1&&tipoAsignacion!=TipoReal){
+			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
+		  }
+          printf("Constante real, valor: %f\n", yylval.real);
+      } 
+	    | CONST_CADENA {
 		  if(esAsignacion==1&&tipoAsignacion!=TipoCadena){
 			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
           if(strlen(yylval.cadena)>CADENA_MAXIMA)
-              yyerrormsj(yylval.cadena,ErrorSintactico,ErrorStringFueraDeRango);
+              yyerrormsj(yylval.cadena,ErrorLexico,ErrorStringFueraDeRango);
           printf("CADENA es: %s\n",yylval.cadena);
       }
       |P_A expresion P_C  
@@ -351,13 +364,16 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
           case ErrorSintactico: 
             printf("Error sintactico. ");
             break;
-          case ErrorSemantico: 
-            printf("Error semantico. ");
+          case ErrorLexico: 
+            printf("Error lexico. ");
             break;
         }
       switch(error){ 
         case ErrorIntFueraDeRango: 
             printf("Entero %s fuera de rango\n",info);
+            break ;
+		case ErrorFloatFueraDeRango: 
+            printf("Float %s fuera de rango\n",info);
             break ;
         case ErrorStringFueraDeRango:
             printf("Cadena: \"%s\" fuera de rango\n", info);
@@ -379,6 +395,9 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
 			break;
 		case ErrorAllEqual: 
 			printf("Descripcion: Error AllEqual: %s\n",info);
+			break;
+		case ErrorOperacionNoValida: 
+			printf("Descripcion: La operacion %s no es valida para variables de tipo %s\n",info, obtenerTipoLiteral(tipoAsignacion));
 			break;
       }
 

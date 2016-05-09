@@ -58,7 +58,6 @@ char *puntero;
 %}
 %option noyywrap  
 %option yylineno 
-
 DIGITO			[0-9]
 LETRA			[a-zA-Z]
 ID			{LETRA}({LETRA}|{DIGITO}|_)*
@@ -66,7 +65,6 @@ COMENTARIO      (-\/)([^-/]|[^/-])*(\/-)
 CONST_CADENA   \"([^\"\\\\]|\\\\.)*\"
 CONST_ENTERO		{DIGITO}+
 CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
-
 %%
 "="					{ return ASIG;}
 "+"					{ return OP_SUMA;}
@@ -78,8 +76,6 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 ")"					{ return P_C;}
 "["					{ return C_A; }
 "]"					{ return C_C; }
-"{"					{ return LL_A; }
-"}"					{ return LL_C; }
 "\""				{ return COMILLA;}
 "=="				{ return IGUAL; }
 "!="				{ return DISTINTO; }
@@ -89,7 +85,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 ">="				{ return MAYORI; }
 "and"				{ return AND; }
 "or"				{ return OR; }
-"not"       { return OP_NOT; }
+"not"              { return OP_NOT; }
 "programa"			{ return PROGRAMA;}
 "fin_programa"		{ return FIN_PROGRAMA; }
 "declaraciones"		{ return DECLARACIONES; }
@@ -102,8 +98,8 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "AS"				{ return AS; }
 "if"				{ return IF; }
 "else"				{ return ELSE; }
-"then"				{ return THEN; }
-"endif"				{ return ENDIF; }
+"endif"				{ return ENDIF;}
+
 "while"				{ return WHILE; }
 "endwhile"			{ return ENDWHILE; }
 "AllEqual"			{ return ALLEQUAL; }
@@ -111,7 +107,7 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 "READ"				{ return READ; } 
 "FILTER"			{ return FILTER; }
 "_"					{ return GB;}
-{ID}				{ strcpy(yylval.cadena,yytext); return ID;}
+{ID}				{ strcpy(yylval.cadena,yytext); return ID;}				
 
 {CONST_ENTERO}	   { 
 						 	yylval.entero = atoi( yytext ); 
@@ -130,10 +126,13 @@ CONST_REAL		([0-9]*\.[0-9]+|[0-9]+)
 					return CONST_CADENA;
 				}
 {COMENTARIO}
-"\n"	   		
-"\t"		
-
-%%
+   		
+"\n"
+"\r\n"
+"\t"
+" "
+. 					{ printf("Error lexico. Descripcion: El caracter %s es invalido\n",yytext); exit(1);}
+%%	
 
 
 
