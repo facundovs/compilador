@@ -1,0 +1,13 @@
+NOMBRE	|	TIPO	|	VALOR	|	LONGITUD
+a	|	entero	|	----------	|	----------
+b	|	entero	|	----------	|	----------
+c	|	entero	|	----------	|	----------
+d	|	real	|	----------	|	----------
+e	|	cadena	|	----------	|	----------
+f	|	cadena	|	----------	|	----------
+_2	|	const_entero	|	2	|	----------
+_4	|	const_entero	|	4	|	----------
+_654	|	const_entero	|	654	|	----------
+_-7.62369	|	const_real	|	-7.62369	|	----------
+_holamundopfjhk2	|	const_cadena	|	holamundopfjhk2	|	15
+_holamundopfjhk2	|	const_cadena	|	holamundopfjhk2	|	15

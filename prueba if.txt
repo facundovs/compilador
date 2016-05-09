@@ -1,28 +1,21 @@
 programa 
 declaraciones	
-	DIM [a,b,c] AS [entero,entero,entero]
-fin_declaraciones							-/sintaxis: if (...) then ... endif
-												if(...) ... else ... endif/-
-	if (a == c or b<a)						-/if con else/-
-			if(5 != 4 and a > b)then  		-/if sin else/-
-				a=b+a
-				if(1==1)					-/if con else/-
-					a=a
-				else
-					if(1==1)then       	-/if sin else/-
-					 a=a
-					endif
-						if(1==1)       -/if con else/-
-					 		a=a
-					 	else
-					 		a=a
-					 		b=b
-					 		c=c
-					 	endif					
-				endif
-			endif
-			a=b
+	DIM [a,b,c,d,e,f] AS [entero,entero,entero,real,cadena,cadena]
+fin_declaraciones	
+while(AllEqual(  [a+b,2], [d,4] ))				
+	if (AllEqual(  [c,2], [2,a] ) and AllEqual(  [c,2], [2,a] ) )
+		if(AllEqual(  [c,2], [2,a] ))
+			while(a<b)
+				a=FILTER(_<a,[b,c])
+			endwhile
+		endif
 	else
-	 a=c 
+		a=a
 	endif
+	a=FILTER(_<a,[b,c])
+	a=654
+	d=-7.62369
+	e="holamundopfjhk2"
+	f="holamundopfjhk2"
+endwhile
 fin_programa

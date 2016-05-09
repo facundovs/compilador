@@ -6,34 +6,37 @@
 #include "y.tab.h"
 #include <string.h>
 #include <float.h>
-//DEFINES
-//TIPOS DE ERROR
-#define ErrorSintactico 1
-#define ErrorLexico 2
-//ERRORES
-#define ErrorIntFueraDeRango 3
-#define ErrorStringFueraDeRango 4
-#define ErrorEnDeclaracionCantidad 5
-#define ErrorIdRepetida 6
-#define ErrorIdNoDeclarado 7
-#define ErrorIdDistintoTipo 8
-#define ErrorAllEqual 9
-#define ErrorRead 15
-#define ErrorConstanteDistintoTipo 16
-#define ErrorOperacionNoValida 17
-#define ErrorFloatFueraDeRango 18
-//TIPOS DE DATOS
-#define TipoEntero 11
-#define TipoReal 12
-#define TipoCadena 13
 
-//VALORES_MAXIMOS
-#define ENTERO_MAXIMO 32768
-#define CADENA_MAXIMA 30
-#define TAM 100					/*habria que hacer los vectores con asig dinamica de
-									memoria para que puedan poner la cant de 
-								elementos que se les cante jaja*/
+enum tiposDeError{
+	ErrorSintactico,
+	ErrorLexico
+};
 
+enum errores{
+	ErrorIntFueraDeRango,
+	ErrorStringFueraDeRango,
+	ErrorEnDeclaracionCantidad,
+	ErrorIdRepetida,
+	ErrorIdNoDeclarado,
+	ErrorIdDistintoTipo,
+	ErrorAllEqual,
+	ErrorRead,
+	ErrorConstanteDistintoTipo,
+	ErrorOperacionNoValida,
+	ErrorFloatFueraDeRango
+};
+
+enum tiposDeDatos{
+	TipoEntero,
+	TipoReal,
+	TipoCadena
+};
+
+enum valoresMaximos{
+	ENTERO_MAXIMO = 32768,
+	CADENA_MAXIMA = 30,
+	TAM = 100
+};
 
 
 //DECLARACION DE FUNCIONES
@@ -45,31 +48,35 @@ int obtenerTipo(int);
 int longLEsValidas();
 void limpiarVector(int *,int);
 char * obtenerTipoLiteral(int);
-typedef struct{
-	char id[30];
-	char valor[50];
-	char tipo[10];
-} variable ; 
+void grabarTablaDeSimbolos(int);
+int existeCte();
 
 typedef struct{
-	int id;
+	char nombre[50];
+	char valor[50];
+	char tipo[15];
+	int longitud;
+} registro ; 
+
+typedef struct{
+	int nombre;
 	int valor;
 	int tipo;
-} indicesVariable;
-
-
-
+	int longitud;
+} indices;
 
 //DECLARACION DE VARIABLES
 int tipoAsignacion;
 int esAsignacion=0;
-variable variables[100];
+registro tablaVariables[TAM];
+registro tablaConstantes[TAM];
 extern int yylineno;
-indicesVariable indices= { 0, 0, 0};
+indices indicesVariable= {0,0,0};
+int indiceConstante=0;
 int yystopparser=0;
 int  contadorDeIds=0;
 int contadorDeTipos=0;
-int cantExpLE[100];
+int cantExpLE[TAM];
 int contadorListaExp=0;
 FILE  *yyin;
 char *yyltext;
@@ -85,13 +92,13 @@ char *yytext;
 
 //TOKEN TIPOS DE DATO
 %token <cadena>ID
-%token <cadena> CADENA
-%token <entero> ENTERO
-%token <real> REAL
-
+%token <cadena>CADENA
+%token <entero>ENTERO
+%token <real>REAL
 
 //TOKEN SIMBOLOS
 %token COMILLA COMA C_A C_C  P_C P_A GB
+
 //TOKEN OPERANDOS
 %token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  OP_CONCAT
 
@@ -103,14 +110,14 @@ char *yytext;
 
 //TOKEN PALABRAS RESERVADAS
 %token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE ALLEQUAL WRITE READ FILTER
-%nonassoc LOWER_THAN_ELSE
-%nonassoc ELSE
+	
 %%
+
 programa:  	   
 	PROGRAMA {printf("INICIA PROGRAMA\n");} bloque_declaraciones     
 	bloque_sentencias
 	FIN_PROGRAMA
-	{printf("FIN DEL PROGRAMA, COMPILACION OK\n");} 
+	{printf("FIN DEL PROGRAMA, COMPILACION OK\n");grabarTablaDeSimbolos(0);} 
 	;
 
 bloque_declaraciones:
@@ -118,37 +125,35 @@ bloque_declaraciones:
 	FIN_DECLARACIONES
 	{printf("FIN DE LAS DECLARACIONES\n");}
 	;
+	
 declaraciones:         	        	
-             declaracion
-             | declaraciones declaracion
-    	     ;
+		declaracion
+		| declaraciones declaracion
+		;
 
 declaracion:  
-			DIM C_A lista_var C_C AS C_A lista_tipo C_C 
-					{ if(contadorDeIds != contadorDeTipos){ 
-							yyerrormsj("",ErrorSintactico,ErrorEnDeclaracionCantidad);
-					   }
-					   imprimirVariables();
-					}
-           ;
-
+		DIM C_A lista_var C_C AS C_A lista_tipo C_C 
+		{ if(contadorDeIds != contadorDeTipos){ 
+			yyerrormsj("",ErrorSintactico,ErrorEnDeclaracionCantidad);
+		}
+		imprimirVariables();
+		}
+		;
 		 
 lista_var:
-			ID	  
-			 { 
-					  if(existeId(yylval.cadena)>=0){
-						  					
-						  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdRepetida);
-					  }
-					  contadorDeIds++;  
-					  strcpy(variables[indices.id++].id,yylval.cadena);
-					}
+		ID	  
+			{ 
+				if(existeId(yylval.cadena)>=0){
+					yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdRepetida);
+				}
+				contadorDeIds++;  
+				strcpy(tablaVariables[indicesVariable.nombre++].nombre,yylval.cadena);
+			}
 			| ID {
-					
-			if(existeId(yylval.cadena)>=0){
+					if(existeId(yylval.cadena)>=0){
 						  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdRepetida);
-					  }
-					 contadorDeIds++;  strcpy(variables[indices.id++].id,yylval.cadena); 
+					 }
+					 contadorDeIds++;  strcpy(tablaVariables[indicesVariable.nombre++].nombre,yylval.cadena); 
 					 } COMA lista_var 
  	 ;
 	 
@@ -165,8 +170,8 @@ tipo:
 		 ;
 
 lista_tipo : 
-		tipo	   {contadorDeTipos++; strcpy(variables[indices.tipo++].tipo,yylval.cadena);  }
-		| tipo  {contadorDeTipos++;  strcpy(variables[indices.tipo++].tipo,yylval.cadena);   }COMA lista_tipo
+		tipo	   {contadorDeTipos++; strcpy(tablaVariables[indicesVariable.tipo++].tipo,yylval.cadena);  }
+		| tipo  {contadorDeTipos++;  strcpy(tablaVariables[indicesVariable.tipo++].tipo,yylval.cadena);   }COMA lista_tipo
 		;
 bloque_sentencias: 
 		sentencia
@@ -178,11 +183,13 @@ sentencia:
 		| filter
 		| read
 		| asignacion
-		| IF P_A condicion P_C {printf("if con else OK\n");} bloque_sentencias  ELSE bloque_sentencias ENDIF 
-		| IF P_A condicion P_C {printf("if sin else OK\n");} bloque_sentencias  %prec LOWER_THAN_ELSE ENDIF
-		| WHILE P_A condicion P_C {printf("while OK\n");} bloque_sentencias ENDWHILE
+		| IF P_A condicion P_C  bloque_if ENDIF
+		| WHILE P_A condicion P_C  bloque_sentencias ENDWHILE {printf("while OK\n");}
 		;
 
+bloque_if:
+ bloque_sentencias {printf("if sin else OK\n");}
+ |bloque_sentencias ELSE bloque_sentencias {printf("if con else OK\n");}
 condicion:
 		allequal
 		| expresion comparador expresion
@@ -208,8 +215,7 @@ allequal:
 		;
 		
 filter:
-	{ printf("Funcion filter\n"); }
-	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  
+	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  { printf("Filter OK\n"); }
 	;
 write: WRITE {printf("Funcion Write\n");} CONST_CADENA |
 		WRITE ID { 
@@ -264,9 +270,9 @@ asignacion: ID  {
 
 expresion:
      termino
-	 |expresion OP_RESTA termino {printf("Resta OK\n");} {if(tipoAsignacion == TipoCadena) yyerrormsj("resta",ErrorSintactico,ErrorOperacionNoValida); 
-															else printf("RESTA OK\n");}
-     |expresion OP_SUMA termino  {printf("Suma OK\n");} {if(tipoAsignacion == TipoCadena) yyerrormsj("suma",ErrorSintactico,ErrorOperacionNoValida); 
+	 |expresion OP_RESTA termino {if(tipoAsignacion == TipoCadena) yyerrormsj("resta",ErrorSintactico,ErrorOperacionNoValida); 
+															else printf("Resta OK\n");}
+     |expresion OP_SUMA termino  {if(tipoAsignacion == TipoCadena) yyerrormsj("suma",ErrorSintactico,ErrorOperacionNoValida); 
 															else printf("Suma OK\n");}
 	 |expresion OP_CONCAT termino  {if(tipoAsignacion != TipoCadena) yyerrormsj("concatenacion",ErrorSintactico,ErrorOperacionNoValida); 
 										else printf("Concatenacion OK\n");}
@@ -293,50 +299,97 @@ factor:
 		  if(esAsignacion==1&&tipoAsignacion!=TipoEntero){
 			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
-          if(yylval.entero >= ENTERO_MAXIMO ){
+          if(atoi(yylval.cadena) >= ENTERO_MAXIMO ){
             char entero[10];
-            yyerrormsj(itoa(yylval.entero,entero,10),ErrorLexico,ErrorIntFueraDeRango);
+            yyerrormsj(yylval.cadena,ErrorLexico,ErrorIntFueraDeRango);
           }
-          printf("Constante entera, Valor: %d\n", yylval);
+          printf("Constante entera, Valor: %s\n", yylval.cadena);
+		  if(existeCte()==0){
+			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
+			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].tipo,"const_entero");
+			  tablaConstantes[indiceConstante].longitud=0;
+			  indiceConstante++;
+		  }
+		  
       }
       | OP_RESTA CONST_ENTERO {
-          if(yylval.entero > ENTERO_MAXIMO){
+		  char aux[5]="-";
+          if(atoi(yylval.cadena) > ENTERO_MAXIMO){
             char entero[10];
-            yyerrormsj(itoa(yylval.entero,entero,10),ErrorSintactico,ErrorIntFueraDeRango);
+            yyerrormsj(strcat(aux,yylval.cadena),ErrorLexico,ErrorIntFueraDeRango);
            }
 		   if(esAsignacion==1&&tipoAsignacion!=TipoEntero){
 			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
-          printf("Constante entera, valor: -%d\n", yylval.entero);
+          printf("Constante entera, valor: -%s\n", yylval.cadena);
+		  if(existeCte()==0){
+			  strcpy(tablaConstantes[indiceConstante].nombre,"_-");
+			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].valor,"-");
+			  strcat(tablaConstantes[indiceConstante].valor,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].tipo,"const_entero");
+			  tablaConstantes[indiceConstante].longitud=0;
+			  indiceConstante++;
+		  }
       }
       | CONST_REAL {
-          if(yylval.real >= FLT_MAX ){
+          if(atof(yylval.cadena) >= FLT_MAX ){
 			yyerrormsj(yylval.cadena,ErrorLexico,ErrorFloatFueraDeRango);
 		  }
 		 if(esAsignacion==1&&tipoAsignacion!=TipoReal){
 			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
-          printf("Constante real, valor: %f\n", yylval.real);
+          printf("Constante real, valor: %s\n", yylval.cadena);
+		  if(existeCte()==0){
+			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
+			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].tipo,"const_real");
+			  tablaConstantes[indiceConstante].longitud=0;
+			  indiceConstante++;
+		  }
       }  
 	  | OP_RESTA CONST_REAL {
-		  printf("%f",FLT_MAX);
-          if(yylval.real >= FLT_MAX ){
-			yyerrormsj(yylval.cadena,ErrorLexico,ErrorFloatFueraDeRango);
+		  char aux[5]="-";
+          if(atof(yylval.cadena) >= FLT_MAX ){
+			yyerrormsj(strcat(aux,yylval.cadena),ErrorLexico,ErrorFloatFueraDeRango);
 		  }
 		 if(esAsignacion==1&&tipoAsignacion!=TipoReal){
 			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
-          printf("Constante real, valor: %f\n", yylval.real);
+          printf("Constante real, valor: -%s\n", yylval.cadena);
+		  if(existeCte()==0){
+			  strcpy(tablaConstantes[indiceConstante].nombre,"_-");
+			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].valor,"-");
+			  strcat(tablaConstantes[indiceConstante].valor,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].tipo,"const_real");
+			  tablaConstantes[indiceConstante].longitud=0;
+			  indiceConstante++;
+		  }
       } 
 	    | CONST_CADENA {
 		  if(esAsignacion==1&&tipoAsignacion!=TipoCadena){
-			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
+				yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
           if(strlen(yylval.cadena)>CADENA_MAXIMA)
-              yyerrormsj(yylval.cadena,ErrorLexico,ErrorStringFueraDeRango);
-          printf("CADENA es: %s\n",yylval.cadena);
+				yyerrormsj(yylval.cadena,ErrorLexico,ErrorStringFueraDeRango);
+         printf("CADENA es: %s\n",yylval.cadena);
+		// int ret=existeCte();
+		// printf("DEVOLVIO: %d\n",ret);
+		 //if(ret==0){
+			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
+			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
+			  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
+			  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
+			  indiceConstante++;
+		//}
       }
       |P_A expresion P_C  
+	  |filter
     ;
 
 %%
@@ -359,7 +412,8 @@ int main(int argc,char *argv[])
 
 int yyerrormsj(const char * info, int tipoDeError ,int error)
      {
-	    printf("Linea: %d. ",yylineno);
+		 grabarTablaDeSimbolos(1);
+		printf("Linea: %d. ",yylineno);
        switch(tipoDeError){
           case ErrorSintactico: 
             printf("Error sintactico. ");
@@ -373,7 +427,7 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
             printf("Entero %s fuera de rango\n",info);
             break ;
 		case ErrorFloatFueraDeRango: 
-            printf("Float %s fuera de rango\n",info);
+            printf("Real %s fuera de rango\n",info);
             break ;
         case ErrorStringFueraDeRango:
             printf("Cadena: \"%s\" fuera de rango\n", info);
@@ -407,15 +461,16 @@ int yyerrormsj(const char * info, int tipoDeError ,int error)
 
 int yyerror(void)
      {
-       printf("Error sintatico \n");
-       system ("Pause");
-       exit (1);
+		grabarTablaDeSimbolos(1);
+		printf("Error sintatico \n");
+		system ("Pause");
+		exit (1);
      }
 
 void imprimirVariables(){
 	int  i;
-	for(i = 0; i<indices.id; i++){
-		printf("Id: %s, tipo: %s\n",variables[i].id,variables[i].tipo);
+	for(i = 0; i<indicesVariable.nombre; i++){
+		printf("Id: %s, tipo: %s\n",tablaVariables[i].nombre,tablaVariables[i].tipo);
 	}
 }
 
@@ -424,17 +479,33 @@ void imprimirVariables(){
 //retorna -1 si no existe
 int existeId(char * id){
 	int  i;
-	for(i = 0; i<indices.id; i++){
-		if(strcmp(variables[i].id,id) == 0)
+	for(i = 0; i<indicesVariable.nombre; i++){
+		if(strcmp(tablaVariables[i].nombre,id) == 0)
 			return i;
 	}
 	return -1;
 }
 
+int existeCte(){
+	int  j;
+	char aux[4]="_";
+	strcat(aux,yylval.cadena);
+	//printf("BUSCANDO: %s\n",aux);
+	for(j = 0; j<indiceConstante; j++){
+		printf("%d\t%s\n",j,tablaConstantes[j].nombre);
+		if(strcmp(tablaConstantes[j].nombre,aux) == 0){
+			//printf("ENCONTRADO %s\n",aux);
+			return 1;
+			}
+	}
+	//printf("NO ENCONTRADO\n");
+	return 0;
+}
+
 int obtenerTipo(int indice){ 
-	if(strcmp(variables[indice].tipo,"entero")==0){
+	if(strcmp(tablaVariables[indice].tipo,"entero")==0){
 		return TipoEntero;
-	}else if(strcmp(variables[indice].tipo,"real")==0)
+	}else if(strcmp(tablaVariables[indice].tipo,"real")==0)
 					return TipoReal;
 			 else 
 					return TipoCadena;
@@ -466,7 +537,25 @@ char * obtenerTipoLiteral(int indice){
 	}
 }
 
+void grabarTablaDeSimbolos(int error){
+	FILE*pf=fopen("tabla de simbolos.txt","w+");
+	int i;
+	if(!pf){
+		printf("Error al crear la tabla de simbolos\n");
+		return;
+	}
+	fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%s\n","NOMBRE","TIPO","VALOR","LONGITUD");
+	for(i = 0; i<indicesVariable.nombre; i++){
+		fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%s\n",tablaVariables[i].nombre,tablaVariables[i].tipo,"----------","----------");
+	}
 
-
-
-
+	for(i = 0; i<indiceConstante; i++){
+		if(tablaConstantes[i].longitud==0)
+			fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%s\n",tablaConstantes[i].nombre,tablaConstantes[i].tipo,tablaConstantes[i].valor,"----------");
+		else
+			fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%d\n",tablaConstantes[i].nombre,tablaConstantes[i].tipo,tablaConstantes[i].valor,tablaConstantes[i].longitud);
+	}
+	if(error==1)
+		fprintf(pf,"TABLA INCOMPLETA (ERROR DE COMPILACION)\n");
+	fclose(pf);
+}

@@ -1,10 +1,7 @@
 programa 
 declaraciones	
-	DIM [a,b,c] AS [entero,cadena,real]
+	DIM [a,b,c] AS [entero,entero,real]
 fin_declaraciones
-	WRITE "b"
-	READ a 
-	FILTER (_ >= a and _ <= b,[a,b,c]) 
 	if(a == 1) 
 		a=2
 		a=3
