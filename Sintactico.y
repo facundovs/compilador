@@ -52,9 +52,9 @@ void grabarTablaDeSimbolos(int);
 int existeCte();
 
 typedef struct{
-	char nombre[50];
-	char valor[50];
-	char tipo[15];
+	char nombre[33];
+	char valor[33];
+	char tipo[33];
 	int longitud;
 } registro ; 
 
@@ -533,22 +533,22 @@ char * obtenerTipoLiteral(int indice){
 }
 
 void grabarTablaDeSimbolos(int error){
-	FILE*pf=fopen("tabla de simbolos.txt","w+");
+	FILE*pf=fopen("ts.txt","w+");
 	int i;
 	if(!pf){
 		printf("Error al crear la tabla de simbolos\n");
 		return;
 	}
-	fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%s\n","NOMBRE","TIPO","VALOR","LONGITUD");
+	fprintf(pf,"%-32s|\t%-32s|\t%-32s|\t%-32s\n","NOMBRE","TIPO","VALOR","LONGITUD");
 	for(i = 0; i<indicesVariable.nombre; i++){
-		fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%s\n",tablaVariables[i].nombre,tablaVariables[i].tipo,"----------","----------");
+		fprintf(pf,"%-32s|\t%-32s|\t%-32s|\t%-32s\n",tablaVariables[i].nombre,tablaVariables[i].tipo,"----------","----------");
 	}
 
 	for(i = 0; i<indiceConstante; i++){
 		if(tablaConstantes[i].longitud==0)
-			fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%s\n",tablaConstantes[i].nombre,tablaConstantes[i].tipo,tablaConstantes[i].valor,"----------");
+			fprintf(pf,"%-32s|\t%-32s|\t%-32s|\t%-32s\n",tablaConstantes[i].nombre,tablaConstantes[i].tipo,tablaConstantes[i].valor,"----------");
 		else
-			fprintf(pf,"%s\t|\t%s\t|\t%s\t|\t%d\n",tablaConstantes[i].nombre,tablaConstantes[i].tipo,tablaConstantes[i].valor,tablaConstantes[i].longitud);
+			fprintf(pf,"%-32s|\t%-32s|\t%-32s|\t%-32d\n",tablaConstantes[i].nombre,tablaConstantes[i].tipo,tablaConstantes[i].valor,tablaConstantes[i].longitud);
 	}
 	if(error==1)
 		fprintf(pf,"TABLA INCOMPLETA (ERROR DE COMPILACION)\n");

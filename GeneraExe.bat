@@ -1,10 +1,10 @@
-c:\GnuWin32\bin\flex Prueba_Lexico.l
+c:\GnuWin32\bin\flex Lexico.l
 pause
-c:\GnuWin32\bin\bison -dyv TPFinal2.y
+c:\GnuWin32\bin\bison -dyv Sintactico.y
 pause
 c:\MinGW\bin\gcc.exe lex.yy.c y.tab.c -o TPFinal.exe
 pause
-TPfinal.exe "prueba if.txt"
+TPfinal.exe "prueba.txt"
 pause
 del lex.yy.c
 del y.tab.c
