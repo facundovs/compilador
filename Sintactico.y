@@ -7,80 +7,119 @@
 #include <string.h>
 #include <float.h>
 
-enum tiposDeError{
-	ErrorSintactico,
-	ErrorLexico
-};
+///////////////////// ENUMS ////////////////////////////////////////
+	enum tiposDeError{
+		ErrorSintactico,
+		ErrorLexico
+	};
 
-enum errores{
-	ErrorIntFueraDeRango,
-	ErrorStringFueraDeRango,
-	ErrorEnDeclaracionCantidad,
-	ErrorIdRepetida,
-	ErrorIdNoDeclarado,
-	ErrorIdDistintoTipo,
-	ErrorAllEqual,
-	ErrorRead,
-	ErrorConstanteDistintoTipo,
-	ErrorOperacionNoValida,
-	ErrorFloatFueraDeRango
-};
+	enum errores{
+		ErrorIntFueraDeRango,
+		ErrorStringFueraDeRango,
+		ErrorEnDeclaracionCantidad,
+		ErrorIdRepetida,
+		ErrorIdNoDeclarado,
+		ErrorIdDistintoTipo,
+		ErrorAllEqual,
+		ErrorRead,
+		ErrorConstanteDistintoTipo,
+		ErrorOperacionNoValida,
+		ErrorFloatFueraDeRango
+	};
 
-enum tiposDeDatos{
-	TipoEntero,
-	TipoReal,
-	TipoCadena
-};
+	enum tiposDeDatos{
+		TipoEntero,
+		TipoReal,
+		TipoCadena
+	};
 
-enum valoresMaximos{
-	ENTERO_MAXIMO = 32768,
-	CADENA_MAXIMA = 30,
-	TAM = 100
-};
-
-
-//DECLARACION DE FUNCIONES
-int yyerrormsj(const char *,int,int); 
-void imprimirVariables();
-int existeId(char *);
-int yyerror();
-int obtenerTipo(int);
-int longLEsValidas();
-void limpiarVector(int *,int);
-char * obtenerTipoLiteral(int);
-void grabarTablaDeSimbolos(int);
-int existeCte();
-
-typedef struct{
-	char nombre[33];
-	char valor[33];
-	char tipo[33];
-	int longitud;
-} registro ; 
-
-typedef struct{
-	int nombre;
-	int valor;
-	int tipo;
-	int longitud;
-} indices;
-
-//DECLARACION DE VARIABLES
-int tipoAsignacion;
-int esAsignacion=0;
-registro tablaVariables[TAM];
-registro tablaConstantes[TAM];
-extern int yylineno;
-indices indicesVariable= {0,0,0};
-int indiceConstante=0;
-int yystopparser=0;
-int  contadorDeIds=0;
-int contadorDeTipos=0;
-int cantExpLE[TAM];
-int contadorListaExp=0;
-FILE  *yyin;
-char *yyltext;
-char *yytext;
+	enum valoresMaximos{
+		ENTERO_MAXIMO = 32768,
+		CADENA_MAXIMA = 30,
+		TAM = 100
+	};
+///////////////////// ESTRUCUTURAS  ////////////////////////////////
+	typedef struct{
+		char nombre[33];
+		char valor[33];
+		char tipo[33];
+		int longitud;
+	} registro ; 
+	typedef struct{
+		int nombre;
+		int valor;
+		int tipo;
+		int longitud;
+	} indices;
+	typedef struct
+	{
+		char valor[31];
+	}t_info;
+	typedef struct s_nodo
+	{
+	    t_info info;
+	    struct s_nodo *izq;
+	    struct s_nodo *der;
+	}t_nodo;
+///////////////////// DECLARACION DE FUNCIONES /////////////////////
+	int yyerrormsj(const char *,int,int); 
+	void imprimirVariables();
+	int existeId(char *);
+	int yyerror();
+	int obtenerTipo(int);
+	int longLEsValidas();
+	void limpiarVector(int *,int);
+	char * obtenerTipoLiteral(int);
+	void grabarTablaDeSimbolos(int);
+	int existeCte();
+	void insertarHijo(t_nodo * , t_nodo * );
+	t_nodo * crearHoja(const t_info *);
+	t_nodo * crearNodo(const t_info *, t_nodo *, t_nodo *);
+///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
+	t_nodo * programa;
+	t_nodo * bloque_declaraciones;
+	t_nodo * declaraciones;
+	t_nodo * declaracion;
+	t_nodo * bloque_sentencias;
+	t_nodo * sentencia;
+	t_nodo * lista_variables;
+	t_nodo * lista_var_filter;
+	t_nodo * lista_tipo;
+	t_nodo * tipo;
+	t_nodo * bloque_if;
+	t_nodo * sentencia_if;
+	t_nodo * sentencia_while;
+	t_nodo * read;
+	t_nodo * write;
+	t_nodo * condicion;
+	t_nodo * filter;
+	t_nodo * condicion_filter;
+	t_nodo * all_equal;
+	t_nodo * lista_exp;
+	t_nodo * expresiones;
+	t_nodo * and_or;
+	t_nodo * comparador;
+	t_nodo * asignacion;
+	t_nodo * expresion;
+	t_nodo * termino;
+	t_nodo * factor;
+///////////////////// DECLARACION DE VARIABLES GLOBALES //////////// 
+	int tipoAsignacion;
+	int esAsignacion=0;
+	char ultimoId [30];
+	registro tablaVariables[TAM];
+	registro tablaConstantes[TAM];
+	extern int yylineno;
+	indices indicesVariable= {0,0,0};
+	int indiceConstante=0;
+	int yystopparser=0;
+	int  contadorDeIds=0;
+	int contadorDeTipos=0;
+	int cantExpLE[TAM];
+	int contadorListaExp=0;
+	FILE  *yyin;
+	char *yyltext;
+	char *yytext;
 
 %}
 
@@ -139,7 +178,7 @@ declaracion:
 		imprimirVariables();
 		}
 		;
-		 
+	 
 lista_var:
 		ID	  
 			{ 
@@ -157,11 +196,12 @@ lista_var:
 					 } COMA lista_var 
  	 ;
 	 
-
 lista_var_filter:
 			ID	  {if(existeId(yylval.cadena)== -1 ){  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} }
 			| ID   {if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} } COMA  lista_var_filter 
- 	 ;
+			
+
+			;
 
 tipo: 
 		ENTERO
@@ -173,6 +213,7 @@ lista_tipo :
 		tipo	   {contadorDeTipos++; strcpy(tablaVariables[indicesVariable.tipo++].tipo,yylval.cadena);  }
 		| tipo  {contadorDeTipos++;  strcpy(tablaVariables[indicesVariable.tipo++].tipo,yylval.cadena);   }COMA lista_tipo
 		;
+
 bloque_sentencias: 
 		sentencia
 		| sentencia bloque_sentencias
@@ -183,68 +224,21 @@ sentencia:
 		| filter
 		| read
 		| asignacion
-		| IF P_A condicion P_C  bloque_if ENDIF
-		| WHILE P_A condicion P_C  bloque_sentencias ENDWHILE {printf("while OK\n");}
+		| sentencia_if
+		| sentencia_while
 		;
+
+sentencia_if: 
+	IF P_A condicion P_C  bloque_if ENDIF
+	;
+
+sentencia_while: 
+	WHILE P_A condicion P_C  bloque_sentencias ENDWHILE {printf("while OK\n");}
+	;
 
 bloque_if:
  bloque_sentencias {printf("if sin else OK\n");}
  |bloque_sentencias ELSE bloque_sentencias {printf("if con else OK\n");}
-condicion:
-		allequal
-		| expresion comparador expresion
-		| OP_NOT allequal
-		| OP_NOT expresion comparador expresion
-		| allequal and_or allequal
-		| expresion comparador expresion and_or expresion comparador expresion
-		;
-		
-condicion_filter:
-		GB comparador expresion
-		| OP_NOT GB comparador expresion
-		| GB comparador expresion and_or GB comparador expresion
-		;
-		
-allequal: 
-		{ limpiarVector(cantExpLE,TAM); } ALLEQUAL P_A listas_exp P_C {   if(! longLEsValidas())
-											yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSintactico,ErrorAllEqual);
-										if(contadorListaExp==1)
-											yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSintactico,ErrorAllEqual);
-									contadorListaExp=0; printf("AllEqual OK \n");
-									}
-		;
-		
-filter:
-	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  { printf("Filter OK\n"); }
-	;
-write: WRITE {printf("Funcion Write\n");} CONST_CADENA |
-		WRITE ID { 
-					if(existeId($<cadena>2)==-1){
-						yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
-					}
-				}
-		;
-read:   READ {printf("Funcion Read\n");} ID { 
-					if(existeId($<cadena>2)==-1){
-						yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
-				
-					}
-			}
-		;
-listas_exp:
-		C_A expresiones C_C { contadorListaExp++; }
-		|C_A expresiones C_C { contadorListaExp++; } COMA listas_exp
-		;
-
-expresiones:
-			expresion { cantExpLE[contadorListaExp] ++;}
-			|expresion { cantExpLE[contadorListaExp] ++;} COMA expresiones
-			;
-
-and_or:
-		AND
-		| OR
-		;
 
 comparador:
 		IGUAL
@@ -255,45 +249,162 @@ comparador:
 		| MENORI
 		;
 
-asignacion: ID  {	
+comparacion : expresion comparador {
+					t_info info;
+					strcpy(info.valor,"=");
+					comparador= crearNodo(&info,expresion,NULL);
+				} expresion {
+					insertarHijo(comparador->der,expresion);
+				} ;
+condicion:
+		allequal
+		| comparacion
+		| OP_NOT allequal
+		| OP_NOT comparacion
+		| allequal and_or allequal
+		| comparacion and_or comparacion
+		;
+		
+condicion_filter:
+		GB comparador expresion
+		| OP_NOT GB comparador expresion
+		| GB comparador expresion and_or GB comparador expresion
+		;
+		
+allequal: 
+		{ limpiarVector(cantExpLE,TAM); } ALLEQUAL P_A lista_exp P_C {   if(! longLEsValidas())
+											yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSintactico,ErrorAllEqual);
+										if(contadorListaExp==1)
+											yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSintactico,ErrorAllEqual);
+									contadorListaExp=0; printf("AllEqual OK \n");
+									}
+		;
+		
+filter:
+	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  { printf("Filter OK\n"); }
+	;
+
+write:  
+	WRITE {printf("Funcion Write\n");} CONST_CADENA |
+	WRITE ID { 
+				if(existeId($<cadena>2)==-1){
+					yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
+				}
+			}
+	;
+
+read:
+	READ 
+		{
+			printf("Funcion Read\n");} ID { 
+			if(existeId($<cadena>2)==-1){
+				yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
+			}
+		}		
+	;
+
+lista_exp:
+		C_A expresiones C_C { contadorListaExp++; }
+		|C_A expresiones C_C { contadorListaExp++; } COMA lista_exp
+		;
+
+expresiones:
+		expresion { cantExpLE[contadorListaExp] ++;}
+		|expresion { cantExpLE[contadorListaExp] ++;} COMA expresiones
+		;
+
+and_or:
+	AND
+	| OR
+	;
+
+asignacion: 
+	ID  {	
 					int indice;
 					if((indice=existeId(yylval.cadena))<0){
 						yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);
 					}
+					strcpy(ultimoId,yylval.cadena);
 					tipoAsignacion=obtenerTipo(indice);
 					esAsignacion=1;
 				} 
 					ASIG  expresion
-				{  printf("Asignacion OK\n"); esAsignacion=0; }
-;
-
+				{
+					t_info info;
+					strcpy(info.valor,"=");
+					t_info info_id;
+					strcpy(info_id.valor,ultimoId);
+       				asignacion= crearNodo(&info,crearHoja(&info_id),expresion);					  
+					printf("Asignacion OK\n"); esAsignacion=0; 
+				}
+	;
 
 expresion:
      termino
-	 |expresion OP_RESTA termino {if(tipoAsignacion == TipoCadena) yyerrormsj("resta",ErrorSintactico,ErrorOperacionNoValida); 
-															else printf("Resta OK\n");}
-     |expresion OP_SUMA termino  {if(tipoAsignacion == TipoCadena) yyerrormsj("suma",ErrorSintactico,ErrorOperacionNoValida); 
-															else printf("Suma OK\n");}
-	 |expresion OP_CONCAT termino  {if(tipoAsignacion != TipoCadena) yyerrormsj("concatenacion",ErrorSintactico,ErrorOperacionNoValida); 
-										else printf("Concatenacion OK\n");}
+	 |expresion OP_RESTA termino
+	 							{
+	 								if(tipoAsignacion == TipoCadena) 
+	 									yyerrormsj("resta",ErrorSintactico,ErrorOperacionNoValida); 
+									else{
+										t_info info;
+       									strcpy(info.valor,"-");
+       									expresion= crearNodo(&info,expresion,termino);
+										printf("Resta OK\n");
+									} 
+								}
+     |expresion OP_SUMA termino  
+     							{
+     								if(tipoAsignacion == TipoCadena)
+     									yyerrormsj("suma",ErrorSintactico,ErrorOperacionNoValida); 
+									else {
+										t_info info;
+       									strcpy(info.valor,"+");
+       									expresion= crearNodo(&info,expresion,termino);
+										printf("Suma OK\n");
+									} 
+								}
+	 |expresion OP_CONCAT termino	
+	 							{ 
+	 								if(tipoAsignacion != TipoCadena)
+	 									yyerrormsj("concatenacion",ErrorSintactico,ErrorOperacionNoValida); 
+									else {
+										t_info info;
+       									strcpy(info.valor,"++");
+       									expresion= crearNodo(&info,expresion,termino);	
+										printf("Concatenacion OK\n");
+									}
+								}
  	 ;
-
 
 termino: 
        factor
-       |termino OP_MUL factor  {printf("Multiplicación OK\n");}
-       |termino OP_DIV factor  {printf("División OK\n");}
+       |termino OP_MUL factor  {
+       								t_info info;
+       								strcpy(info.valor,"*");
+       								termino = crearNodo(&info,termino,factor);
+       								printf("Multiplicación OK\n"); 
+       							}
+       |termino OP_DIV factor  {
+       								printf("División OK\n");
+       								t_info info;
+       								strcpy(info.valor,"/");
+       								termino = crearNodo(&info,termino,factor);		
+       							}
 	   ;
 
 factor:  
-      ID {
-		  if(esAsignacion==1){			  
-			if(obtenerTipo(existeId(yylval.cadena))!= tipoAsignacion){
-				yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdDistintoTipo);  
+      ID 
+      	{
+			if(esAsignacion==1){			  
+				if(obtenerTipo(existeId(yylval.cadena))!= tipoAsignacion){
+					yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdDistintoTipo);  
+				}
 			}
-		  }
-		  if(existeId(yylval.cadena)== -1 )
-			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);
+			if(existeId(yylval.cadena)== -1 )
+				yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);
+			t_info info;
+		  	strcpy(info.valor, yylval.cadena);
+		  	factor = crearHoja(&info);
 		 }
       | CONST_ENTERO {
 		  if(esAsignacion==1&&tipoAsignacion!=TipoEntero){
@@ -312,7 +423,10 @@ factor:
 			  tablaConstantes[indiceConstante].longitud=0;
 			  indiceConstante++;
 		  }
-		  
+		  t_info info;
+		  strcpy(info.valor, "_");
+		  strcat(info.valor,yylval.cadena);
+		  factor = crearHoja(&info);
       }
       | OP_RESTA CONST_ENTERO {
 		  char aux[5]="-";
@@ -333,6 +447,10 @@ factor:
 			  tablaConstantes[indiceConstante].longitud=0;
 			  indiceConstante++;
 		  }
+		  t_info info;
+		  strcpy(info.valor, "_-");
+		  strcat(info.valor,yylval.cadena);
+		  factor = crearHoja(&info);
       }
       | CONST_REAL {
           if(atof(yylval.cadena) >= FLT_MAX ){
@@ -350,6 +468,10 @@ factor:
 			  tablaConstantes[indiceConstante].longitud=0;
 			  indiceConstante++;
 		  }
+  		  t_info info;
+		  strcpy(info.valor, "_");
+		  strcat(info.valor,yylval.cadena);
+		  factor = crearHoja(&info);
       }  
 	  | OP_RESTA CONST_REAL {
 		  char aux[5]="-";
@@ -369,6 +491,10 @@ factor:
 			  tablaConstantes[indiceConstante].longitud=0;
 			  indiceConstante++;
 		  }
+		  t_info info;
+		  strcpy(info.valor, "_-");
+		  strcat(info.valor,yylval.cadena);
+		  factor = crearHoja(&info);
       } 
 	    | CONST_CADENA {
 		  if(esAsignacion==1&&tipoAsignacion!=TipoCadena){
@@ -386,6 +512,10 @@ factor:
 			  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
 			  indiceConstante++;
 		}
+		t_info info;
+		strcpy(info.valor, "_");
+		strcat(info.valor,yylval.cadena);
+		factor = crearHoja(&info);
       }
       |P_A expresion P_C  
 	  |filter
@@ -553,4 +683,34 @@ void grabarTablaDeSimbolos(int error){
 	if(error==1)
 		fprintf(pf,"TABLA INCOMPLETA (ERROR DE COMPILACION)\n");
 	fclose(pf);
+}
+
+/////////////////////////////////////////// FUNCIONES ARBOL /////////////////////////////////////////////////////////
+
+t_nodo * crearHoja(const t_info *d)
+{
+    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
+    if(!p){ 
+    	printf("No hay memoria disponible. El programa se cerrará\n");
+    	exit(1);
+    }
+    p->info=*d;
+    p->der=p->izq=NULL;
+    return p;
+}
+t_nodo * crearNodo(const t_info *d, t_nodo * hijo_izq, t_nodo * hijo_der)
+{
+    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
+    if(!p){ 
+    	printf("No hay memoria disponible. El programa se cerrará\n");
+    	exit(1);
+    }
+    p->info=*d;
+    p->izq= hijo_izq;
+    p->der= hijo_der;
+    return p;
+}
+
+void insertarHijo (t_nodo * puntero, t_nodo * hijo){
+	puntero=hijo;
 }
