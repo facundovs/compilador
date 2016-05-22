@@ -229,11 +229,10 @@ lista_tipo :
 
 bloque_sentencias: 
 		sentencia {bloque_sentencias=sentencia;}
-		| sentencia bloque_sentencias 
+		|  bloque_sentencias sentencia
 						{
-							t_info info;
-							strcpy(info.valor,"sentencia"); 
-							bloque_sentencias=crearNodo(&info,sentencia,bloque_sentencias);
+							t_info info;strcpy(info.valor,"sentencia"); 
+							bloque_sentencias=crearNodo(&info,bloque_sentencias,sentencia);
 						}
 		;
 
@@ -269,7 +268,6 @@ sentencia_while:
 bloque_if:
  bloque_sentencias 
  	{
-
  		bloque_if = bloque_sentencias;	
  		printf("if sin else OK\n");
  	}
@@ -370,8 +368,8 @@ asignacion:
 					strcpy(info.valor,"=");
 					t_info info_id;
 					strcpy(info_id.valor,ultimoId);
-       				asignacion= crearNodo(&info,crearHoja(&info_id),expresion);			  
-					printf("Asignacion OK\n"); esAsignacion=0; 
+       				asignacion= crearNodo(&info,crearHoja(&info_id),expresion);	
+       				printf("Asignacion OK\n"); esAsignacion=0; 
 				}
 	;
 

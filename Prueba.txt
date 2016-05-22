@@ -2,10 +2,7 @@ programa
 declaraciones	
 	DIM [a,b,c,d,e,f] AS [entero,entero,entero,real,cadena,cadena]
 fin_declaraciones	
-	while(a>1)
-		b=1
-		if(b>a)
-			c=b+a
-		endif
-	endwhile
+	a=1
+	b=2
+	c=3
 fin_programa
