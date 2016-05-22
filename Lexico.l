@@ -53,7 +53,7 @@ CONST_REAL				([0-9]*\.[0-9]+|[0-9]+)
 %%
 "="							{ return ASIG;}
 "+"							{ return OP_SUMA;}
-"++"							{ return OP_CONCAT; }
+"++"						{ return OP_CONCAT; }
 "-"							{ return OP_RESTA;}
 "*"							{ return OP_MUL;}
 "/"							{ return OP_DIV;}
@@ -61,33 +61,33 @@ CONST_REAL				([0-9]*\.[0-9]+|[0-9]+)
 ")"							{ return P_C;}
 "["							{ return C_A; }
 "]"							{ return C_C; }
-"\""							{ return COMILLA;}
-"=="							{ return IGUAL; }
-"!="							{ return DISTINTO; }
-">"							{ return MAYOR; }
-"<"							{ return MENOR; }
-"<="							{ return MENORI; }
-">="							{ return MAYORI; }
+"\""						{ return COMILLA;}
+"=="						{ strcpy(yylval.cadena,"=="); return COMPARADOR; }
+"!="						{ strcpy(yylval.cadena,"!="); return COMPARADOR; }
+">"							{ strcpy(yylval.cadena,">"); return COMPARADOR; }
+"<"							{ strcpy(yylval.cadena,"<"); return COMPARADOR; }
+"<="						{ strcpy(yylval.cadena,"<="); return COMPARADOR; }
+">="						{ strcpy(yylval.cadena,">="); return COMPARADOR; }
 "and"						{ return AND; }
-"or"							{ return OR; }
+"or"						{ return OR; }
 "not"              			{ return OP_NOT; }
-"programa"				{ return PROGRAMA;}
-"fin_programa"			{ return FIN_PROGRAMA; }
-"declaraciones"			{ return DECLARACIONES; }
-"fin_declaraciones"		{ return FIN_DECLARACIONES; }
+"programa"					{ return PROGRAMA;}
+"fin_programa"				{ return FIN_PROGRAMA; }
+"declaraciones"				{ return DECLARACIONES; }
+"fin_declaraciones"			{ return FIN_DECLARACIONES; }
 ","							{ return COMA; }
 "real"						{ strcpy(yylval.cadena,"real");   return REAL;}
 "entero"					{ strcpy(yylval.cadena,"entero");  return ENTERO;}
 "cadena"					{ strcpy(yylval.cadena,"cadena"); return CADENA;}
 "DIM"						{ return DIM; }
-"AS"							{ return AS; }
-"if"							{ return IF; }
+"AS"						{ return AS; }
+"if"						{ return IF; }
 "else"						{ return ELSE; }
 "endif"						{ return ENDIF;}
 "while"						{ return WHILE; }
 "endwhile"					{ return ENDWHILE; }
 "AllEqual"					{ return ALLEQUAL; }
-"WRITE"					{ return WRITE; }
+"WRITE"						{ return WRITE; }
 "READ"						{ return READ; } 
 "FILTER"					{ return FILTER; }
 "_"							{ return GB;}

@@ -1,12 +1,12 @@
 
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include <conio.h>
-#include "y.tab.h"
-#include <string.h>
-#include <float.h>
-
+//////////////////////INCLUDES///////////////////////////////////////
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <conio.h>
+	#include "y.tab.h"
+	#include <string.h>
+	#include <float.h>
 ///////////////////// ENUMS ////////////////////////////////////////
 	enum tiposDeError{
 		ErrorSintactico,
@@ -142,7 +142,7 @@
 %token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  OP_CONCAT
 
 //TOKEN COMPARADORES
-%token IGUAL DISTINTO MAYOR MENOR MAYORI MENORI AND OR OP_NOT
+%token COMPARADOR AND OR OP_NOT
 
 //TOKEN CONSTANTES
 %token CONST_REAL CONST_CADENA CONST_ENTERO
@@ -220,10 +220,10 @@ bloque_sentencias:
 		;
 
 sentencia: 
-		write
-		| filter
-		| read
-		| asignacion
+		write 		{sentencia=write;}
+		| filter 	{sentencia=filter;}
+		| read 		{sentencia=read;}
+		| asignacion {sentencia=asignacion;}
 		| sentencia_if
 		| sentencia_while
 		;
@@ -240,18 +240,10 @@ bloque_if:
  bloque_sentencias {printf("if sin else OK\n");}
  |bloque_sentencias ELSE bloque_sentencias {printf("if con else OK\n");}
 
-comparador:
-		IGUAL
-		| DISTINTO
-		| MAYOR
-		| MENOR
-		| MAYORI
-		| MENORI
-		;
 
-comparacion : expresion comparador {
+comparacion : expresion COMPARADOR {
 					t_info info;
-					strcpy(info.valor,"=");
+					strcpy(info.valor,yylval.cadena);
 					comparador= crearNodo(&info,expresion,NULL);
 				} expresion {
 					insertarHijo(comparador->der,expresion);
@@ -266,9 +258,9 @@ condicion:
 		;
 		
 condicion_filter:
-		GB comparador expresion
-		| OP_NOT GB comparador expresion
-		| GB comparador expresion and_or GB comparador expresion
+		GB COMPARADOR expresion
+		| OP_NOT GB COMPARADOR expresion
+		| GB COMPARADOR expresion and_or GB COMPARADOR expresion
 		;
 		
 allequal: 
