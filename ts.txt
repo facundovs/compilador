@@ -7,4 +7,3 @@ e                               |	cadena                          |	----------  
 f                               |	cadena                          |	----------                      |	----------                      
 _1                              |	const_entero                    |	1                               |	----------                      
 _2                              |	const_entero                    |	2                               |	----------                      
-_3                              |	const_entero                    |	3                               |	----------                      

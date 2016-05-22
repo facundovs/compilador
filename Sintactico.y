@@ -46,23 +46,33 @@
 		char valor[33];
 		char tipo[33];
 		int longitud;
-	} registro ; 
+	} registro; 
+
 	typedef struct{
 		int nombre;
 		int valor;
 		int tipo;
 		int longitud;
 	} indices;
+
 	typedef struct
 	{
 		char valor[31];
 	}t_info;
+
 	typedef struct s_nodo
 	{
 	    t_info info;
 	    struct s_nodo *izq;
 	    struct s_nodo *der;
 	}t_nodo;
+
+	typedef struct s_nodoPila{
+    	t_nodo info;
+    	struct s_nodoPila* psig;
+	}t_nodoPila;
+
+	typedef t_nodoPila *t_pila;
 ///////////////////// DECLARACION DE FUNCIONES /////////////////////
 	int yyerrormsj(const char *,int,int); 
 	void imprimirVariables();
@@ -81,6 +91,12 @@
 	void recorrer_guardando(const t_nodo*, FILE*);
 	void grabarArbol(t_nodo*);
 	//void dibujar(t_nodo*,int,int,int,int);
+	t_pila* crearPila(t_pila* );
+	int ponerEnPila(t_pila*,t_nodo*);
+	int sacar_de_pila(t_pila*,t_nodo*);
+	void vaciarPila(t_pila*);
+	int elementosEnPilaWhile =0;
+	int elementosEnPilaIf =0;
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
 	t_nodo * programa;
 	t_nodo * bloque_declaraciones;
@@ -126,6 +142,8 @@
 	FILE  *yyin;
 	char *yyltext;
 	char *yytext;
+	t_pila *pilaWhile;
+	t_pila *pilaIf;
 
 %}
 
@@ -246,21 +264,39 @@ sentencia:
 		;
 
 sentencia_if: 
-	IF P_A condicion P_C  bloque_if ENDIF
+	IF P_A condicion P_C  
 	{
 		t_info info;
 		strcpy(info.valor,"if"); 
-		sentencia_if = crearNodo(&info,condicion,bloque_if);
-
+		printf("PONIENDO EN PILA IF------------------------------------------\n");
+		ponerEnPila(pilaIf,crearNodo(&info,condicion,NULL));
+		printf("PUESTO EN PILA------------------------------------------\n");
+	}
+	bloque_if ENDIF
+	{
+		printf("SACANDO DE PILA------------------------------------------\n");
+		sacar_de_pila(pilaIf,sentencia_if);
+		printf("FUERA EN PILA IF------------------------------------------\n");
+		insertarHijo(&(sentencia_if->der),bloque_if);
 	}
 	;
 
 sentencia_while: 
-	WHILE P_A condicion P_C  bloque_sentencias ENDWHILE 
+	WHILE P_A condicion P_C  
 	{
 		t_info info;
 		strcpy(info.valor,"while"); 
-		sentencia_while = crearNodo(&info,condicion,bloque_sentencias);
+		printf("PONIENDO EN PILA WHILE------------------------------------------\n");
+		ponerEnPila(pilaWhile,crearNodo(&info,condicion,NULL));
+		printf("PUESTO EN PILA------------------------------------------\n");
+	}
+	bloque_sentencias ENDWHILE
+	{
+		printf("SACANDO DE PILA------------------------------------------\n");
+		sacar_de_pila(pilaWhile,sentencia_while);
+		printf("FUERA DE PILA WHILE------------------------------------------\n");
+		printf("Nodo sacado de pila: %s %s\n",sentencia_while->izq->info.valor,sentencia_while->info.valor );
+		insertarHijo(&(sentencia_while->der),bloque_sentencias);
 		printf("while OK\n");
 	}
 	;
@@ -559,16 +595,19 @@ factor:
 
 int main(int argc,char *argv[])
 {
-  if ((yyin = fopen(argv[1], "rt")) == NULL)
-  {
-	printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
-  }
-  else
-  {
-	yyparse();
-  }
-  fclose(yyin);
-  return 0;
+  	pilaWhile=crearPila(pilaWhile);
+  	pilaIf=crearPila(pilaIf);
+  	printf("PILAS CREADAS*******************************************************\n");
+	if ((yyin = fopen(argv[1], "rt")) == NULL)
+	{
+		printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
+	}
+	else
+	{
+		yyparse();
+	}
+	fclose(yyin);
+	return 0;
 }
 
 //DEFINICION  DE FUNCIONES
@@ -802,3 +841,54 @@ void dibujar(t_nodo* arbol,int a,int b,int c,int d)
 		dibujar(arbol->der,a+pow(2,c)+pow(2,d-4),b+75,c-1,2);
   	}
 }*/
+
+/////////////////////////PILA//////////////////////////////////////////////////////////
+
+t_pila* crearPila(t_pila* pp)
+{/*
+	t_nodoPila* pn=(t_nodoPila*)malloc(sizeof(t_nodoPila));
+    if(!pn)
+        return 0;
+    pp=&pn;
+    return pp;
+    */
+
+    //*pp=NULL;  //ORIGINAL
+}
+
+int ponerEnPila(t_pila* pp,t_nodo* nodo)
+{/*
+    t_nodoPila* pn=(t_nodoPila*)malloc(sizeof(t_nodoPila));
+    if(!pn)
+        return 0;
+    pn->info=*nodo;
+    printf("----------------------------------INSERTADO: %s %s\n",pn->info.info.valor,(pn->info).izq->info.valor );
+    pn->psig=*pp;
+    *pp=pn;
+    return 1;*/
+}
+///////////////////////////////////////////////////////
+int sacar_de_pila(t_pila* pp,t_nodo* info)
+{/*
+    if(!*pp){
+    	printf("PILA NULA**************************************************\n");
+    	return 0;
+    }
+    info=&((*pp)->info);
+    printf("----------------------------------SACANDO: %s %s\n",info->info.valor,info->izq->info.valor );
+    *pp=(*pp)->psig;
+    return 1;*/
+}
+
+///////////////////////////////////////////////////////
+
+void vaciarPila(t_pila* pp)
+{
+    t_nodoPila* pn;
+    while(*pp)
+    {
+        pn=*pp;
+        *pp=(*pp)->psig;
+        free(pn);
+    }
+}
