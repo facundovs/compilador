@@ -220,25 +220,51 @@ bloque_sentencias:
 		;
 
 sentencia: 
-		write 		{sentencia=write;}
-		| filter 	{sentencia=filter;}
-		| read 		{sentencia=read;}
-		| asignacion {sentencia=asignacion;}
-		| sentencia_if
-		| sentencia_while
+		write 				{sentencia=write;}
+		| filter 			{sentencia=filter;}
+		| read 				{sentencia=read;}
+		| asignacion 		{sentencia=asignacion;}
+		| sentencia_if		{sentencia=sentencia_if; }
+		| sentencia_while 	{sentencia=sentencia_while;}
 		;
 
 sentencia_if: 
 	IF P_A condicion P_C  bloque_if ENDIF
+	{
+		t_info info;
+		strcpy(info.valor,"if"); 
+		sentencia_if = crearNodo(&info,condicion,bloque_if);
+
+	}
 	;
 
 sentencia_while: 
-	WHILE P_A condicion P_C  bloque_sentencias ENDWHILE {printf("while OK\n");}
+	WHILE P_A condicion P_C  bloque_sentencias ENDWHILE 
+	{
+		t_info info;
+		strcpy(info.valor,"while"); 
+		sentencia_while = crearNodo(&info,condicion,bloque_sentencias);
+		printf("while OK\n");
+	}
 	;
 
 bloque_if:
- bloque_sentencias {printf("if sin else OK\n");}
- |bloque_sentencias ELSE bloque_sentencias {printf("if con else OK\n");}
+ bloque_sentencias 
+ 	{
+
+ 		bloque_if = bloque_sentencias;	
+ 		printf("if sin else OK\n");
+ 	}
+ |bloque_sentencias {
+	t_info info;
+	strcpy(info.valor,"bloque if");
+ 	bloque_if = crearNodo(&info,bloque_sentencias,NULL);
+ }
+ 	ELSE bloque_sentencias 
+ 	{
+ 		insertarHijo(bloque_if->izq,bloque_sentencias);
+ 		printf("if con else OK\n");
+ 	}
 
 
 comparacion : expresion COMPARADOR {
