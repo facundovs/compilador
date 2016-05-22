@@ -1,12 +1,12 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
 while                           	>                               	sentencia                       
->                               	b                               	a                               
-sentencia                       	if                              	if                              
-if                              	>                               	=                               
->                               	b                               	a                               
-=                               	c                               	+                               
-+                               	b                               	a                               
-if                              	>                               	=                               
->                               	b                               	a                               
-=                               	c                               	+                               
-+                               	b                               	a                               
+>                               	a                               	_1                              
+sentencia                       	sentencia                       	while                           
+sentencia                       	=                               	=                               
+=                               	b                               	_4                              
+=                               	b                               	_5                              
+while                           	<                               	sentencia                       
+<                               	b                               	_3                              
+sentencia                       	=                               	=                               
+=                               	b                               	_4                              
+=                               	b                               	_5                              
