@@ -1,12 +1,14 @@
 
 %{
-//////////////////////INCLUDES///////////////////////////////////////
+//////////////////////INCLUDES//////////////////////////////////////
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <conio.h>
 	#include "y.tab.h"
 	#include <string.h>
 	#include <float.h>
+	#include <math.h>
+	//#include <graphics.h>
 ///////////////////// ENUMS ////////////////////////////////////////
 	enum tiposDeError{
 		ErrorSintactico,
@@ -72,9 +74,13 @@
 	char * obtenerTipoLiteral(int);
 	void grabarTablaDeSimbolos(int);
 	int existeCte();
-	void insertarHijo(t_nodo * , t_nodo * );
+	void insertarHijo(t_nodo ** , t_nodo * );
 	t_nodo * crearHoja(const t_info *);
 	t_nodo * crearNodo(const t_info *, t_nodo *, t_nodo *);
+	void recorrer_en_orden(const t_nodo*);
+	void recorrer_guardando(const t_nodo*, FILE*);
+	void grabarArbol(t_nodo*);
+	//void dibujar(t_nodo*,int,int,int,int);
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
 	t_nodo * programa;
 	t_nodo * bloque_declaraciones;
@@ -98,7 +104,7 @@
 	t_nodo * lista_exp;
 	t_nodo * expresiones;
 	t_nodo * and_or;
-	t_nodo * comparador;
+	t_nodo * comparacion;
 	t_nodo * asignacion;
 	t_nodo * expresion;
 	t_nodo * termino;
@@ -129,26 +135,27 @@
 	char cadena[50];
 }
 
-//TOKEN TIPOS DE DATO
-%token <cadena>ID
-%token <cadena>CADENA
-%token <entero>ENTERO
-%token <real>REAL
-
-//TOKEN SIMBOLOS
-%token COMILLA COMA C_A C_C  P_C P_A GB
-
-//TOKEN OPERANDOS
-%token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  OP_CONCAT
-
-//TOKEN COMPARADORES
-%token COMPARADOR AND OR OP_NOT
-
-//TOKEN CONSTANTES
-%token CONST_REAL CONST_CADENA CONST_ENTERO
-
-//TOKEN PALABRAS RESERVADAS
-%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE ALLEQUAL WRITE READ FILTER
+////////////////////////////////////TOKENS//////////////////////////
+	//TOKEN TIPOS DE DATO
+	%token <cadena>ID
+	%token <cadena>CADENA
+	%token <entero>ENTERO
+	%token <real>REAL
+	
+	//TOKEN SIMBOLOS
+	%token COMILLA COMA C_A C_C  P_C P_A GB
+	
+	//TOKEN OPERANDOS
+	%token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  OP_CONCAT
+	
+	//TOKEN COMPARADORES
+	%token COMPARADOR AND OR OP_NOT
+	
+	//TOKEN CONSTANTES
+	%token CONST_REAL CONST_CADENA CONST_ENTERO
+	
+	//TOKEN PALABRAS RESERVADAS
+	%token PROGRAMA FIN_PROGRAMA DECLARACIONES FIN_DECLARACIONES DIM AS IF ELSE THEN ENDIF WHILE ENDWHILE ALLEQUAL WRITE READ FILTER
 	
 %%
 
@@ -156,7 +163,15 @@ programa:
 	PROGRAMA {printf("INICIA PROGRAMA\n");} bloque_declaraciones     
 	bloque_sentencias
 	FIN_PROGRAMA
-	{printf("FIN DEL PROGRAMA, COMPILACION OK\n");grabarTablaDeSimbolos(0);} 
+	{
+		programa=bloque_sentencias;
+		printf("FIN DEL PROGRAMA, COMPILACION OK\n");
+		printf("\n\nARBOL\n");
+		recorrer_en_orden(programa);
+		grabarArbol(programa);
+		//dibujar(programa,15,3,7,0);
+		grabarTablaDeSimbolos(0);
+	} 
 	;
 
 bloque_declaraciones:
@@ -199,8 +214,6 @@ lista_var:
 lista_var_filter:
 			ID	  {if(existeId(yylval.cadena)== -1 ){  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} }
 			| ID   {if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} } COMA  lista_var_filter 
-			
-
 			;
 
 tipo: 
@@ -215,8 +228,13 @@ lista_tipo :
 		;
 
 bloque_sentencias: 
-		sentencia
-		| sentencia bloque_sentencias
+		sentencia {bloque_sentencias=sentencia;}
+		| sentencia bloque_sentencias 
+						{
+							t_info info;
+							strcpy(info.valor,"sentencia"); 
+							bloque_sentencias=crearNodo(&info,sentencia,bloque_sentencias);
+						}
 		;
 
 sentencia: 
@@ -262,7 +280,7 @@ bloque_if:
  }
  	ELSE bloque_sentencias 
  	{
- 		insertarHijo(bloque_if->izq,bloque_sentencias);
+ 		insertarHijo(&(bloque_if->izq),bloque_sentencias);
  		printf("if con else OK\n");
  	}
 
@@ -270,13 +288,13 @@ bloque_if:
 comparacion : expresion COMPARADOR {
 					t_info info;
 					strcpy(info.valor,yylval.cadena);
-					comparador= crearNodo(&info,expresion,NULL);
+					comparacion= crearNodo(&info,expresion,NULL);
 				} expresion {
-					insertarHijo(comparador->der,expresion);
+					insertarHijo(&(comparacion->der),expresion);
 				} ;
 condicion:
 		allequal
-		| comparacion
+		| comparacion {condicion=comparacion;}
 		| OP_NOT allequal
 		| OP_NOT comparacion
 		| allequal and_or allequal
@@ -352,13 +370,13 @@ asignacion:
 					strcpy(info.valor,"=");
 					t_info info_id;
 					strcpy(info_id.valor,ultimoId);
-       				asignacion= crearNodo(&info,crearHoja(&info_id),expresion);					  
+       				asignacion= crearNodo(&info,crearHoja(&info_id),expresion);			  
 					printf("Asignacion OK\n"); esAsignacion=0; 
 				}
 	;
 
 expresion:
-     termino
+     termino {expresion=termino;}
 	 |expresion OP_RESTA termino
 	 							{
 	 								if(tipoAsignacion == TipoCadena) 
@@ -395,7 +413,7 @@ expresion:
  	 ;
 
 termino: 
-       factor
+       factor {termino=factor;}
        |termino OP_MUL factor  {
        								t_info info;
        								strcpy(info.valor,"*");
@@ -410,7 +428,7 @@ termino:
        							}
 	   ;
 
-factor:  
+factor:
       ID 
       	{
 			if(esAsignacion==1){			  
@@ -729,6 +747,60 @@ t_nodo * crearNodo(const t_info *d, t_nodo * hijo_izq, t_nodo * hijo_der)
     return p;
 }
 
-void insertarHijo (t_nodo * puntero, t_nodo * hijo){
-	puntero=hijo;
+void insertarHijo (t_nodo ** puntero, t_nodo * hijo){
+	*puntero=hijo;
 }
+
+void recorrer_en_orden(const t_nodo* nodo)
+{
+    if(nodo)
+    {
+   		if(nodo->izq!=NULL&&nodo->der!=NULL)
+   			printf("%s\t%s\t%s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
+    	recorrer_en_orden(nodo->izq);
+    	recorrer_en_orden(nodo->der);
+    }
+}
+
+void recorrer_guardando(const t_nodo* nodo, FILE* pf)
+{
+    if(nodo)
+    {
+   		if(nodo->izq!=NULL&&nodo->der!=NULL)
+   			fprintf(pf,"%-32s\t%-32s\t%-32s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
+    	recorrer_guardando(nodo->izq,pf);
+    	recorrer_guardando(nodo->der,pf);
+    }
+}
+
+void grabarArbol(t_nodo* arbol)
+{
+	FILE*pf=fopen("arbol.txt","w+");
+	int i;
+	if(!pf){
+		printf("Error al guardar el arbol\n");
+		return;
+	}
+	fprintf(pf,"%-32s|\t%-32s|\t%-32s\n","PADRE","HIJO IZQ","HIJO DER");
+	recorrer_guardando(arbol,pf);
+	fclose(pf);
+}
+
+//MENTIRAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+/*
+void dibujar(t_nodo* arbol,int a,int b,int c,int d)
+{
+ 	if(arbol!=NULL)
+		{
+		circle(300+a,75+b,14);
+		setcolor(YELLOW);
+   		outtextxy(295+a,75+b,arbol->info.valor);setcolor(WHITE);
+   		if(d==1) 
+   			line(300+a+pow(2,c+1),b+14,300+a,61+b);
+   		else 
+   			if(d==2) 
+   				line(300+a-pow(2,c+1),b+14,300+a,61+b);
+		dibujar(arbol->izq,a-pow(2,c)-pow(2,d-4),b+75,c-1,1);
+		dibujar(arbol->der,a+pow(2,c)+pow(2,d-4),b+75,c-1,2);
+  	}
+}*/

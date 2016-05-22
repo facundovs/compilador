@@ -2,20 +2,10 @@ programa
 declaraciones	
 	DIM [a,b,c,d,e,f] AS [entero,entero,entero,real,cadena,cadena]
 fin_declaraciones	
-while(AllEqual(  [a+b,2], [d,4] ))				
-	if (AllEqual(  [c,2], [2,a] ) and AllEqual(  [c,2], [2,a] ) )
-		if(AllEqual(  [c,2], [2,a] ))
-			while(a<b)
-				a=FILTER(_<a,[b,c])
-			endwhile
+	while(a>1)
+		b=1
+		if(b>a)
+			c=b+a
 		endif
-	else
-		a=a
-	endif
-	a=FILTER(_<a,[b,c])
-	a=654
-	d=-7.62369
-	e="holamundopfjhk2"
-	f="holamundopfjhk2"
-endwhile
+	endwhile
 fin_programa

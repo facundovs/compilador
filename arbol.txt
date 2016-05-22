@@ -1,0 +1,12 @@
+PADRE                           |	HIJO IZQ                        |	HIJO DER                        
+while                           	>                               	sentencia                       
+>                               	b                               	a                               
+sentencia                       	if                              	if                              
+if                              	>                               	=                               
+>                               	b                               	a                               
+=                               	c                               	+                               
++                               	b                               	a                               
+if                              	>                               	=                               
+>                               	b                               	a                               
+=                               	c                               	+                               
++                               	b                               	a                               
