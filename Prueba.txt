@@ -2,7 +2,14 @@ programa
 declaraciones	
 	DIM [a,b,c,d,e,f] AS [entero,entero,entero,real,cadena,cadena]
 fin_declaraciones	
+while (a==b)
 if(a>1)
 	b=4
+else
+	if(b<2)
+		c=7
+		c=8
+	endif
 endif
+endwhile
 fin_programa

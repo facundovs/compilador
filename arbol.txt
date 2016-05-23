@@ -1,4 +1,12 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-if                              	>                               	=                               
+while                           	==                              	if                              
+==                              	a                               	b                               
+if                              	>                               	bloque if                       
 >                               	a                               	_1                              
+bloque if                       	=                               	if                              
 =                               	b                               	_4                              
+if                              	<                               	sentencia                       
+<                               	b                               	_2                              
+sentencia                       	=                               	=                               
+=                               	c                               	_7                              
+=                               	c                               	_8                              

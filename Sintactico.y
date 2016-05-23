@@ -146,6 +146,7 @@
 	t_pila pilaWhile;
 	t_pila pilaIf;
 	t_pila pilabloques;
+	t_pila pilabloqueif;
 
 %}
 
@@ -317,18 +318,15 @@ bloque_if:
  		printf("if sin else OK\n");
  	}
  |bloque_sentencias  {
-	t_info info;
-	strcpy(info.valor,"bloque if");
-	t_nodo aux = *bloque_sentencias;
- 	bloque_if = crearNodo(&info,bloque_sentencias,NULL);
- 	bloque_sentencias = bloque_if;
+ 	ponerEnPila(&pilabloqueif,bloque_sentencias);
  }
  	ELSE bloque_sentencias 
  	{
-
+ 		t_info info;
+		strcpy(info.valor,"bloque if");
+ 		bloque_if = crearNodo(&info,sacar_de_pila2 (&pilabloqueif),bloque_sentencias);
 		printf("BLOQUE ELSE: %s, %s, %s\n",bloque_sentencias->info.valor,bloque_sentencias->izq->info.valor,bloque_sentencias->der->info.valor);
- 		insertarHijo(&(bloque_if->der),bloque_sentencias);
- 		bloque_sentencias  = bloque_if;
+ 		bloque_sentencias=bloque_if;
  		printf("if con else OK\n");
  	}
 
