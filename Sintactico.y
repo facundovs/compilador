@@ -367,28 +367,51 @@ lista_var_filter:
 
 						t_info info2;
 						strcpy(info2.valor,"if"); 
+						t_info info;
+						t_nodo *copiaCondicion=(t_nodo *) malloc (sizeof(t_nodo));
+						*copiaCondicion=*condicion_filter;
+						strcpy(info.valor,yylval.cadena);
+						//NodoAsignacion
 						t_info filter_info;
-						strcpy(filter_info.valor,"@filter");
-						t_info info; 
-						t_nodo aux = *condicion_filter;
-						strcpy(info.valor, yylval.cadena);
-						insertarHijo(&(aux.izq),crearHoja(&info));
-						lista_var_filter = crearNodo(&info2,&aux,crearHoja(&filter_info));
+						strcpy(filter_info.valor,"=");
+						//HojaIzq
+						t_info filter_izq;
+						strcpy(filter_izq.valor,"@filter");
+						//HojaDer
+						t_info filter_der;
+						strcpy(filter_der.valor,yylval.cadena);
+						insertarHijo(&(copiaCondicion->izq),crearHoja(&info));
+						t_nodo* asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
+						//ponerEnPila(&pilaFilter,crearNodo(&info2,copiaCondicion,asignacionFilter));
+						lista_var_filter = crearNodo(&info2,copiaCondicion,asignacionFilter);
+						ponerEnPila(&pilaFilter,lista_var_filter);
 			}
-			| ID 
-			 COMA lista_var_filter 
+			| 
+			 lista_var_filter COMA ID 
 				{if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} 
+						t_nodo *aux=(t_nodo *) malloc (sizeof(t_nodo));
+						*aux=*(lista_var_filter->der);
 						t_info info; 
-						t_nodo aux = *condicion_filter;
-						strcpy(info.valor, yylval.cadena);
-						insertarHijo(&(aux.izq),crearHoja(&info));
+						t_nodo *copiaCondicion=(t_nodo *) malloc (sizeof(t_nodo));
+						*copiaCondicion=*condicion_filter;
+						strcpy(info.valor,yylval.cadena);
+						insertarHijo(&(copiaCondicion->izq),crearHoja(&info));
 						t_info info2;
 						strcpy(info2.valor,"if"); 
-						t_info filter_info;
-						strcpy(filter_info.valor,"@filter");
 						t_info info3;
 						strcpy(info3.valor,"bloque if");
-						lista_var_filter = crearNodo(&info2,&aux,crearNodo(&info3,crearHoja(&filter_info),lista_var_filter));
+						//NodoAsignacion
+						t_info filter_info;
+						strcpy(filter_info.valor,"=");
+						//HojaIzq
+						t_info filter_izq;
+						strcpy(filter_izq.valor,"@filter");
+						//HojaDer
+						t_info filter_der;
+						strcpy(filter_der.valor,yylval.cadena);
+						t_nodo* asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
+						lista_var_filter=crearNodo(&info3,aux,crearNodo(&info2,copiaCondicion,asignacionFilter));
+						insertarHijo(&(lista_var_filter->izq),aux);
 					} 
 			;
 	
@@ -402,12 +425,17 @@ allequal:
 		;
 		
 filter:
-	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  { 
+	FILTER P_A  condicion_filter COMA 
+										{
+
+										}
+	C_A lista_var_filter C_C P_C  { 
 										t_info info;  
 										strcpy(info.valor,"FILTER");
 										t_info filter_info;
 										strcpy(filter_info.valor,"@filter");
-										filter= crearNodo(&info,lista_var_filter,crearHoja(&filter_info)); printf("Filter OK\n"); }
+										filter= crearNodo(&info,sacar_de_pila2(&pilaFilter),lista_var_filter); 
+										printf("Filter OK\n"); }
 	;
 
 write:  

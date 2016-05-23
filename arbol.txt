@@ -1,11 +1,13 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
 =                               	a                               	FILTER                          
-FILTER                          	if                              	@filter                         
-if                              	>                               	bloque if                       
+FILTER                          	if                              	bloque if                       
+if                              	>                               	=                               
+>                               	b                               	_2                              
+=                               	@filter                         	b                               
+bloque if                       	if                              	if                              
+if                              	>                               	=                               
+>                               	c                               	_2                              
+=                               	@filter                         	c                               
+if                              	>                               	=                               
 >                               	d                               	_2                              
-bloque if                       	@filter                         	if                              
-if                              	>                               	bloque if                       
->                               	d                               	_2                              
-bloque if                       	@filter                         	if                              
-if                              	>                               	@filter                         
->                               	d                               	_2                              
+=                               	@filter                         	d                               
