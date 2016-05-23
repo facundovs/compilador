@@ -1,6 +1,6 @@
 programa 
 declaraciones	
-	DIM [a,b,c,d,e,f] AS [entero,entero,entero,real,cadena,cadena]
+	DIM [a,b,c,d,e,f] AS [entero,entero,entero,entero,entero,entero]
 fin_declaraciones	
 a=FILTER(_>2,[b,c,d])
 fin_programa

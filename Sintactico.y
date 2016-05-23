@@ -426,17 +426,27 @@ lista_var_filter:
 						//HojaDer
 						t_info filter_der;
 						strcpy(filter_der.valor,yylval.cadena);
+						//Bloque if
+						t_info filter_bloque;
+						strcpy(filter_bloque.valor,"bloque if");
+						//No encontrado
+						t_info filter_no_encontrado;
+						strcpy(filter_no_encontrado.valor,"null");
+
+						t_nodo *asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
+						t_nodo *asignacionNull=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_no_encontrado));
+						t_nodo *nodo_bloque_if=crearNodo(&filter_bloque,asignacionFilter,asignacionNull);
 						insertarHijo(&(copiaCondicion->izq),crearHoja(&info));
-						t_nodo* asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
+						
 						//ponerEnPila(&pilaFilter,crearNodo(&info2,copiaCondicion,asignacionFilter));
-						lista_var_filter = crearNodo(&info2,copiaCondicion,asignacionFilter);
+						lista_var_filter = crearNodo(&info2,copiaCondicion,nodo_bloque_if);
 						ponerEnPila(&pilaFilter,lista_var_filter);
 			}
 			| 
 			 lista_var_filter COMA ID 
 				{if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} 
 						t_nodo *aux=(t_nodo *) malloc (sizeof(t_nodo));
-						*aux=*(lista_var_filter->der);
+						*aux=*(lista_var_filter->der->izq);
 						t_info info; 
 						t_nodo *copiaCondicion=(t_nodo *) malloc (sizeof(t_nodo));
 						*copiaCondicion=*condicion_filter;
@@ -457,7 +467,13 @@ lista_var_filter:
 						strcpy(filter_der.valor,yylval.cadena);
 						printf("INSERTANDO NUEVA VARIABLE EN FILTER: %s\n",yylval.cadena);
 						t_nodo* asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
-						t_nodo *nodo_if=crearNodo(&info2,copiaCondicion,asignacionFilter);
+						//No encontrado
+						t_info filter_no_encontrado;
+						strcpy(filter_no_encontrado.valor,"null");
+						t_nodo *asignacionNull=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_no_encontrado));
+						t_nodo *nodo_bloque_trueFalse=crearNodo(&info3,asignacionFilter,asignacionNull);
+						//
+						t_nodo *nodo_if=crearNodo(&info2,copiaCondicion,nodo_bloque_trueFalse);
 						t_nodo *nodo_bloque_if=crearNodo(&info3,aux,nodo_if);
 						*(lista_var_filter->der)=*nodo_bloque_if;
 						lista_var_filter=nodo_bloque_if->der;

@@ -9,6 +9,8 @@ if                              	>                               	bloque if
 >                               	c                               	_2                              
 bloque if                       	=                               	if                              
 =                               	@filter                         	c                               
-if                              	>                               	=                               
+if                              	>                               	bloque if                       
 >                               	d                               	_2                              
+bloque if                       	=                               	=                               
 =                               	@filter                         	d                               
+=                               	@filter                         	null                            
