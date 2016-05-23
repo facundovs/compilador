@@ -5,4 +5,4 @@ c                               |	cadena                          |	----------  
 d                               |	cadena                          |	----------                      |	----------                      
 e                               |	cadena                          |	----------                      |	----------                      
 f                               |	cadena                          |	----------                      |	----------                      
-TABLA INCOMPLETA (ERROR DE COMPILACION)
+_uno                            |	const_cadena                    |	uno                             |	3                               

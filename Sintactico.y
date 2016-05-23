@@ -510,24 +510,36 @@ allequal:
 			t_info asignacionFalse;
 			strcpy(asignacionTrue.valor,"falso");
 
-			t_nodo nodo_resultado_true=crearNodo(&asignacion,nodo_Res,asignacionTrue);
-			t_nodo nodo_resultado_false=crearNodo(&asignacion,nodo_Res,asignacionFalse);
+			t_nodo *nodo_resultado_true=crearNodo(&asignacion,crearHoja(&nodo_Res),crearHoja(&asignacionTrue));
+			t_nodo *nodo_resultado_false=crearNodo(&asignacion,crearHoja(&nodo_Res),crearHoja(&asignacionFalse));
 
 			//bloque if
-			t_info bloque_if;
-			strcpy(bloque_if.valor,"bloque_if");
-			t_nodo bloque_if =crearNodo(&bloque_if,NULL,nodo_resultado_false);
+			t_info info_bloque_if;
+			strcpy(info_bloque_if.valor,"bloque_if");
+			t_nodo *bloque_if =crearNodo(&info_bloque_if,nodo_resultado_true,nodo_resultado_false);
 			all_equal=crearNodo(&nodo_allEqual,NULL,crearHoja(&nodo_Res));
 
-			t_nodo *nodo_if=crearNodo(&info_if,NULL,nodo_resultado_true);
-
-			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,sacar_de_pila2(&pilasAllEqual[0]),sacar_de_pila2(&pilasAllEqual[1])));
+			t_nodo *nodo_if=crearNodo(&info_if,NULL,NULL);
+			t_nodo *ultimoComparado= sacar_de_pila2(&pilasAllEqual[1]);
+			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,sacar_de_pila2(&pilasAllEqual[0]),ultimoComparado));
 			int pilasVisitadas=2;
-			for(pilasVisitadas;pilasVisitadas<cantListasAllEqual;pilasVisitadas++){
-				insertarHijo(&(nodo_if->der),);
+			int k=0;
+			t_nodo *auxBloqueIf = (t_nodo *) malloc(sizeof(t_nodo));
+			*auxBloqueIf= *bloque_if;
+			for(k=0;k<cantExpLE[0];k++){
+				for(pilasVisitadas;pilasVisitadas<cantListasAllEqual;pilasVisitadas++){
+					t_nodo *dato_de_pila= sacar_de_pila2(&pilasAllEqual[pilasVisitadas]);
+					printf("%p\n dato: %s\n",dato_de_pila,dato_de_pila->info.valor);
+						insertarHijo(&(auxBloqueIf->izq),crearNodo(&info_if,crearNodo(&info_igual,ultimoComparado,
+						dato_de_pila),bloque_if));
+						insertarHijo(&(nodo_if->der),auxBloqueIf);	
+						ultimoComparado=dato_de_pila;
+				}
+				pilasVisitadas=0;
 			}
+			all_equal=crearNodo(&nodo_allEqual,nodo_if,crearHoja(&nodo_Res));
 
-			//all_equal=NODO_FINAL	
+						//all_equal=NODO_FINAL	
 		}
 		;
 		

@@ -1,18 +1,13 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-sentencia                       	sentencia                       	=                               
-sentencia                       	=                               	while                           
-=                               	a                               	_1                              
-while                           	==                              	sentencia                       
-==                              	a                               	_9                              
-sentencia                       	if                              	=                               
-if                              	>                               	sentencia                       
->                               	b                               	_2                              
-sentencia                       	=                               	if                              
-=                               	c                               	_3                              
-if                              	<                               	bloque if                       
-<                               	d                               	_4                              
-bloque if                       	=                               	=                               
-=                               	d                               	d                               
-=                               	e                               	e                               
-=                               	f                               	_endwhile                       
-=                               	f                               	_fin                            
+if                              	AllEqual                        	=                               
+AllEqual                        	if                              	@allequal                       
+if                              	==                              	bloque_if                       
+==                              	c                               	f                               
+bloque_if                       	if                              	=                               
+if                              	==                              	bloque_if                       
+==                              	a                               	d                               
+bloque_if                       	=                               	=                               
+=                               	@allequal                       	falso                           
+=                               	@allequal                       	                                
+=                               	@allequal                       	                                
+=                               	a                               	_uno                            
