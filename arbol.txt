@@ -1,16 +1,8 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-=                               	a                               	FILTER                          
-FILTER                          	if                              	@filter                         
-if                              	>                               	bloque if                       
+sentencia                       	sentencia                       	=                               
+sentencia                       	=                               	if                              
+=                               	a                               	_1                              
+if                              	>                               	=                               
 >                               	b                               	_2                              
-bloque if                       	=                               	if                              
-=                               	@filter                         	b                               
-if                              	>                               	bloque if                       
->                               	c                               	_2                              
-bloque if                       	=                               	if                              
-=                               	@filter                         	c                               
-if                              	>                               	bloque if                       
->                               	d                               	_2                              
-bloque if                       	=                               	=                               
-=                               	@filter                         	d                               
-=                               	@filter                         	null                            
+=                               	c                               	_3                              
+=                               	d                               	_4                              

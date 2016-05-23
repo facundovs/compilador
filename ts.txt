@@ -5,4 +5,7 @@ c                               |	entero                          |	----------  
 d                               |	entero                          |	----------                      |	----------                      
 e                               |	entero                          |	----------                      |	----------                      
 f                               |	entero                          |	----------                      |	----------                      
+_1                              |	const_entero                    |	1                               |	----------                      
 _2                              |	const_entero                    |	2                               |	----------                      
+_3                              |	const_entero                    |	3                               |	----------                      
+_4                              |	const_entero                    |	4                               |	----------                      

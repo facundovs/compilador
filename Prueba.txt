@@ -2,5 +2,9 @@ programa
 declaraciones	
 	DIM [a,b,c,d,e,f] AS [entero,entero,entero,entero,entero,entero]
 fin_declaraciones	
-a=FILTER(_>2,[b,c,d])
+a=1
+if(b>2)
+	c=3
+endif
+d=4
 fin_programa
