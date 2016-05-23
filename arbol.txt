@@ -1,13 +1,4 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-=                               	a                               	FILTER                          
-FILTER                          	if                              	bloque if                       
-if                              	>                               	=                               
->                               	b                               	_2                              
-=                               	@filter                         	b                               
-bloque if                       	if                              	if                              
-if                              	>                               	=                               
->                               	c                               	_2                              
-=                               	@filter                         	c                               
-if                              	>                               	=                               
->                               	d                               	_2                              
-=                               	@filter                         	d                               
+=                               	a                               	-                               
+-                               	-                               	_3                              
+-                               	_1                              	_2                              

@@ -2,5 +2,5 @@ programa
 declaraciones	
 	DIM [a,b,c,d,e,f] AS [entero,entero,entero,real,cadena,cadena]
 fin_declaraciones	
-a = FILTER (_>2,[b,c,d])
+a= 1-2-3
 fin_programa

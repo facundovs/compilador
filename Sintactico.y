@@ -148,6 +148,7 @@
 	t_pila pilabloques;
 	t_pila pilabloqueif;
 	t_pila pilaFilter;
+	t_nodo comparacion1;
 
 %}
 
@@ -168,8 +169,8 @@
 	%token COMILLA COMA C_A C_C  P_C P_A GB
 	
 	//TOKEN OPERANDOS
-	%token OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG  OP_CONCAT
-	
+	%token OP_CONCAT
+	%left OP_SUMA OP_RESTA OP_MUL OP_DIV ASIG
 	//TOKEN COMPARADORES
 	%token COMPARADOR AND OR OP_NOT
 	
@@ -282,7 +283,6 @@ sentencia_if:
 		insertarHijo(&(sentencia_if->der),bloque_sentencias);
 		bloque_sentencias = sacar_de_pila2(&pilabloques);
 		printf("Agregado esto: %s %s %s\n",sentencia_if->der->izq->info.valor,sentencia_if->der->info.valor,sentencia_if->der->der->info.valor);
-		printf("while OK\n");
 	}
 	;
 
@@ -342,9 +342,42 @@ condicion:
 		allequal
 		| comparacion {condicion=comparacion;}
 		| OP_NOT allequal
-		| OP_NOT comparacion
+		| OP_NOT comparacion {
+								condicion=comparacion;
+									if(strcmp(condicion->info.valor,"<")==0)
+										strcpy(condicion->info.valor,">=");
+										else if(strcmp(condicion->info.valor,">")==0)
+												strcpy(condicion->info.valor,"<=");
+											else if(strcmp(condicion->info.valor,"<=")==0)
+												strcpy(condicion->info.valor,">");
+												else if(strcmp(condicion->info.valor,">=")==0)
+													strcpy(condicion->info.valor,"<");
+													else if(strcmp(condicion->info.valor,"==")==0)
+														strcpy(condicion->info.valor,"!=");
+														else if(strcmp(condicion->info.valor,"!=")==0)
+															strcpy(condicion->info.valor,"!=");
+            					}
+							 
 		| allequal and_or allequal
-		| comparacion and_or comparacion
+		| comparacion
+		{
+			comparacion1 = * comparacion;
+		} 
+		and_or comparacion
+		{
+			t_nodo * aux;
+			aux = (t_nodo *) malloc(sizeof(t_nodo));
+			t_nodo * aux1;
+			aux1 = (t_nodo *) malloc(sizeof(t_nodo));
+			*aux1 = comparacion1;
+			*aux = * comparacion;
+			t_nodo * aux2;
+			aux2 = (t_nodo *) malloc(sizeof(t_nodo));
+			*aux2=*and_or;
+			insertarHijo(&(aux2->izq),aux1);
+			insertarHijo(&(aux2->der),aux);
+			condicion = aux2;
+		}
 		;
 
 comparacion_filter:
@@ -358,7 +391,20 @@ comparacion_filter:
 	; 
 condicion_filter:
 		comparacion_filter	
-		| OP_NOT GB comparacion_filter
+		| OP_NOT GB comparacion_filter{
+									if(strcmp(condicion_filter->info.valor,"<")==0)
+										strcpy(condicion_filter->info.valor,">=");
+										else if(strcmp(condicion_filter->info.valor,">")==0)
+												strcpy(condicion_filter->info.valor,"<=");
+											else if(strcmp(condicion_filter->info.valor,"<=")==0)
+												strcpy(condicion_filter->info.valor,">");
+												else if(strcmp(condicion_filter->info.valor,">=")==0)
+													strcpy(condicion_filter->info.valor,"<");
+													else if(strcmp(condicion_filter->info.valor,"==")==0)
+														strcpy(condicion_filter->info.valor,"!=");
+														else if(strcmp(condicion_filter->info.valor,"!=")==0)
+															strcpy(condicion_filter->info.valor,"!=");
+            					}
 		| comparacion_filter and_or comparacion_filter
 		;
 
@@ -457,19 +503,27 @@ read:
 		}		
 	;
 
-lista_exp:
+lista_exp: //SEGURAMENTE TENEMOS QUE DAR VUELTA LA SEGUNDA PARTE
 		C_A expresiones C_C { contadorListaExp++; }
 		|C_A expresiones C_C { contadorListaExp++; } COMA lista_exp
 		;
 
-expresiones:
+expresiones: //SEGURAMENTE TENEMOS QUE DAR VUELTA LA SEGUNDA PARTE
 		expresion { cantExpLE[contadorListaExp] ++;}
 		|expresion { cantExpLE[contadorListaExp] ++;} COMA expresiones
 		;
 
 and_or:
-	AND
-	| OR
+	AND	{
+			t_info info;
+			strcpy(info.valor,"and");
+			and_or= crearHoja(&info);
+		}
+	| OR {
+			t_info info;
+			strcpy(info.valor,"or");
+			and_or= crearHoja(&info);
+		 }
 	;
 
 asignacion: 
@@ -495,13 +549,21 @@ asignacion:
 
 expresion:
      termino {expresion=termino;}
-	 |expresion OP_RESTA termino
+	 |expresion OP_RESTA 
+	 {
+	 	/*t_info info;
+	 	strcpy(info.valor,"-");
+	 	expresion=crearNodo(&info,expresion,NULL);
+	 	printf("Expresion: %s\n", yylval.cadena);*/
+	 }
+	 termino
 	 							{
 	 								if(tipoAsignacion == TipoCadena) 
 	 									yyerrormsj("resta",ErrorSintactico,ErrorOperacionNoValida); 
 									else{
 										t_info info;
        									strcpy(info.valor,"-");
+       									//insertarHijo(&expresion->der,termino);
        									expresion= crearNodo(&info,expresion,termino);
 										printf("Resta OK\n");
 									} 
@@ -671,7 +733,7 @@ factor:
 		strcat(info.valor,yylval.cadena);
 		factor = crearHoja(&info);
       }
-      |P_A expresion P_C  
+      |P_A expresion P_C  {expresion=factor;}
 	  | filter { factor = filter; }
     ;
 
@@ -679,11 +741,6 @@ factor:
 
 int main(int argc,char *argv[])
 {
-//	bloque_sentencias=(t_nodo *) malloc (sizeof(t_nodo));
- // 	crearPila(&pilabloques);
- // 	crearPila(&pilaWhile);
- // 	crearPila(&pilaIf);
-  	//printf("PILAS CREADAS*******************************************************\n");
 	if ((yyin = fopen(argv[1], "rt")) == NULL)
 	{
 		printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
