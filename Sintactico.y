@@ -149,6 +149,9 @@
 	t_pila pilabloqueif;
 	t_pila pilaFilter;
 	t_nodo comparacion1;
+	//
+	int cantListasAllEqual=0;
+	t_pila pilasAllEqual[TAM];
 
 %}
 
@@ -339,7 +342,7 @@ comparacion : expresion COMPARADOR {
 					insertarHijo(&(comparacion->der),expresion);
 				} ;
 condicion:
-		allequal
+		allequal {condicion=all_equal;}
 		| comparacion {condicion=comparacion;}
 		| OP_NOT allequal
 		| OP_NOT comparacion {
@@ -484,12 +487,48 @@ lista_var_filter:
 			;
 	
 allequal: 
-		{ limpiarVector(cantExpLE,TAM); } ALLEQUAL P_A lista_exp P_C {   if(! longLEsValidas())
-											yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSintactico,ErrorAllEqual);
-										if(contadorListaExp==1)
-											yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSintactico,ErrorAllEqual);
-									contadorListaExp=0; printf("AllEqual OK \n");
-									}
+		ALLEQUAL { limpiarVector(cantExpLE,TAM); } P_A lista_exp P_C 
+		{  
+			if(! longLEsValidas())
+				yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSintactico,ErrorAllEqual);
+			if(contadorListaExp==1)
+				yyerrormsj("Se deben ingresar como minimo dos listas de expresiones",ErrorSintactico,ErrorAllEqual);
+			contadorListaExp=0; printf("AllEqual OK \n");
+			printf("Cantidad de listas: %d\n",cantListasAllEqual);
+			t_info nodo_allEqual;
+			strcpy(nodo_allEqual.valor,"AllEqual");
+			t_info nodo_Res;
+			strcpy(nodo_Res.valor,"@allequal");
+			t_info info_igual;
+			strcpy(info_igual.valor,"==");
+			t_info info_if;
+			strcpy(info_if.valor,"if");
+			t_info asignacion;
+			strcpy(asignacion.valor,"=");
+			t_info asignacionTrue;
+			strcpy(asignacionTrue.valor,"true");
+			t_info asignacionFalse;
+			strcpy(asignacionTrue.valor,"falso");
+
+			t_nodo nodo_resultado_true=crearNodo(&asignacion,nodo_Res,asignacionTrue);
+			t_nodo nodo_resultado_false=crearNodo(&asignacion,nodo_Res,asignacionFalse);
+
+			//bloque if
+			t_info bloque_if;
+			strcpy(bloque_if.valor,"bloque_if");
+			t_nodo bloque_if =crearNodo(&bloque_if,NULL,nodo_resultado_false);
+			all_equal=crearNodo(&nodo_allEqual,NULL,crearHoja(&nodo_Res));
+
+			t_nodo *nodo_if=crearNodo(&info_if,NULL,nodo_resultado_true);
+
+			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,sacar_de_pila2(&pilasAllEqual[0]),sacar_de_pila2(&pilasAllEqual[1])));
+			int pilasVisitadas=2;
+			for(pilasVisitadas;pilasVisitadas<cantListasAllEqual;pilasVisitadas++){
+				insertarHijo(&(nodo_if->der),);
+			}
+
+			//all_equal=NODO_FINAL	
+		}
 		;
 		
 filter:
@@ -525,14 +564,36 @@ read:
 		}		
 	;
 
-lista_exp: //SEGURAMENTE TENEMOS QUE DAR VUELTA LA SEGUNDA PARTE
-		C_A expresiones C_C { contadorListaExp++; }
-		|C_A expresiones C_C { contadorListaExp++; } COMA lista_exp
+lista_exp:
+		C_A {
+			pilasAllEqual[cantListasAllEqual]=(t_nodoPila*)malloc(sizeof(t_nodoPila));
+		}
+		expresiones C_C { 
+			contadorListaExp++;
+			cantListasAllEqual++;
+			 }
+		|lista_exp COMA C_A  
+		{
+			pilasAllEqual[cantListasAllEqual]=(t_nodoPila*)malloc(sizeof(t_nodoPila));
+		}
+		expresiones C_C 
+		{ 
+			contadorListaExp++; 
+			cantListasAllEqual++;
+		}
 		;
 
-expresiones: //SEGURAMENTE TENEMOS QUE DAR VUELTA LA SEGUNDA PARTE
-		expresion { cantExpLE[contadorListaExp] ++;}
-		|expresion { cantExpLE[contadorListaExp] ++;} COMA expresiones
+expresiones:
+		expresion {
+			ponerEnPila(&(pilasAllEqual[cantListasAllEqual]),expresion);
+			printf("Expresion: %s\n",expresion->info.valor);
+		cantExpLE[contadorListaExp] ++;
+		}
+		|expresiones COMA  expresion { 
+			cantExpLE[contadorListaExp] ++;
+			printf("Expresion en lista: %s\n",expresion->info.valor);
+			ponerEnPila(&(pilasAllEqual[cantListasAllEqual]),expresion);
+		}
 		;
 
 and_or:

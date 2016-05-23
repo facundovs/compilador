@@ -1,10 +1,8 @@
 programa 
 declaraciones	
-	DIM [a,b,c,d,e,f] AS [entero,entero,entero,entero,entero,entero]
+	DIM [a,b,c,d,e,f] AS [cadena,cadena,cadena,cadena,cadena,cadena]
 fin_declaraciones	
-a=1
-if(b>2)
-	c=3
+if(AllEqual([a,b,c],[d,e,f]))
+	a="uno"
 endif
-d=4
 fin_programa

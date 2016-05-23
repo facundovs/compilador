@@ -1,8 +1,18 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
 sentencia                       	sentencia                       	=                               
-sentencia                       	=                               	if                              
+sentencia                       	=                               	while                           
 =                               	a                               	_1                              
-if                              	>                               	=                               
+while                           	==                              	sentencia                       
+==                              	a                               	_9                              
+sentencia                       	if                              	=                               
+if                              	>                               	sentencia                       
 >                               	b                               	_2                              
+sentencia                       	=                               	if                              
 =                               	c                               	_3                              
-=                               	d                               	_4                              
+if                              	<                               	bloque if                       
+<                               	d                               	_4                              
+bloque if                       	=                               	=                               
+=                               	d                               	d                               
+=                               	e                               	e                               
+=                               	f                               	_endwhile                       
+=                               	f                               	_fin                            
