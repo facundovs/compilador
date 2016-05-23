@@ -95,6 +95,7 @@
 	int ponerEnPila(t_pila*,t_nodo*);
 	int sacar_de_pila(t_pila*,t_nodo*);
 	void vaciarPila(t_pila*);
+	t_nodo * sacar_de_pila2(t_pila *);
 	int elementosEnPilaWhile =0;
 	int elementosEnPilaIf =0;
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
@@ -144,6 +145,7 @@
 	char *yytext;
 	t_pila pilaWhile;
 	t_pila pilaIf;
+	t_pila pilabloques;
 
 %}
 
@@ -268,16 +270,23 @@ sentencia_if:
 	{
 		t_info info;
 		strcpy(info.valor,"if"); 
-		printf("PONIENDO EN PILA IF------------------------------------------\n");
+		printf("PONIENDO EN PILA if------------------------------------------\n");
 		ponerEnPila(&pilaIf,crearNodo(&info,condicion,NULL));
+		if(bloque_sentencias)
+			ponerEnPila(&pilabloques,bloque_sentencias);
 		printf("PUESTO EN PILA------------------------------------------\n");
 	}
 	bloque_if ENDIF
 	{
 		printf("SACANDO DE PILA------------------------------------------\n");
+		sentencia_if =(t_nodo *) malloc (sizeof(t_nodo));
 		sacar_de_pila(&pilaIf,sentencia_if);
-		printf("FUERA EN PILA IF------------------------------------------\n");
-		insertarHijo(&(sentencia_if->der),bloque_if);
+		printf("FUERA DE PILA WHILE----%p-----------------------\n",sentencia_if);
+		printf("Nodo sacado de pila: %s %s %s %s\n",sentencia_if->izq->izq->info.valor,sentencia_if->izq->info.valor,sentencia_if->izq->der->info.valor,sentencia_if->info.valor );
+		insertarHijo(&(sentencia_if->der),bloque_sentencias);
+		bloque_sentencias = sacar_de_pila2(&pilabloques);
+		printf("Agregado esto: %s %s %s\n",sentencia_if->der->izq->info.valor,sentencia_if->der->info.valor,sentencia_if->der->der->info.valor);
+		printf("while OK\n");
 	}
 	;
 
@@ -288,6 +297,8 @@ sentencia_while:
 		strcpy(info.valor,"while"); 
 		printf("PONIENDO EN PILA WHILE------------------------------------------\n");
 		ponerEnPila(&pilaWhile,crearNodo(&info,condicion,NULL));
+		if(bloque_sentencias)
+			ponerEnPila(&pilabloques,bloque_sentencias);
 		printf("PUESTO EN PILA------------------------------------------\n");
 	}
 	bloque_sentencias ENDWHILE
@@ -298,8 +309,8 @@ sentencia_while:
 		printf("FUERA DE PILA WHILE----%p-----------------------\n",sentencia_while);
 		printf("Nodo sacado de pila: %s %s %s %s\n",sentencia_while->izq->izq->info.valor,sentencia_while->izq->info.valor,sentencia_while->izq->der->info.valor,sentencia_while->info.valor );
 		insertarHijo(&(sentencia_while->der),bloque_sentencias);
+		bloque_sentencias = sacar_de_pila2(&pilabloques);
 		printf("Agregado esto: %s %s %s\n",sentencia_while->der->izq->info.valor,sentencia_while->der->info.valor,sentencia_while->der->der->info.valor);
-		scanf("%*c");
 		printf("while OK\n");
 	}
 	;
@@ -598,8 +609,10 @@ factor:
 
 int main(int argc,char *argv[])
 {
-  	crearPila(&pilaWhile);
-  	crearPila(&pilaIf);
+//	bloque_sentencias=(t_nodo *) malloc (sizeof(t_nodo));
+ // 	crearPila(&pilabloques);
+ // 	crearPila(&pilaWhile);
+ // 	crearPila(&pilaIf);
   	//printf("PILAS CREADAS*******************************************************\n");
 	if ((yyin = fopen(argv[1], "rt")) == NULL)
 	{
@@ -884,6 +897,18 @@ int sacar_de_pila(t_pila* pp,t_nodo* info)
 
 }
 
+t_nodo * sacar_de_pila2(t_pila* pp)
+{
+	t_nodo* info = (t_nodo *) malloc(sizeof(t_nodo));
+    if(!*pp){
+    	return NULL;
+    }
+    *info=(*pp)->info;
+    //printf("----------------------------------SACANDO: %s %s\n",info->info.valor,info->izq->info.valor );
+    *pp=(*pp)->psig;
+    return info;
+
+}
 ///////////////////////////////////////////////////////
 
 void vaciarPila(t_pila* pp)

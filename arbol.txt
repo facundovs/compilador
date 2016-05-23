@@ -1,12 +1,10 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-while                           	>                               	sentencia                       
+if                              	>                               	sentencia                       
 >                               	a                               	_1                              
-sentencia                       	sentencia                       	while                           
+sentencia                       	sentencia                       	if                              
 sentencia                       	=                               	=                               
-=                               	b                               	_4                              
-=                               	b                               	_5                              
-while                           	<                               	sentencia                       
+=                               	a                               	_2                              
+=                               	c                               	_6                              
+if                              	<                               	=                               
 <                               	b                               	_3                              
-sentencia                       	=                               	=                               
-=                               	b                               	_4                              
 =                               	b                               	_5                              
