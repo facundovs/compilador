@@ -147,6 +147,7 @@
 	t_pila pilaIf;
 	t_pila pilabloques;
 	t_pila pilabloqueif;
+	t_pila pilaFilter;
 
 %}
 
@@ -254,7 +255,6 @@ bloque_sentencias:
 
 sentencia: 
 		write 				{sentencia=write;}
-		| filter 			{sentencia=filter;}
 		| read 				{sentencia=read;}
 		| asignacion 		{sentencia=asignacion;}
 		| sentencia_if		{sentencia=sentencia_if; }
@@ -346,19 +346,50 @@ condicion:
 		| allequal and_or allequal
 		| comparacion and_or comparacion
 		;
-		
-condicion_filter:
-		GB COMPARADOR expresion { 	
+
+comparacion_filter:
+	GB COMPARADOR { 	
 									t_info info;
 									strcpy(info.valor,yylval.cadena);
-									condicion_filter  = crearNodo(&info,NULL,expresion);}
-		| OP_NOT GB COMPARADOR expresion
-		| GB COMPARADOR expresion and_or GB COMPARADOR expresion
+									condicion_filter  = crearNodo(&info,NULL,NULL);}
+		expresion { 	
+					insertarHijo(&(condicion_filter->der),expresion);
+		}
+	; 
+condicion_filter:
+		comparacion_filter	
+		| OP_NOT GB comparacion_filter
+		| comparacion_filter and_or comparacion_filter
 		;
 
 lista_var_filter:
-			ID	 {if(existeId(yylval.cadena)== -1 ){  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} }
-			| ID   {if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} } COMA  lista_var_filter 
+			ID	 { if(existeId(yylval.cadena)== -1 ){  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} 
+
+						t_info info2;
+						strcpy(info2.valor,"if"); 
+						t_info filter_info;
+						strcpy(filter_info.valor,"@filter");
+						t_info info; 
+						t_nodo aux = *condicion_filter;
+						strcpy(info.valor, yylval.cadena);
+						insertarHijo(&(aux.izq),crearHoja(&info));
+						lista_var_filter = crearNodo(&info2,&aux,crearHoja(&filter_info));
+			}
+			| ID 
+			 COMA lista_var_filter 
+				{if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} 
+						t_info info; 
+						t_nodo aux = *condicion_filter;
+						strcpy(info.valor, yylval.cadena);
+						insertarHijo(&(aux.izq),crearHoja(&info));
+						t_info info2;
+						strcpy(info2.valor,"if"); 
+						t_info filter_info;
+						strcpy(filter_info.valor,"@filter");
+						t_info info3;
+						strcpy(info3.valor,"bloque if");
+						lista_var_filter = crearNodo(&info2,&aux,crearNodo(&info3,crearHoja(&filter_info),lista_var_filter));
+					} 
 			;
 	
 allequal: 
@@ -371,7 +402,12 @@ allequal:
 		;
 		
 filter:
-	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  { printf("Filter OK\n"); }
+	FILTER P_A  condicion_filter COMA C_A lista_var_filter C_C P_C  { 
+										t_info info;  
+										strcpy(info.valor,"FILTER");
+										t_info filter_info;
+										strcpy(filter_info.valor,"@filter");
+										filter= crearNodo(&info,lista_var_filter,crearHoja(&filter_info)); printf("Filter OK\n"); }
 	;
 
 write:  
@@ -426,7 +462,7 @@ asignacion:
 					strcpy(info_id.valor,ultimoId);
        				asignacion= crearNodo(&info,crearHoja(&info_id),expresion);	
        				printf("Asignacion OK\n"); esAsignacion=0; 
-				}
+		}
 	;
 
 expresion:

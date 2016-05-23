@@ -1,12 +1,11 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-while                           	==                              	if                              
-==                              	a                               	b                               
+=                               	a                               	FILTER                          
+FILTER                          	if                              	@filter                         
 if                              	>                               	bloque if                       
->                               	a                               	_1                              
-bloque if                       	=                               	if                              
-=                               	b                               	_4                              
-if                              	<                               	sentencia                       
-<                               	b                               	_2                              
-sentencia                       	=                               	=                               
-=                               	c                               	_7                              
-=                               	c                               	_8                              
+>                               	d                               	_2                              
+bloque if                       	@filter                         	if                              
+if                              	>                               	bloque if                       
+>                               	d                               	_2                              
+bloque if                       	@filter                         	if                              
+if                              	>                               	@filter                         
+>                               	d                               	_2                              
