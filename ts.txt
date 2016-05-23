@@ -6,8 +6,4 @@ d                               |	real                            |	----------  
 e                               |	cadena                          |	----------                      |	----------                      
 f                               |	cadena                          |	----------                      |	----------                      
 _1                              |	const_entero                    |	1                               |	----------                      
-_2                              |	const_entero                    |	2                               |	----------                      
-_6                              |	const_entero                    |	6                               |	----------                      
-_3                              |	const_entero                    |	3                               |	----------                      
 _4                              |	const_entero                    |	4                               |	----------                      
-_5                              |	const_entero                    |	5                               |	----------                      

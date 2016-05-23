@@ -1,10 +1,4 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-if                              	>                               	sentencia                       
+if                              	>                               	=                               
 >                               	a                               	_1                              
-sentencia                       	sentencia                       	if                              
-sentencia                       	=                               	=                               
-=                               	a                               	_2                              
-=                               	c                               	_6                              
-if                              	<                               	=                               
-<                               	b                               	_3                              
-=                               	b                               	_5                              
+=                               	b                               	_4                              

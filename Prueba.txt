@@ -3,12 +3,6 @@ declaraciones
 	DIM [a,b,c,d,e,f] AS [entero,entero,entero,real,cadena,cadena]
 fin_declaraciones	
 if(a>1)
-a=2
-c=6
-	if(b<3)
 	b=4
-	else
-		b=5
-	endif		
 endif
 fin_programa

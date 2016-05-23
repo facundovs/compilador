@@ -231,11 +231,6 @@ lista_var:
 					 } COMA lista_var 
  	 ;
 	 
-lista_var_filter:
-			ID	  {if(existeId(yylval.cadena)== -1 ){  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} }
-			| ID   {if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} } COMA  lista_var_filter 
-			;
-
 tipo: 
 		ENTERO
 		| REAL
@@ -318,17 +313,22 @@ sentencia_while:
 bloque_if:
  bloque_sentencias 
  	{
- 		bloque_if = bloque_sentencias;	
+ 		 bloque_if=bloque_sentencias;	
  		printf("if sin else OK\n");
  	}
- |bloque_sentencias {
+ |bloque_sentencias  {
 	t_info info;
 	strcpy(info.valor,"bloque if");
+	t_nodo aux = *bloque_sentencias;
  	bloque_if = crearNodo(&info,bloque_sentencias,NULL);
+ 	bloque_sentencias = bloque_if;
  }
  	ELSE bloque_sentencias 
  	{
- 		insertarHijo(&(bloque_if->izq),bloque_sentencias);
+
+		printf("BLOQUE ELSE: %s, %s, %s\n",bloque_sentencias->info.valor,bloque_sentencias->izq->info.valor,bloque_sentencias->der->info.valor);
+ 		insertarHijo(&(bloque_if->der),bloque_sentencias);
+ 		bloque_sentencias  = bloque_if;
  		printf("if con else OK\n");
  	}
 
@@ -350,11 +350,19 @@ condicion:
 		;
 		
 condicion_filter:
-		GB COMPARADOR expresion
+		GB COMPARADOR expresion { 	
+									t_info info;
+									strcpy(info.valor,yylval.cadena);
+									condicion_filter  = crearNodo(&info,NULL,expresion);}
 		| OP_NOT GB COMPARADOR expresion
 		| GB COMPARADOR expresion and_or GB COMPARADOR expresion
 		;
-		
+
+lista_var_filter:
+			ID	 {if(existeId(yylval.cadena)== -1 ){  yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} }
+			| ID   {if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} } COMA  lista_var_filter 
+			;
+	
 allequal: 
 		{ limpiarVector(cantExpLE,TAM); } ALLEQUAL P_A lista_exp P_C {   if(! longLEsValidas())
 											yyerrormsj("Las listas de expresiones tienen distintas longitudes",ErrorSintactico,ErrorAllEqual);
@@ -602,7 +610,7 @@ factor:
 		factor = crearHoja(&info);
       }
       |P_A expresion P_C  
-	  |filter
+	  | filter { factor = filter; }
     ;
 
 %%
