@@ -455,9 +455,15 @@ lista_var_filter:
 						//HojaDer
 						t_info filter_der;
 						strcpy(filter_der.valor,yylval.cadena);
+						printf("INSERTANDO NUEVA VARIABLE EN FILTER: %s\n",yylval.cadena);
 						t_nodo* asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
-						lista_var_filter=crearNodo(&info3,aux,crearNodo(&info2,copiaCondicion,asignacionFilter));
-						insertarHijo(&(lista_var_filter->izq),aux);
+						t_nodo *nodo_if=crearNodo(&info2,copiaCondicion,asignacionFilter);
+						t_nodo *nodo_bloque_if=crearNodo(&info3,aux,nodo_if);
+						*(lista_var_filter->der)=*nodo_bloque_if;
+						lista_var_filter=nodo_bloque_if->der;
+						//insertarHijo(&(lista_var_filter->der),nodo_bloque_if);
+						//lista_var_filter=(lista_var_filter->der);
+						//insertarHijo(&(lista_var_filter->izq),aux);
 					} 
 			;
 	
@@ -480,7 +486,7 @@ filter:
 										strcpy(info.valor,"FILTER");
 										t_info filter_info;
 										strcpy(filter_info.valor,"@filter");
-										filter= crearNodo(&info,sacar_de_pila2(&pilaFilter),lista_var_filter); 
+										filter= crearNodo(&info,sacar_de_pila2(&pilaFilter),crearHoja(&filter_info)); 
 										printf("Filter OK\n"); }
 	;
 
