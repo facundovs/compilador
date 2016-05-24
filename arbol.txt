@@ -5,9 +5,25 @@ if                              	==                              	bloque_if
 ==                              	c                               	f                               
 bloque_if                       	if                              	=                               
 if                              	==                              	bloque_if                       
+==                              	f                               	i                               
+bloque_if                       	if                              	=                               
+if                              	==                              	bloque_if                       
+==                              	b                               	e                               
+bloque_if                       	if                              	=                               
+if                              	==                              	bloque_if                       
+==                              	e                               	h                               
+bloque_if                       	if                              	=                               
+if                              	==                              	bloque_if                       
 ==                              	a                               	d                               
+bloque_if                       	if                              	=                               
+if                              	==                              	bloque_if                       
+==                              	d                               	g                               
 bloque_if                       	=                               	=                               
-=                               	@allequal                       	falso                           
-=                               	@allequal                       	                                
-=                               	@allequal                       	                                
-=                               	a                               	_uno                            
+=                               	@allequal                       	true                            
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
+=                               	a                               	_1                              
