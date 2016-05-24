@@ -1104,7 +1104,7 @@ void recorrer_guardando(const t_nodo* nodo, FILE* pf)
 
 void grabarArbol(t_nodo* arbol)
 {
-	FILE*pf=fopen("arbol.txt","w+");
+	FILE*pf=fopen("intermedia.txt","w+");
 	int i;
 	if(!pf){
 		printf("Error al guardar el arbol\n");
