@@ -1,9 +1,7 @@
 programa 
 declaraciones	
-	DIM [a,b,c,d,e,f] AS [cadena,cadena,cadena,cadena,cadena,cadena]
+	DIM [a,b,c,d,e,f] AS [entero,cadena,real,entero,cadena,real]
 fin_declaraciones
-b="uno"++"dos"	
-if(AllEqual([a],[b]) and AllEqual([c],[d]))
-	c="tres"
-endif
+a=FILTER(_>15,[a,d])
+d=1+2-3*4/9
 fin_programa

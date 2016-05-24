@@ -1,0 +1,12 @@
+.MODEL LARGE
+.386
+.STACK 200h
+.DATA
+MAXTEXTSIZE equ 32
+@a DD ?
+@b DB MAXTEXTSIZE dup (?),'$'
+@c DQ ?
+@d DD ?
+@e DB MAXTEXTSIZE dup (?),'$'
+@f DQ ?
+.CODE (continuara)

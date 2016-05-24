@@ -98,6 +98,9 @@
 	t_nodo * sacar_de_pila2(t_pila *);
 	int elementosEnPilaWhile =0;
 	int elementosEnPilaIf =0;
+	void generarAssembler(t_nodo*);
+	void recorrerGenerandoCodigo(const t_nodo*, FILE*);
+
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
 	t_nodo * programa;
 	t_nodo * bloque_declaraciones;
@@ -198,6 +201,7 @@ programa:
 		grabarArbol(programa);
 		//dibujar(programa,15,3,7,0);
 		grabarTablaDeSimbolos(0);
+		generarAssembler(programa);
 	} 
 	;
 
@@ -271,22 +275,17 @@ sentencia_if:
 	{
 		t_info info;
 		strcpy(info.valor,"if"); 
-		printf("PONIENDO EN PILA if------------------------------------------\n");
 		ponerEnPila(&pilaIf,crearNodo(&info,condicion,NULL));
 		if(bloque_sentencias)
 			ponerEnPila(&pilabloques,bloque_sentencias);
-		printf("PUESTO EN PILA------------------------------------------\n");
 	}
 	bloque_if ENDIF
 	{
-		printf("SACANDO DE PILA------------------------------------------\n");
 		sentencia_if =(t_nodo *) malloc (sizeof(t_nodo));
 		sacar_de_pila(&pilaIf,sentencia_if);
-		printf("FUERA DE PILA WHILE----%p-----------------------\n",sentencia_if);
 		printf("Nodo sacado de pila: %s %s %s %s\n",sentencia_if->izq->izq->info.valor,sentencia_if->izq->info.valor,sentencia_if->izq->der->info.valor,sentencia_if->info.valor );
 		insertarHijo(&(sentencia_if->der),bloque_sentencias);
 		bloque_sentencias = sacar_de_pila2(&pilabloques);
-		printf("Agregado esto: %s %s %s\n",sentencia_if->der->izq->info.valor,sentencia_if->der->info.valor,sentencia_if->der->der->info.valor);
 	}
 	;
 
@@ -295,22 +294,16 @@ sentencia_while:
 	{
 		t_info info;
 		strcpy(info.valor,"while"); 
-		printf("PONIENDO EN PILA WHILE------------------------------------------\n");
 		ponerEnPila(&pilaWhile,crearNodo(&info,condicion,NULL));
 		if(bloque_sentencias)
 			ponerEnPila(&pilabloques,bloque_sentencias);
-		printf("PUESTO EN PILA------------------------------------------\n");
 	}
 	bloque_sentencias ENDWHILE
 	{
-		printf("SACANDO DE PILA------------------------------------------\n");
 		sentencia_while =(t_nodo *) malloc (sizeof(t_nodo));
 		sacar_de_pila(&pilaWhile,sentencia_while);
-		printf("FUERA DE PILA WHILE----%p-----------------------\n",sentencia_while);
-		printf("Nodo sacado de pila: %s %s %s %s\n",sentencia_while->izq->izq->info.valor,sentencia_while->izq->info.valor,sentencia_while->izq->der->info.valor,sentencia_while->info.valor );
 		insertarHijo(&(sentencia_while->der),bloque_sentencias);
 		bloque_sentencias = sacar_de_pila2(&pilabloques);
-		printf("Agregado esto: %s %s %s\n",sentencia_while->der->izq->info.valor,sentencia_while->der->info.valor,sentencia_while->der->der->info.valor);
 		printf("while OK\n");
 	}
 	;
@@ -329,7 +322,7 @@ bloque_if:
  		t_info info;
 		strcpy(info.valor,"bloque if");
  		bloque_if = crearNodo(&info,sacar_de_pila2 (&pilabloqueif),bloque_sentencias);
-		printf("BLOQUE ELSE: %s, %s, %s\n",bloque_sentencias->info.valor,bloque_sentencias->izq->info.valor,bloque_sentencias->der->info.valor);
+		//printf("BLOQUE ELSE: %s, %s, %s\n",bloque_sentencias->info.valor,bloque_sentencias->izq->info.valor,bloque_sentencias->der->info.valor);
  		bloque_sentencias=bloque_if;
  		printf("if con else OK\n");
  	}
@@ -460,8 +453,7 @@ lista_var_filter:
 						t_nodo *asignacionNull=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_no_encontrado));
 						t_nodo *nodo_bloque_if=crearNodo(&filter_bloque,asignacionFilter,asignacionNull);
 						insertarHijo(&(copiaCondicion->izq),crearHoja(&info));
-						
-						//ponerEnPila(&pilaFilter,crearNodo(&info2,copiaCondicion,asignacionFilter));
+
 						lista_var_filter = crearNodo(&info2,copiaCondicion,nodo_bloque_if);
 						ponerEnPila(&pilaFilter,lista_var_filter);
 			}
@@ -488,21 +480,15 @@ lista_var_filter:
 						//HojaDer
 						t_info filter_der;
 						strcpy(filter_der.valor,yylval.cadena);
-						printf("INSERTANDO NUEVA VARIABLE EN FILTER: %s\n",yylval.cadena);
 						t_nodo* asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
-						//No encontrado
 						t_info filter_no_encontrado;
 						strcpy(filter_no_encontrado.valor,"null");
 						t_nodo *asignacionNull=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_no_encontrado));
 						t_nodo *nodo_bloque_trueFalse=crearNodo(&info3,asignacionFilter,asignacionNull);
-						//
 						t_nodo *nodo_if=crearNodo(&info2,copiaCondicion,nodo_bloque_trueFalse);
 						t_nodo *nodo_bloque_if=crearNodo(&info3,aux,nodo_if);
 						*(lista_var_filter->der)=*nodo_bloque_if;
 						lista_var_filter=nodo_bloque_if->der;
-						//insertarHijo(&(lista_var_filter->der),nodo_bloque_if);
-						//lista_var_filter=(lista_var_filter->der);
-						//insertarHijo(&(lista_var_filter->izq),aux);
 					} 
 			;
 	
@@ -532,68 +518,42 @@ allequal:
 			t_info info_asignacionFalse;
 			strcpy(info_asignacionFalse.valor,"falso");
 			t_nodo *asignacionFalse=crearHoja(&info_asignacionFalse);
-
 			t_nodo *nodo_resultado_true=crearNodo(&asignacion,nodo_Res,asignacionTrue);
 			t_nodo *nodo_resultado_false=crearNodo(&asignacion,nodo_Res,asignacionFalse);
-
-			//bloque if
 			t_info info_bloque_if;
 			strcpy(info_bloque_if.valor,"bloque_if");
 			t_nodo *bloque_if=crearNodo(&info_bloque_if,nodo_resultado_true,nodo_resultado_false);
-			//copia_bloque_if
 			t_nodo *copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
 			*copia_bloque_if=*bloque_if;
-			//
 			all_equal=crearNodo(&nodo_allEqual,NULL,nodo_Res);
-			//PRIMERA COMPARACION
 			t_nodo *nodo_if=crearNodo(&info_if,NULL,copia_bloque_if);
 			t_nodo *ultimoComparado=sacar_de_pila2(&pilasAllEqual[0]);
 			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[1])));
-			//printf("PRIMERA COMPARACION (incluye el primero de la 1ra pila): %s %s %s\n",nodo_if->izq->izq->info.valor,nodo_if->izq->info.valor,nodo_if->izq->der->info.valor);
 			int pilasVisitadas=2;
 			insertarHijo(&(all_equal->izq),nodo_if);
-			//printf("NODO INCIAL ALLEQUAL: %s %s %s\n",all_equal->info.valor,all_equal->izq->info.valor,all_equal->der->info.valor);
 			t_nodo *proximoModificado=copia_bloque_if;
-			//printf("El proximo nodo se enganchara a la izq de: %s %p\n",proximoModificado->info.valor,proximoModificado);
-			//bloque_if=copia_bloque_if.izq->der;
-			//
-	//		t_nodo *nodo_if=crearNodo(&info_if,NULL,nodo_resultado_true);
-	//		t_nodo *ultimoComparado=sacar_de_pila2(&pilasAllEqual[1]);
-	//		insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,sacar_de_pila2(&pilasAllEqual[0]),ultimoComparado));
-	//		int pilasVisitadas=2;
 			while(cantExpLE[0]>0){
-				//printf("ENTRO AL WHILE\n");
-				//printf("Cantidad de elementos restantes en la pila: %d\n",cantExpLE[0]);
-				//cantExpLE[0]--;
 				for(pilasVisitadas;pilasVisitadas<cantListasAllEqual;pilasVisitadas++){
 					copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
 					*copia_bloque_if=*bloque_if;
 					t_nodo * aux_comparacion=crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[pilasVisitadas]));
-					//printf("COMPARACION NUEVA: %s %s %s\n",aux_comparacion->izq->info.valor,aux_comparacion->info.valor,aux_comparacion->der->info.valor);
 					t_nodo * aux_if=crearNodo(&info_if,aux_comparacion,copia_bloque_if);
 					insertarHijo(&(proximoModificado->izq),aux_if);
 					proximoModificado=copia_bloque_if;
-					//printf("El proximo nodo se enganchara a la izq de: %s %p\n",proximoModificado->info.valor,proximoModificado);
 				}
-				//proxima lecutra
 				cantExpLE[0]--;
 				if(cantExpLE[0]>0){
 					copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
 					*copia_bloque_if=*bloque_if;
 					ultimoComparado=sacar_de_pila2(&pilasAllEqual[0]);
 					t_nodo * aux_comparacion=crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[1]));
-					//printf("PROXIMO PIVOT: %s\n",ultimoComparado->info.valor);
 					t_nodo * aux_if=crearNodo(&info_if,aux_comparacion,copia_bloque_if);
 					insertarHijo(&(proximoModificado->izq),aux_if);
 					proximoModificado=copia_bloque_if;
-					//
-					
-					//printf("PRIMERA COMPARACION (incluye el primero de la 1ra pila): %s %s %s\n",aux_if->izq->izq->info.valor,aux_if->izq->info.valor,aux_if->izq->der->info.valor);
 					pilasVisitadas=2;
 				}
 			}
 			cantListasAllEqual=0;
-			//all_equal=NODO_FINAL	
 		}
 		;
 		
@@ -902,7 +862,7 @@ int main(int argc,char *argv[])
 	return 0;
 }
 
-//DEFINICION  DE FUNCIONES
+/////////////////////////////////////DEFINICION  DE FUNCIONES///////////////////////////////////////////////////
 
 int yyerrormsj(const char * info, int tipoDeError ,int error)
      {
@@ -1050,149 +1010,155 @@ void grabarTablaDeSimbolos(int error){
 	fclose(pf);
 }
 
-/////////////////////////////////////////// FUNCIONES ARBOL /////////////////////////////////////////////////////////
+///////////////////////// FUNCIONES ARBOL //////////////////////////////////////////////
 
-t_nodo * crearHoja(const t_info *d)
-{
-    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
-    if(!p){ 
-    	printf("No hay memoria disponible. El programa se cerrará\n");
-    	exit(1);
-    }
-    p->info=*d;
-    p->der=p->izq=NULL;
-    return p;
-}
-t_nodo * crearNodo(const t_info *d, t_nodo * hijo_izq, t_nodo * hijo_der)
-{
-    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
-    if(!p){ 
-    	printf("No hay memoria disponible. El programa se cerrará\n");
-    	exit(1);
-    }
-    p->info=*d;
-    p->izq= hijo_izq;
-    p->der= hijo_der;
-    return p;
-}
-
-void insertarHijo (t_nodo ** puntero, t_nodo * hijo){
-	*puntero=hijo;
-}
-
-void recorrer_en_orden(const t_nodo* nodo)
-{
-    if(nodo)
-    {
-   		if(nodo->izq!=NULL&&nodo->der!=NULL)
-   			printf("%s\t%s\t%s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
-    	recorrer_en_orden(nodo->izq);
-    	recorrer_en_orden(nodo->der);
-    }
-}
-
-void recorrer_guardando(const t_nodo* nodo, FILE* pf)
-{
-    if(nodo)
-    {
-   		if(nodo->izq!=NULL&&nodo->der!=NULL)
-   			fprintf(pf,"%-32s\t%-32s\t%-32s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
-    	recorrer_guardando(nodo->izq,pf);
-    	recorrer_guardando(nodo->der,pf);
-    }
-}
-
-void grabarArbol(t_nodo* arbol)
-{
-	FILE*pf=fopen("intermedia.txt","w+");
-	int i;
-	if(!pf){
-		printf("Error al guardar el arbol\n");
-		return;
+	t_nodo * crearHoja(const t_info *d)
+	{
+	    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
+	    if(!p){ 
+	    	printf("No hay memoria disponible. El programa se cerrará\n");
+	    	exit(1);
+	    }
+	    p->info=*d;
+	    p->der=p->izq=NULL;
+	    return p;
 	}
-	fprintf(pf,"%-32s|\t%-32s|\t%-32s\n","PADRE","HIJO IZQ","HIJO DER");
-	recorrer_guardando(arbol,pf);
-	fclose(pf);
-}
+	t_nodo * crearNodo(const t_info *d, t_nodo * hijo_izq, t_nodo * hijo_der)
+	{
+	    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
+	    if(!p){ 
+	    	printf("No hay memoria disponible. El programa se cerrará\n");
+	    	exit(1);
+	    }
+	    p->info=*d;
+	    p->izq= hijo_izq;
+	    p->der= hijo_der;
+	    return p;
+	}
 
-//MENTIRAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-/*
-void dibujar(t_nodo* arbol,int a,int b,int c,int d)
-{
- 	if(arbol!=NULL)
-		{
-		circle(300+a,75+b,14);
-		setcolor(YELLOW);
-   		outtextxy(295+a,75+b,arbol->info.valor);setcolor(WHITE);
-   		if(d==1) 
-   			line(300+a+pow(2,c+1),b+14,300+a,61+b);
-   		else 
-   			if(d==2) 
-   				line(300+a-pow(2,c+1),b+14,300+a,61+b);
-		dibujar(arbol->izq,a-pow(2,c)-pow(2,d-4),b+75,c-1,1);
-		dibujar(arbol->der,a+pow(2,c)+pow(2,d-4),b+75,c-1,2);
-  	}
-}*/
+	void insertarHijo (t_nodo ** puntero, t_nodo * hijo){
+		*puntero=hijo;
+	}
+
+	void recorrer_en_orden(const t_nodo* nodo)
+	{
+	    if(nodo)
+	    {
+	   		if(nodo->izq!=NULL&&nodo->der!=NULL)
+	   			printf("%s\t%s\t%s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
+	    	recorrer_en_orden(nodo->izq);
+	    	recorrer_en_orden(nodo->der);
+	    }
+	}
+
+	void recorrer_guardando(const t_nodo* nodo, FILE* pf)
+	{
+	    if(nodo)
+	    {
+	   		if(nodo->izq!=NULL&&nodo->der!=NULL)
+	   			fprintf(pf,"%-32s\t%-32s\t%-32s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
+	    	recorrer_guardando(nodo->izq,pf);
+	    	recorrer_guardando(nodo->der,pf);
+	    }
+	}
+
+	void grabarArbol(t_nodo* arbol)
+	{
+		FILE*pf=fopen("intermedia.txt","w+");
+		if(!pf){
+			printf("Error al guardar el arbol\n");
+			return;
+		}
+		fprintf(pf,"%-32s|\t%-32s|\t%-32s\n","PADRE","HIJO IZQ","HIJO DER");
+		recorrer_guardando(arbol,pf);
+		fclose(pf);
+	}
+
+	void recorrerGenerandoCodigo(const t_nodo* nodo, FILE* pf)
+	{
+	    if(nodo)
+	    {
+	   		if(nodo->izq!=NULL&&nodo->der!=NULL)
+	   			fprintf(pf,"%-32s\t%-32s\t%-32s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
+	    	recorrer_guardando(nodo->izq,pf);
+	    	recorrer_guardando(nodo->der,pf);
+	    }
+	}
+
+	void generarAssembler(t_nodo* arbol){
+		FILE*pf=fopen("Final.txt","w+");
+		if(!pf){
+			printf("Error al guardar el arbol\n");
+			return;
+		}
+		fprintf(pf,".MODEL LARGE\n.386\n.STACK 200h\n.DATA\nMAXTEXTSIZE equ 32\n");
+		int i;
+		for(i = 0; i<indicesVariable.nombre; i++){
+			fprintf(pf,"@%s ",tablaVariables[i].nombre);
+			if(obtenerTipo(i)==TipoEntero)
+				fprintf(pf,"DD ?\n");
+			else
+				if (obtenerTipo(i)==TipoReal)
+					fprintf(pf,"DQ ?\n");
+				else
+					if(obtenerTipo(i)==TipoCadena)
+						fprintf(pf,"DB MAXTEXTSIZE dup (?),'$'\n");
+		}
+		fprintf(pf,".CODE (continuara)\n");
+		fclose(pf);
+	}
+
+
 
 /////////////////////////PILA//////////////////////////////////////////////////////////
 
-void crearPila(t_pila* pp)
-{/*
-	t_nodoPila* pn=(t_nodoPila*)malloc(sizeof(t_nodoPila));
-    if(!pn)
-        return 0;
-    pp=&pn;
-    return pp;
-    */
+	void crearPila(t_pila* pp)
+	{
+	    *pp=NULL; 
+	}
 
-    *pp=NULL;  //ORIGINAL
-}
+	int ponerEnPila(t_pila* pp,t_nodo* nodo)
+	{
+	    t_nodoPila* pn=(t_nodoPila*)malloc(sizeof(t_nodoPila));
+	    if(!pn)
+	        return 0;
+	    pn->info=*nodo;
+	    pn->psig=*pp;
+	    *pp=pn;
+	    return 1;
+	}
 
-int ponerEnPila(t_pila* pp,t_nodo* nodo)
-{
-    t_nodoPila* pn=(t_nodoPila*)malloc(sizeof(t_nodoPila));
-    if(!pn)
-        return 0;
-    pn->info=*nodo;
-    pn->psig=*pp;
-    *pp=pn;
-    return 1;
-}
-///////////////////////////////////////////////////////
-int sacar_de_pila(t_pila* pp,t_nodo* info)
-{
-    if(!*pp){
-    	printf("PILA NULA**************************************************\n");
-    	return 0;
-    }
-    *info=(*pp)->info;
-    //printf("----------------------------------SACANDO: %s %s\n",info->info.valor,info->izq->info.valor );
-    *pp=(*pp)->psig;
-    return 1;
+	int sacar_de_pila(t_pila* pp,t_nodo* info)
+	{
+	    if(!*pp){
+	    	printf("PILA NULA**************************************************\n");
+	    	return 0;
+	    }
+	    *info=(*pp)->info;
+	    *pp=(*pp)->psig;
+	    return 1;
 
-}
+	}
 
-t_nodo * sacar_de_pila2(t_pila* pp)
-{
-	t_nodo* info = (t_nodo *) malloc(sizeof(t_nodo));
-    if(!*pp){
-    	return NULL;
-    }
-    *info=(*pp)->info;
-    //printf("----------------------------------SACANDO: %s %s\n",info->info.valor,info->izq->info.valor );
-    *pp=(*pp)->psig;
-    return info;
+	t_nodo * sacar_de_pila2(t_pila* pp)
+	{
+		t_nodo* info = (t_nodo *) malloc(sizeof(t_nodo));
+	    if(!*pp){
+	    	return NULL;
+	    }
+	    *info=(*pp)->info;
+	    *pp=(*pp)->psig;
+	    return info;
 
-}
-///////////////////////////////////////////////////////
+	}
 
-void vaciarPila(t_pila* pp)
-{
-    t_nodoPila* pn;
-    while(*pp)
-    {
-        pn=*pp;
-        *pp=(*pp)->psig;
-        free(pn);
-    }
-}
+	void vaciarPila(t_pila* pp)
+	{
+	    t_nodoPila* pn;
+	    while(*pp)
+	    {
+	        pn=*pp;
+	        *pp=(*pp)->psig;
+	        free(pn);
+	    }
+	}

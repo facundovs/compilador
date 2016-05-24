@@ -1,19 +1,18 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-sentencia                       	=                               	if                              
-=                               	b                               	++                              
-++                              	_uno                            	_dos                            
-if                              	and                             	=                               
-and                             	AllEqual                        	AllEqual                        
-AllEqual                        	if                              	@allequal                       
-if                              	==                              	bloque_if                       
-==                              	a                               	b                               
-bloque_if                       	=                               	=                               
-=                               	@allequal                       	true                            
-=                               	@allequal                       	falso                           
-AllEqual                        	if                              	@allequal                       
-if                              	==                              	bloque_if                       
-==                              	c                               	d                               
-bloque_if                       	=                               	=                               
-=                               	@allequal                       	true                            
-=                               	@allequal                       	falso                           
-=                               	c                               	_tres                           
+sentencia                       	=                               	=                               
+=                               	a                               	FILTER                          
+FILTER                          	if                              	@filter                         
+if                              	>                               	bloque if                       
+>                               	a                               	_15                             
+bloque if                       	=                               	if                              
+=                               	@filter                         	a                               
+if                              	>                               	bloque if                       
+>                               	d                               	_15                             
+bloque if                       	=                               	=                               
+=                               	@filter                         	d                               
+=                               	@filter                         	null                            
+=                               	d                               	-                               
+-                               	+                               	/                               
++                               	_1                              	_2                              
+/                               	*                               	_9                              
+*                               	_3                              	_4                              
