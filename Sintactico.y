@@ -149,6 +149,7 @@
 	t_pila pilabloqueif;
 	t_pila pilaFilter;
 	t_nodo comparacion1;
+	t_nodo all_equal1;
 	//
 	int cantListasAllEqual=0;
 	t_pila pilasAllEqual[TAM];
@@ -361,7 +362,26 @@ condicion:
 															strcpy(condicion->info.valor,"!=");
             					}
 							 
-		| allequal and_or allequal
+		| allequal 
+		{
+			all_equal1 = * all_equal;
+		}
+		and_or
+		allequal
+		{
+			t_nodo * aux;
+			aux = (t_nodo *) malloc(sizeof(t_nodo));
+			t_nodo * aux1;
+			aux1 = (t_nodo *) malloc(sizeof(t_nodo));
+			*aux1 = all_equal1;
+			*aux = * all_equal;
+			t_nodo * aux2;
+			aux2 = (t_nodo *) malloc(sizeof(t_nodo));
+			*aux2=*and_or;
+			insertarHijo(&(aux2->izq),aux1);
+			insertarHijo(&(aux2->der),aux);
+			condicion = aux2;	
+		}
 		| comparacion
 		{
 			comparacion1 = * comparacion;
@@ -497,53 +517,83 @@ allequal:
 			printf("Cantidad de listas: %d\n",cantListasAllEqual);
 			t_info nodo_allEqual;
 			strcpy(nodo_allEqual.valor,"AllEqual");
-			t_info nodo_Res;
-			strcpy(nodo_Res.valor,"@allequal");
+			t_info info_Res;
+			strcpy(info_Res.valor,"@allequal");
+			t_nodo *nodo_Res=crearHoja(&info_Res);
 			t_info info_igual;
 			strcpy(info_igual.valor,"==");
 			t_info info_if;
 			strcpy(info_if.valor,"if");
 			t_info asignacion;
 			strcpy(asignacion.valor,"=");
-			t_info asignacionTrue;
-			strcpy(asignacionTrue.valor,"true");
-			t_info asignacionFalse;
-			strcpy(asignacionFalse.valor,"false");
+			t_info info_asignacionTrue;
+			strcpy(info_asignacionTrue.valor,"true");
+			t_nodo *asignacionTrue=crearHoja(&info_asignacionTrue);
+			t_info info_asignacionFalse;
+			strcpy(info_asignacionFalse.valor,"falso");
+			t_nodo *asignacionFalse=crearHoja(&info_asignacionFalse);
 
-			t_nodo *nodo_resultado_true=crearNodo(&asignacion,crearHoja(&nodo_Res),crearHoja(&asignacionTrue));
-			t_nodo *nodo_resultado_false=crearNodo(&asignacion,crearHoja(&nodo_Res),crearHoja(&asignacionFalse));
+			t_nodo *nodo_resultado_true=crearNodo(&asignacion,nodo_Res,asignacionTrue);
+			t_nodo *nodo_resultado_false=crearNodo(&asignacion,nodo_Res,asignacionFalse);
 
 			//bloque if
 			t_info info_bloque_if;
 			strcpy(info_bloque_if.valor,"bloque_if");
-			t_nodo *bloque_if =crearNodo(&info_bloque_if,nodo_resultado_true,nodo_resultado_false);
-			t_nodo *nodo_if=crearNodo(&info_if,NULL,bloque_if);
-			all_equal=crearNodo(&nodo_allEqual,nodo_if,crearHoja(&nodo_Res));
-
-			t_nodo *ultimoComparado= sacar_de_pila2(&pilasAllEqual[1]);
-			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,sacar_de_pila2(&pilasAllEqual[0]),ultimoComparado));
+			t_nodo *bloque_if=crearNodo(&info_bloque_if,nodo_resultado_true,nodo_resultado_false);
+			//copia_bloque_if
+			t_nodo *copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
+			*copia_bloque_if=*bloque_if;
+			//
+			all_equal=crearNodo(&nodo_allEqual,NULL,nodo_Res);
+			//PRIMERA COMPARACION
+			t_nodo *nodo_if=crearNodo(&info_if,NULL,copia_bloque_if);
+			t_nodo *ultimoComparado=sacar_de_pila2(&pilasAllEqual[0]);
+			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[1])));
+			//printf("PRIMERA COMPARACION (incluye el primero de la 1ra pila): %s %s %s\n",nodo_if->izq->izq->info.valor,nodo_if->izq->info.valor,nodo_if->izq->der->info.valor);
 			int pilasVisitadas=2;
-			int k=0;			
-			for(k=0;k<cantExpLE[0];k++){
-				for(pilasVisitadas;pilasVisitadas<cantListasAllEqual;pilasVisitadas++){	
-					t_nodo *dato_de_pila= sacar_de_pila2(&pilasAllEqual[pilasVisitadas]);
-					
-					if(pilasVisitadas!=0){
-					t_nodo * proximoAModificar = crearNodo(&info_if,crearNodo(&info_igual,ultimoComparado,
-						dato_de_pila),bloque_if);
-					t_nodo *auxBloqueIf = (t_nodo *) malloc(sizeof(t_nodo));
-					*auxBloqueIf= *bloque_if;
-					insertarHijo(&(nodo_if->der),auxBloqueIf);
-					insertarHijo(&(auxBloqueIf->izq),proximoAModificar);	
-					nodo_if=(t_nodo *) malloc(sizeof(t_nodo));
-					nodo_if= proximoAModificar;
-					}		
-					ultimoComparado= dato_de_pila;
+			insertarHijo(&(all_equal->izq),nodo_if);
+			//printf("NODO INCIAL ALLEQUAL: %s %s %s\n",all_equal->info.valor,all_equal->izq->info.valor,all_equal->der->info.valor);
+			t_nodo *proximoModificado=copia_bloque_if;
+			//printf("El proximo nodo se enganchara a la izq de: %s %p\n",proximoModificado->info.valor,proximoModificado);
+			//bloque_if=copia_bloque_if.izq->der;
+			//
+	//		t_nodo *nodo_if=crearNodo(&info_if,NULL,nodo_resultado_true);
+	//		t_nodo *ultimoComparado=sacar_de_pila2(&pilasAllEqual[1]);
+	//		insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,sacar_de_pila2(&pilasAllEqual[0]),ultimoComparado));
+	//		int pilasVisitadas=2;
+			while(cantExpLE[0]>0){
+				//printf("ENTRO AL WHILE\n");
+				//printf("Cantidad de elementos restantes en la pila: %d\n",cantExpLE[0]);
+				//cantExpLE[0]--;
+				for(pilasVisitadas;pilasVisitadas<cantListasAllEqual;pilasVisitadas++){
+					copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
+					*copia_bloque_if=*bloque_if;
+					t_nodo * aux_comparacion=crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[pilasVisitadas]));
+					//printf("COMPARACION NUEVA: %s %s %s\n",aux_comparacion->izq->info.valor,aux_comparacion->info.valor,aux_comparacion->der->info.valor);
+					t_nodo * aux_if=crearNodo(&info_if,aux_comparacion,copia_bloque_if);
+					insertarHijo(&(proximoModificado->izq),aux_if);
+					proximoModificado=copia_bloque_if;
+					//printf("El proximo nodo se enganchara a la izq de: %s %p\n",proximoModificado->info.valor,proximoModificado);
 				}
-				pilasVisitadas=0;
+				//proxima lecutra
+				cantExpLE[0]--;
+				if(cantExpLE[0]>0){
+					copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
+					*copia_bloque_if=*bloque_if;
+					ultimoComparado=sacar_de_pila2(&pilasAllEqual[0]);
+					t_nodo * aux_comparacion=crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[1]));
+					//printf("PROXIMO PIVOT: %s\n",ultimoComparado->info.valor);
+					t_nodo * aux_if=crearNodo(&info_if,aux_comparacion,copia_bloque_if);
+					insertarHijo(&(proximoModificado->izq),aux_if);
+					proximoModificado=copia_bloque_if;
+					//
+					
+					//printf("PRIMERA COMPARACION (incluye el primero de la 1ra pila): %s %s %s\n",aux_if->izq->izq->info.valor,aux_if->izq->info.valor,aux_if->izq->der->info.valor);
+					pilasVisitadas=2;
+				}
 			}
-
-						//all_equal=NODO_FINAL	
+			cantListasAllEqual=0;
+			//all_equal=NODO_FINAL	
 		}
 		;
 		
@@ -1104,7 +1154,6 @@ int ponerEnPila(t_pila* pp,t_nodo* nodo)
     if(!pn)
         return 0;
     pn->info=*nodo;
-    printf("----------------------------------INSERTADO: %s %s\n",pn->info.info.valor,(pn->info).izq->info.valor );
     pn->psig=*pp;
     *pp=pn;
     return 1;

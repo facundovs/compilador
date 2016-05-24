@@ -1,8 +1,9 @@
 programa 
 declaraciones	
-	DIM [a,b,c,d,e,f,g,h,i] AS [entero,entero,entero,entero,entero,entero,entero,entero,entero]
-fin_declaraciones	
-if(AllEqual([a,b,c],[d,e,f],[g,h,i]))
-	a=1
+	DIM [a,b,c,d,e,f] AS [cadena,cadena,cadena,cadena,cadena,cadena]
+fin_declaraciones
+b="uno"++"dos"	
+if(AllEqual([a],[b]) and AllEqual([c],[d]))
+	c="tres"
 endif
 fin_programa
