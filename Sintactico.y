@@ -10,12 +10,12 @@
 	#include <math.h>
 	//#include <graphics.h>
 ///////////////////// ENUMS ////////////////////////////////////////
-	enum tiposDeError{
+	enum tipoDeError{
 		ErrorSintactico,
 		ErrorLexico
 	};
 
-	enum errores{
+	enum error{
 		ErrorIntFueraDeRango,
 		ErrorStringFueraDeRango,
 		ErrorEnDeclaracionCantidad,
@@ -29,13 +29,13 @@
 		ErrorFloatFueraDeRango
 	};
 
-	enum tiposDeDatos{
+	enum tipoDeDato{
 		TipoEntero,
 		TipoReal,
 		TipoCadena
 	};
 
-	enum valoresMaximos{
+	enum valorMaximo{
 		ENTERO_MAXIMO = 32768,
 		CADENA_MAXIMA = 30,
 		TAM = 100
@@ -74,7 +74,7 @@
 
 	typedef t_nodoPila *t_pila;
 ///////////////////// DECLARACION DE FUNCIONES /////////////////////
-	int yyerrormsj(const char *,int,int); 
+	int yyerrormsj(const char *,enum tipoDeError,enum error); 
 	void imprimirVariables();
 	int existeId(char *);
 	int yyerror();
@@ -864,7 +864,7 @@ int main(int argc,char *argv[])
 
 /////////////////////////////////////DEFINICION  DE FUNCIONES///////////////////////////////////////////////////
 
-int yyerrormsj(const char * info, int tipoDeError ,int error)
+int yyerrormsj(const char * info,enum tipoDeError tipoDeError ,enum error error)
      {
 		 grabarTablaDeSimbolos(1);
 		printf("Linea: %d. ",yylineno);
