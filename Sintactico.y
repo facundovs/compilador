@@ -1133,7 +1133,7 @@ void grabarTablaDeSimbolos(int error){
 					fprintf(pf,"@%s DD %s\n",tablaConstantes[i].valor,tablaConstantes[i].valor);
 				else
 					if(obtenerTipoConstante(i)==TipoCadena)
-						fprintf(pf,"@%s DB \"%s\",'$', 32 , dup (?)\n",tablaConstantes[i].valor,tablaConstantes[i].valor);
+						fprintf(pf,"@%s DB \"%s\",'$', 32 dup (?)\n",tablaConstantes[i].valor,tablaConstantes[i].valor);
 		}
 		fprintf(pf,".CODE (continuara)\n");
 		fclose(pf);
