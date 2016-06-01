@@ -58,6 +58,7 @@
 	typedef struct
 	{
 		char valor[31];
+		int nroNodo;
 	}t_info;
 
 	typedef struct s_nodo
@@ -78,7 +79,8 @@
 	void imprimirVariables();
 	int existeId(char *);
 	int yyerror();
-	int obtenerTipo(int);
+	enum tipoDeDato obtenerTipo(int);
+	enum tipoDeDato obtenerTipoConstante(int);
 	int longLEsValidas();
 	void limpiarVector(int *,int);
 	char * obtenerTipoLiteral(int);
@@ -96,10 +98,15 @@
 	int sacar_de_pila(t_pila*,t_nodo*);
 	void vaciarPila(t_pila*);
 	t_nodo * sacar_de_pila2(t_pila *);
+	t_nodo * copiarNodo(t_nodo*);
 	int elementosEnPilaWhile =0;
 	int elementosEnPilaIf =0;
 	void generarAssembler(t_nodo*);
 	void recorrerGenerandoCodigo(const t_nodo*, FILE*);
+	void generarArchivoGraphViz(t_nodo*);
+	void enumerarNodos(t_nodo*);
+	void recorrerGenerandoViz(const t_nodo*, FILE*);
+	t_nodo * crearHojaT(const char*);
 
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
 	t_nodo * programa;
@@ -156,6 +163,7 @@
 	//
 	int cantListasAllEqual=0;
 	t_pila pilasAllEqual[TAM];
+	int nroNodo=0;
 
 %}
 
@@ -202,6 +210,7 @@ programa:
 		//dibujar(programa,15,3,7,0);
 		grabarTablaDeSimbolos(0);
 		generarAssembler(programa);
+		generarArchivoGraphViz(programa);
 	} 
 	;
 
@@ -400,7 +409,7 @@ comparacion_filter:
 	GB COMPARADOR { 	
 									t_info info;
 									strcpy(info.valor,yylval.cadena);
-									condicion_filter  = crearNodo(&info,NULL,NULL);}
+									condicion_filter  = crearHoja(&info);}
 		expresion { 	
 					insertarHijo(&(condicion_filter->der),expresion);
 		}
@@ -430,41 +439,27 @@ lista_var_filter:
 						t_info info2;
 						strcpy(info2.valor,"if"); 
 						t_info info;
-						t_nodo *copiaCondicion=(t_nodo *) malloc (sizeof(t_nodo));
-						*copiaCondicion=*condicion_filter;
+						t_nodo *copiaCondicion=copiarNodo(condicion_filter);
 						strcpy(info.valor,yylval.cadena);
-						//NodoAsignacion
-						t_info filter_info;
-						strcpy(filter_info.valor,"=");
-						//HojaIzq
-						t_info filter_izq;
-						strcpy(filter_izq.valor,"@filter");
-						//HojaDer
-						t_info filter_der;
-						strcpy(filter_der.valor,yylval.cadena);
 						//Bloque if
 						t_info filter_bloque;
 						strcpy(filter_bloque.valor,"bloque if");
-						//No encontrado
-						t_info filter_no_encontrado;
-						strcpy(filter_no_encontrado.valor,"null");
-
-						t_nodo *asignacionFilter=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_der));
-						t_nodo *asignacionNull=crearNodo(&filter_info,crearHoja(&filter_izq),crearHoja(&filter_no_encontrado));
+						//NodoAsignacion
+						t_info filter_info;
+						strcpy(filter_info.valor,"=");
+						t_nodo *asignacionFilter=crearNodo(&filter_info,crearHojaT("@filter"),crearHojaT(yylval.cadena));
+						t_nodo *asignacionNull=crearNodo(&filter_info,crearHojaT("@filter"),crearHojaT("null"));
 						t_nodo *nodo_bloque_if=crearNodo(&filter_bloque,asignacionFilter,asignacionNull);
-						insertarHijo(&(copiaCondicion->izq),crearHoja(&info));
-
+						insertarHijo(&(copiaCondicion->izq),crearHojaT(yylval.cadena));
 						lista_var_filter = crearNodo(&info2,copiaCondicion,nodo_bloque_if);
 						ponerEnPila(&pilaFilter,lista_var_filter);
 			}
 			| 
 			 lista_var_filter COMA ID 
 				{if(existeId(yylval.cadena)== -1 ){yyerrormsj(yylval.cadena,ErrorSintactico,ErrorIdNoDeclarado);} 
-						t_nodo *aux=(t_nodo *) malloc (sizeof(t_nodo));
-						*aux=*(lista_var_filter->der->izq);
+						t_nodo *aux=lista_var_filter->der->izq;
 						t_info info; 
-						t_nodo *copiaCondicion=(t_nodo *) malloc (sizeof(t_nodo));
-						*copiaCondicion=*condicion_filter;
+						t_nodo *copiaCondicion=copiarNodo(condicion_filter);
 						strcpy(info.valor,yylval.cadena);
 						insertarHijo(&(copiaCondicion->izq),crearHoja(&info));
 						t_info info2;
@@ -503,39 +498,28 @@ allequal:
 			printf("Cantidad de listas: %d\n",cantListasAllEqual);
 			t_info nodo_allEqual;
 			strcpy(nodo_allEqual.valor,"AllEqual");
-			t_info info_Res;
-			strcpy(info_Res.valor,"@allequal");
-			t_nodo *nodo_Res=crearHoja(&info_Res);
 			t_info info_igual;
 			strcpy(info_igual.valor,"==");
 			t_info info_if;
 			strcpy(info_if.valor,"if");
 			t_info asignacion;
 			strcpy(asignacion.valor,"=");
-			t_info info_asignacionTrue;
-			strcpy(info_asignacionTrue.valor,"true");
-			t_nodo *asignacionTrue=crearHoja(&info_asignacionTrue);
-			t_info info_asignacionFalse;
-			strcpy(info_asignacionFalse.valor,"falso");
-			t_nodo *asignacionFalse=crearHoja(&info_asignacionFalse);
-			t_nodo *nodo_resultado_true=crearNodo(&asignacion,nodo_Res,asignacionTrue);
-			t_nodo *nodo_resultado_false=crearNodo(&asignacion,nodo_Res,asignacionFalse);
+			t_nodo *nodo_resultado_true=crearNodo(&asignacion,crearHojaT("@allequal"),crearHojaT("true"));
+			t_nodo *nodo_resultado_false=crearNodo(&asignacion,crearHojaT("@allequal"),crearHojaT("false"));
 			t_info info_bloque_if;
 			strcpy(info_bloque_if.valor,"bloque_if");
 			t_nodo *bloque_if=crearNodo(&info_bloque_if,nodo_resultado_true,nodo_resultado_false);
-			t_nodo *copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
-			*copia_bloque_if=*bloque_if;
-			all_equal=crearNodo(&nodo_allEqual,NULL,nodo_Res);
+			t_nodo *copia_bloque_if=copiarNodo(bloque_if);
+			all_equal=crearNodo(&nodo_allEqual,NULL,crearHojaT("@allequal"));
 			t_nodo *nodo_if=crearNodo(&info_if,NULL,copia_bloque_if);
 			t_nodo *ultimoComparado=sacar_de_pila2(&pilasAllEqual[0]);
-			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[1])));
+			insertarHijo(&(nodo_if->izq),crearNodo(&info_igual,copiarNodo(ultimoComparado),sacar_de_pila2(&pilasAllEqual[1])));
 			int pilasVisitadas=2;
 			insertarHijo(&(all_equal->izq),nodo_if);
 			t_nodo *proximoModificado=copia_bloque_if;
 			while(cantExpLE[0]>0){
 				for(pilasVisitadas;pilasVisitadas<cantListasAllEqual;pilasVisitadas++){
-					copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
-					*copia_bloque_if=*bloque_if;
+					copia_bloque_if=copiarNodo(bloque_if);
 					t_nodo * aux_comparacion=crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[pilasVisitadas]));
 					t_nodo * aux_if=crearNodo(&info_if,aux_comparacion,copia_bloque_if);
 					insertarHijo(&(proximoModificado->izq),aux_if);
@@ -543,10 +527,9 @@ allequal:
 				}
 				cantExpLE[0]--;
 				if(cantExpLE[0]>0){
-					copia_bloque_if=(t_nodo *) malloc(sizeof(t_nodo));
-					*copia_bloque_if=*bloque_if;
+					copia_bloque_if=copiarNodo(bloque_if);
 					ultimoComparado=sacar_de_pila2(&pilasAllEqual[0]);
-					t_nodo * aux_comparacion=crearNodo(&info_igual,ultimoComparado,sacar_de_pila2(&pilasAllEqual[1]));
+					t_nodo * aux_comparacion=crearNodo(&info_igual,copiarNodo(ultimoComparado),sacar_de_pila2(&pilasAllEqual[1]));
 					t_nodo * aux_if=crearNodo(&info_if,aux_comparacion,copia_bloque_if);
 					insertarHijo(&(proximoModificado->izq),aux_if);
 					proximoModificado=copia_bloque_if;
@@ -567,7 +550,7 @@ filter:
 										strcpy(info.valor,"FILTER");
 										t_info filter_info;
 										strcpy(filter_info.valor,"@filter");
-										filter= crearNodo(&info,sacar_de_pila2(&pilaFilter),crearHoja(&filter_info)); 
+										filter= crearNodo(&info,sacar_de_pila2(&pilaFilter),crearHoja(&filter_info));
 										printf("Filter OK\n"); }
 	;
 
@@ -952,10 +935,19 @@ int existeCte(){
 	return 0;
 }
 
-int obtenerTipo(int indice){ 
+enum tipoDeDato obtenerTipo(int indice){ 
 	if(strcmp(tablaVariables[indice].tipo,"entero")==0){
 		return TipoEntero;
 	}else if(strcmp(tablaVariables[indice].tipo,"real")==0)
+					return TipoReal;
+			 else 
+					return TipoCadena;
+}
+
+enum tipoDeDato obtenerTipoConstante(int indice){ 
+	if(strcmp(tablaConstantes[indice].tipo,"const_entero")==0){
+		return TipoEntero;
+	}else if(strcmp(tablaConstantes[indice].tipo,"const_real")==0)
 					return TipoReal;
 			 else 
 					return TipoCadena;
@@ -1023,6 +1015,7 @@ void grabarTablaDeSimbolos(int error){
 	    p->der=p->izq=NULL;
 	    return p;
 	}
+
 	t_nodo * crearNodo(const t_info *d, t_nodo * hijo_izq, t_nodo * hijo_der)
 	{
 	    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
@@ -1036,8 +1029,36 @@ void grabarTablaDeSimbolos(int error){
 	    return p;
 	}
 
+	t_nodo * crearHojaT(const char* info)
+	{
+	    t_nodo *p = (t_nodo*) malloc(sizeof(t_nodo));
+	    if(!p){ 
+	    	printf("No hay memoria disponible. El programa se cerrará\n");
+	    	exit(1);
+	    }
+	    strcpy(p->info.valor,info);
+	    p->der=p->izq=NULL;
+	    return p;
+	}
+
 	void insertarHijo (t_nodo ** puntero, t_nodo * hijo){
 		*puntero=hijo;
+	}
+
+	t_nodo * copiarNodo(t_nodo* nodo){
+		if(!nodo)
+			return NULL;
+		t_nodo *nuevo=(t_nodo*)malloc(sizeof(t_nodo));
+		nuevo->info=nodo->info;
+		if(nodo->izq)
+			nuevo->izq=copiarNodo(nodo->izq);
+		else
+			nuevo->izq=NULL;
+		if(nodo->der)
+			nuevo->der=copiarNodo(nodo->der);
+		else
+			nuevo->der=NULL;
+		return nuevo;
 	}
 
 	void recorrer_en_orden(const t_nodo* nodo)
@@ -1104,11 +1125,60 @@ void grabarTablaDeSimbolos(int error){
 					if(obtenerTipo(i)==TipoCadena)
 						fprintf(pf,"DB MAXTEXTSIZE dup (?),'$'\n");
 		}
+		for(i = 0; i<indiceConstante; i++){
+			if(obtenerTipoConstante(i)==TipoEntero)
+				fprintf(pf,"@%s DD %d.0\n",tablaConstantes[i].valor,atoi(tablaConstantes[i].valor));
+			else
+				if (obtenerTipoConstante(i)==TipoReal)
+					fprintf(pf,"@%s DD %s\n",tablaConstantes[i].valor,tablaConstantes[i].valor);
+				else
+					if(obtenerTipoConstante(i)==TipoCadena)
+						fprintf(pf,"@%s DB \"%s\",'$', 32 , dup (?)\n",tablaConstantes[i].valor,tablaConstantes[i].valor);
+		}
 		fprintf(pf,".CODE (continuara)\n");
 		fclose(pf);
 	}
 
+	void generarArchivoGraphViz(t_nodo *raiz){
+		nroNodo=0;
+		enumerarNodos(raiz);
+		FILE*pf=fopen("graphInfo.txt","w+");
+		if(!pf){
+			printf("Error al generar el archivo para GraphViz\n");
+			return;
+		}
+		fprintf(pf, "graph g{\n");
+		recorrerGenerandoViz(raiz,pf);
+		fprintf(pf, "}\n");
+		fclose(pf);
+	}
 
+	void enumerarNodos(t_nodo *n){
+		if(n){
+			n->info.nroNodo=nroNodo;
+			nroNodo++;
+			enumerarNodos(n->izq);
+			enumerarNodos(n->der);
+		}
+	}
+
+	void recorrerGenerandoViz(const t_nodo* nodo, FILE* pf)
+	{
+	    if(nodo)
+	    {
+	    	if(nodo->izq!=NULL&&nodo->der!=NULL){
+	   			fprintf(pf,"\t%d[label=\"%s\"]\n", nodo->info.nroNodo,nodo->info.valor);
+	   			fprintf(pf,"\t%d[label=\"%s\"]\n", nodo->izq->info.nroNodo,nodo->izq->info.valor);
+	   			fprintf(pf,"\t%d[label=\"%s\"]\n", nodo->der->info.nroNodo,nodo->der->info.valor);
+	   			if(nodo->izq)
+	   				fprintf(pf,"\t%d--%d\n", nodo->info.nroNodo,nodo->izq->info.nroNodo);
+	   			if(nodo->der)
+	   				fprintf(pf,"\t%d--%d\n", nodo->info.nroNodo,nodo->der->info.nroNodo);
+	   		}
+	    	recorrerGenerandoViz(nodo->izq,pf);
+	    	recorrerGenerandoViz(nodo->der,pf);
+	    }
+	}
 
 /////////////////////////PILA//////////////////////////////////////////////////////////
 

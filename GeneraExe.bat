@@ -5,7 +5,7 @@ pause
 c:\MinGW\bin\gcc.exe lex.yy.c y.tab.c -o TPFinal.exe
 pause
 TPfinal.exe "prueba.txt"
-GraficadorArbol.jar 
+C:\"Program Files (x86)"\Graphviz2.34\bin\dot -Tpng graphInfo.txt > intermedia.png
 pause
 del lex.yy.c
 del y.tab.c

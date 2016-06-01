@@ -9,4 +9,15 @@ MAXTEXTSIZE equ 32
 @d DD ?
 @e DB MAXTEXTSIZE dup (?),'$'
 @f DQ ?
+@1 DD 1.0
+@2 DD 2.0
+@hola DB "hola",'$', 32 , dup (?)
+@15 DD 15.0
+@100 DD 100.0
+@200 DD 200.0
+@4 DD 4.0
+@asd DB "asd",'$', 32 , dup (?)
+@Chau DB "Chau",'$', 32 , dup (?)
+@3 DD 3.0
+@9 DD 9.0
 .CODE (continuara)

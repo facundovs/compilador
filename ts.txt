@@ -5,9 +5,14 @@ c                               |	real                            |	----------  
 d                               |	entero                          |	----------                      |	----------                      
 e                               |	cadena                          |	----------                      |	----------                      
 f                               |	real                            |	----------                      |	----------                      
-_15                             |	const_entero                    |	15                              |	----------                      
 _1                              |	const_entero                    |	1                               |	----------                      
 _2                              |	const_entero                    |	2                               |	----------                      
-_3                              |	const_entero                    |	3                               |	----------                      
+_hola                           |	const_cadena                    |	hola                            |	4                               
+_15                             |	const_entero                    |	15                              |	----------                      
+_100                            |	const_entero                    |	100                             |	----------                      
+_200                            |	const_entero                    |	200                             |	----------                      
 _4                              |	const_entero                    |	4                               |	----------                      
+_asd                            |	const_cadena                    |	asd                             |	3                               
+_Chau                           |	const_cadena                    |	Chau                            |	4                               
+_3                              |	const_entero                    |	3                               |	----------                      
 _9                              |	const_entero                    |	9                               |	----------                      

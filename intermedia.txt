@@ -1,5 +1,31 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
-sentencia                       	=                               	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	while                           
+sentencia                       	if                              	=                               
+if                              	or                              	=                               
+or                              	AllEqual                        	AllEqual                        
+AllEqual                        	if                              	@allequal                       
+if                              	==                              	bloque_if                       
+==                              	+                               	+                               
++                               	a                               	_1                              
++                               	d                               	_2                              
+bloque_if                       	if                              	=                               
+if                              	==                              	bloque_if                       
+==                              	+                               	+                               
++                               	a                               	_1                              
++                               	a                               	d                               
+bloque_if                       	=                               	=                               
+=                               	@allequal                       	true                            
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
+AllEqual                        	if                              	@allequal                       
+if                              	==                              	bloque_if                       
+==                              	a                               	d                               
+bloque_if                       	=                               	=                               
+=                               	@allequal                       	true                            
+=                               	@allequal                       	false                           
+=                               	e                               	_hola                           
 =                               	a                               	FILTER                          
 FILTER                          	if                              	@filter                         
 if                              	>                               	bloque if                       
@@ -11,8 +37,20 @@ if                              	>                               	bloque if
 bloque if                       	=                               	=                               
 =                               	@filter                         	d                               
 =                               	@filter                         	null                            
-=                               	d                               	-                               
--                               	+                               	/                               
-+                               	_1                              	_2                              
+while                           	<                               	while                           
+<                               	a                               	_100                            
+while                           	>                               	if                              
+>                               	d                               	_200                            
+if                              	==                              	bloque if                       
+==                              	a                               	d                               
+bloque if                       	=                               	if                              
+=                               	b                               	++                              
+++                              	e                               	b                               
+if                              	==                              	=                               
+==                              	a                               	_4                              
+=                               	e                               	_asd                            
+=                               	e                               	_Chau                           
+=                               	a                               	+                               
++                               	_1                              	/                               
 /                               	*                               	_9                              
 *                               	_3                              	_4                              
