@@ -37,7 +37,7 @@
 
 	enum valorMaximo{
 		ENTERO_MAXIMO = 32768,
-		CADENA_MAXIMA = 30,
+		CADENA_MAXIMA = 31,
 		TAM = 100
 	};
 ///////////////////// ESTRUCUTURAS  ////////////////////////////////
@@ -102,11 +102,16 @@
 	int elementosEnPilaWhile =0;
 	int elementosEnPilaIf =0;
 	void generarAssembler(t_nodo*);
-	void recorrerGenerandoCodigo(const t_nodo*, FILE*);
+	void recorrerGenerandoCodigo(t_nodo*, FILE*);
 	void generarArchivoGraphViz(t_nodo*);
 	void enumerarNodos(t_nodo*);
 	void recorrerGenerandoViz(const t_nodo*, FILE*);
 	t_nodo * crearHojaT(const char*);
+	char * cortarCadena(char*,int);
+	char * obtenerNombre(char* );
+	int esHoja(t_nodo*);
+	void grabarOperacionAssembler(t_nodo*, t_nodo*, t_nodo*, FILE*);
+	int contarAux(t_nodo*);
 
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
 	t_nodo * programa;
@@ -164,7 +169,8 @@
 	int cantListasAllEqual=0;
 	t_pila pilasAllEqual[TAM];
 	int nroNodo=0;
-
+	int nroAux;
+	unsigned long entero64bits;
 %}
 
 %union {
@@ -204,13 +210,10 @@ programa:
 	{
 		programa=bloque_sentencias;
 		printf("FIN DEL PROGRAMA, COMPILACION OK\n");
-		printf("\n\nARBOL\n");
-		recorrer_en_orden(programa);
 		grabarArbol(programa);
-		//dibujar(programa,15,3,7,0);
 		grabarTablaDeSimbolos(0);
-		generarAssembler(programa);
 		generarArchivoGraphViz(programa);
+		generarAssembler(programa);
 	} 
 	;
 
@@ -292,7 +295,6 @@ sentencia_if:
 	{
 		sentencia_if =(t_nodo *) malloc (sizeof(t_nodo));
 		sacar_de_pila(&pilaIf,sentencia_if);
-		printf("Nodo sacado de pila: %s %s %s %s\n",sentencia_if->izq->izq->info.valor,sentencia_if->izq->info.valor,sentencia_if->izq->der->info.valor,sentencia_if->info.valor );
 		insertarHijo(&(sentencia_if->der),bloque_sentencias);
 		bloque_sentencias = sacar_de_pila2(&pilabloques);
 	}
@@ -555,21 +557,45 @@ filter:
 	;
 
 write:  
-	WRITE {printf("Funcion Write\n");} CONST_CADENA |
-	WRITE ID { 
-				if(existeId($<cadena>2)==-1){
-					yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
-				}
+	WRITE CONST_CADENA {
+							//Guardamos la cadena
+					        if(strlen(yylval.cadena)>CADENA_MAXIMA)
+								yyerrormsj(yylval.cadena,ErrorLexico,ErrorStringFueraDeRango);
+					        printf("CADENA es: %s\n",yylval.cadena);
+							int ret=existeCte();
+							if(ret==0){
+								  strcpy(tablaConstantes[indiceConstante].nombre,"_");
+								  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+								  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
+								  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
+								  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
+								  indiceConstante++;
+							}
+							write=crearHojaT("WRITE");
+							insertarHijo(&write->izq,crearHojaT("stdout"));
+							insertarHijo(&write->der,crearHojaT(obtenerNombre(yylval.cadena)));
+							printf("Write OK\n");
+						}  
+	|	WRITE ID {
+					if(existeId($<cadena>2)==-1){
+						yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
+					}
+					write=crearHojaT("WRITE");
+					insertarHijo(&write->izq,crearHojaT("stdout"));
+					insertarHijo(&write->der,crearHojaT(yylval.cadena));
+					printf("Write OK\n");
 			}
 	;
 
 read:
-	READ 
-		{
-			printf("Funcion Read\n");} ID { 
+	READ ID { 
 			if(existeId($<cadena>2)==-1){
 				yyerrormsj($<cadena>2,ErrorSintactico,ErrorIdNoDeclarado);
 			}
+			read=crearHojaT("READ");
+			insertarHijo(&read->izq,crearHojaT("stdin"));
+			insertarHijo(&read->der,crearHojaT(yylval.cadena));
+			printf("Read OK\n");
 		}		
 	;
 
@@ -718,8 +744,9 @@ factor:
 		  if(esAsignacion==1&&tipoAsignacion!=TipoEntero){
 			yyerrormsj(yylval.cadena,ErrorSintactico,ErrorConstanteDistintoTipo);    
 		  }
-          if(atoi(yylval.cadena) >= ENTERO_MAXIMO ){
-            char entero[10];
+		  char aux[50];
+		  strcpy(aux,yylval.cadena);
+          if(atoi(cortarCadena(aux,6)) >= ENTERO_MAXIMO ){
             yyerrormsj(yylval.cadena,ErrorLexico,ErrorIntFueraDeRango);
           }
           printf("Constante entera, Valor: %s\n", yylval.cadena);
@@ -738,8 +765,9 @@ factor:
       }
       | OP_RESTA CONST_ENTERO {
 		  char aux[5]="-";
-          if(atoi(yylval.cadena) > ENTERO_MAXIMO){
-            char entero[10];
+		  char aux1[50];
+		  strcpy(aux1,yylval.cadena);
+          if(atoi(cortarCadena(aux1,6)) > ENTERO_MAXIMO){
             yyerrormsj(strcat(aux,yylval.cadena),ErrorLexico,ErrorIntFueraDeRango);
            }
 		   if(esAsignacion==1&&tipoAsignacion!=TipoEntero){
@@ -861,13 +889,13 @@ int yyerrormsj(const char * info,enum tipoDeError tipoDeError ,enum error error)
         }
       switch(error){ 
         case ErrorIntFueraDeRango: 
-            printf("Entero %s fuera de rango\n",info);
+            printf("Entero %s fuera de rango [-%d ; %d]\n",info,ENTERO_MAXIMO,ENTERO_MAXIMO-1);
             break ;
 		case ErrorFloatFueraDeRango: 
-            printf("Real %s fuera de rango\n",info);
+            printf("Real %s fuera de rango. Debe ser un real de 32bits\n",info);
             break ;
         case ErrorStringFueraDeRango:
-            printf("Cadena: \"%s\" fuera de rango\n", info);
+            printf("Cadena: \"%s\" fuera de rango. La longitud maxima es 30 caracteres\n", info);
             break ; 
 		case ErrorEnDeclaracionCantidad:
 			printf("Descripcion: no coinciden la cantidad de ids declaradas con la cantidad de tipos declarados\n");
@@ -935,6 +963,13 @@ int existeCte(){
 	return 0;
 }
 
+char* obtenerNombre(char* id){
+	char aux[100]="_";
+	strcat(aux,id);
+	strcpy(id, aux);
+	return id;
+}
+
 enum tipoDeDato obtenerTipo(int indice){ 
 	if(strcmp(tablaVariables[indice].tipo,"entero")==0){
 		return TipoEntero;
@@ -977,6 +1012,12 @@ char * obtenerTipoLiteral(int indice){
 		case TipoReal:
 			return "real";
 	}
+}
+
+char * cortarCadena(char* cad,int tam){
+	if(strlen(cad)>tam)
+		cad[tam]='\0';
+	return cad;
 }
 
 void grabarTablaDeSimbolos(int error){
@@ -1061,6 +1102,23 @@ void grabarTablaDeSimbolos(int error){
 		return nuevo;
 	}
 
+	int esHoja(t_nodo* nodo){
+		if(nodo->izq==NULL&&nodo->der==NULL)
+			return 1;
+		return 0;
+	}
+
+	int contarAux(t_nodo* nodo){
+		if(nodo){
+			if(strcmp(nodo->info.valor,"*") ==0||strcmp(nodo->info.valor,"-")==0
+				||strcmp(nodo->info.valor,"+") ==0||strcmp(nodo->info.valor,"/")==0)
+				return 1+contarAux(nodo->izq)+contarAux(nodo->der);
+			else 
+				return contarAux(nodo->izq)+contarAux(nodo->der);
+		}
+		return 0;
+	}
+
 	void recorrer_en_orden(const t_nodo* nodo)
 	{
 	    if(nodo)
@@ -1095,15 +1153,68 @@ void grabarTablaDeSimbolos(int error){
 		fclose(pf);
 	}
 
-	void recorrerGenerandoCodigo(const t_nodo* nodo, FILE* pf)
+	void recorrerGenerandoCodigo(t_nodo* nodo, FILE* pf)
 	{
 	    if(nodo)
 	    {
-	   		if(nodo->izq!=NULL&&nodo->der!=NULL)
-	   			fprintf(pf,"%-32s\t%-32s\t%-32s\n", nodo->info.valor,nodo->izq->info.valor,nodo->der->info.valor);
-	    	recorrer_guardando(nodo->izq,pf);
-	    	recorrer_guardando(nodo->der,pf);
+	    	recorrerGenerandoCodigo(nodo->izq,pf);
+	    	recorrerGenerandoCodigo(nodo->der,pf);
+	    	if(esHoja(nodo)==0&&esHoja(nodo->izq)&&esHoja(nodo->der)){ //Si solo tiene hijos hojas
+	   			grabarOperacionAssembler(nodo->izq,nodo->der,nodo,pf);
+	   		}
 	    }
+	}
+
+	void grabarOperacionAssembler(t_nodo* op1, t_nodo *op2, t_nodo *opr, FILE* pf){
+		char aux[50]="Aux\0";
+		char aux2[10];
+		itoa(nroAux,aux2,10);
+	   	strcat(aux,aux2);
+		//Realizar operacion
+		if(strcmp(opr->info.valor,"*")==0){
+			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+			fprintf(pf,"\tfmul\n");
+			//Guardar el resultado en @aux
+			fprintf(pf,"\tfstp \t@%s\n", aux);
+			nroAux++;
+		}
+		if(strcmp(opr->info.valor,"+")==0){
+			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+			fprintf(pf,"\tfadd\n");
+			//Guardar el resultado en @aux
+			fprintf(pf,"\tfstp \t@%s\n", aux);
+			nroAux++;
+		}
+		if(strcmp(opr->info.valor,"/")==0){
+			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+			fprintf(pf,"\tfdiv\n");
+			//Guardar el resultado en @aux
+			fprintf(pf,"\tfstp \t@%s\n", aux);
+			nroAux++;
+		}
+		if(strcmp(opr->info.valor,"-")==0){
+			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+			fprintf(pf,"\tfsub\n");
+			//Guardar el resultado en @aux
+			fprintf(pf,"\tfstp \t@%s\n", aux);
+			nroAux++;
+		}
+		if(strcmp(opr->info.valor,"=")==0){
+			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+			fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
+		}
+		if(strcmp(opr->info.valor,"=")==0){
+			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+			fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
+		}
+		//Modificar nodo
+		strcpy(opr->info.valor,aux);
+		opr->izq=NULL;
+		opr->der=NULL;
 	}
 
 	void generarAssembler(t_nodo* arbol){
@@ -1112,30 +1223,41 @@ void grabarTablaDeSimbolos(int error){
 			printf("Error al guardar el arbol\n");
 			return;
 		}
-		fprintf(pf,".MODEL LARGE\n.386\n.STACK 200h\n.DATA\nMAXTEXTSIZE equ 32\n");
+		fprintf(pf,".MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n\tMAXTEXTSIZE equ 32\n");
 		int i;
 		for(i = 0; i<indicesVariable.nombre; i++){
-			fprintf(pf,"@%s ",tablaVariables[i].nombre);
+			fprintf(pf,"\t@%s ",tablaVariables[i].nombre);
 			if(obtenerTipo(i)==TipoEntero)
-				fprintf(pf,"DD ?\n");
+				fprintf(pf,"\tDQ 0\n");
 			else
 				if (obtenerTipo(i)==TipoReal)
-					fprintf(pf,"DQ ?\n");
+					fprintf(pf,"\tDQ 0\n");
 				else
 					if(obtenerTipo(i)==TipoCadena)
-						fprintf(pf,"DB MAXTEXTSIZE dup (?),'$'\n");
+						fprintf(pf,"\tDB MAXTEXTSIZE dup (?),'$'\n");
 		}
 		for(i = 0; i<indiceConstante; i++){
 			if(obtenerTipoConstante(i)==TipoEntero)
-				fprintf(pf,"@%s DD %d.0\n",tablaConstantes[i].valor,atoi(tablaConstantes[i].valor));
+				fprintf(pf,"\t@%s \tDQ %d.0\n",tablaConstantes[i].nombre,atoi(tablaConstantes[i].valor));
 			else
 				if (obtenerTipoConstante(i)==TipoReal)
-					fprintf(pf,"@%s DD %s\n",tablaConstantes[i].valor,tablaConstantes[i].valor);
+					fprintf(pf,"\t@%s \tDQ %s\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
 				else
 					if(obtenerTipoConstante(i)==TipoCadena)
-						fprintf(pf,"@%s DB \"%s\",'$', 32 dup (?)\n",tablaConstantes[i].valor,tablaConstantes[i].valor);
+						fprintf(pf,"\t@%s \tDB \"%s\",'$', MAXTEXTSIZE dup (?)\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
 		}
-		fprintf(pf,".CODE (continuara)\n");
+		
+		//FIN DE LA CABECERA
+		int cantAux=contarAux(arbol);
+		int j;
+		for(j=0;j<cantAux;j++){
+			fprintf(pf,"\t@Aux%d \tDQ 0\n",j+1);
+		}
+		fprintf(pf,"\n.CODE\n\tmov AX,@DATA\n\tmov DS,AX\n\n\tFINIT\n\n");
+		nroAux=1;
+		recorrerGenerandoCodigo(arbol, pf);
+		//FIN DE ARCHIVO
+		fprintf(pf,"\tint 21h\n\tmov ax, 4C00h\nend");
 		fclose(pf);
 	}
 

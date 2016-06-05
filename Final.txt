@@ -1,23 +1,56 @@
 .MODEL LARGE
 .386
 .STACK 200h
+
 .DATA
-MAXTEXTSIZE equ 32
-@a DD ?
-@b DB MAXTEXTSIZE dup (?),'$'
-@c DQ ?
-@d DD ?
-@e DB MAXTEXTSIZE dup (?),'$'
-@f DQ ?
-@1 DD 1.0
-@2 DD 2.0
-@hola DB "hola",'$', 32 dup (?)
-@15 DD 15.0
-@100 DD 100.0
-@200 DD 200.0
-@4 DD 4.0
-@asd DB "asd",'$', 32 dup (?)
-@Chau DB "Chau",'$', 32 dup (?)
-@3 DD 3.0
-@9 DD 9.0
-.CODE (continuara)
+	MAXTEXTSIZE equ 32
+	@var1 	DQ 0
+	@var2 	DQ 0
+	@var3 	DQ 0
+	@_5.3 	DQ 5.3
+	@_2.7 	DQ 2.7
+	@_3.0 	DQ 3.0
+	@_2.0 	DQ 2.0
+	@_1.0 	DQ 1.0
+	@Aux1 	DQ 0
+	@Aux2 	DQ 0
+	@Aux3 	DQ 0
+	@Aux4 	DQ 0
+
+.CODE
+	mov AX,@DATA
+	mov DS,AX
+
+	FINIT
+
+	fld 	@_5.3
+	fstp 	@var2
+	fld 	@_5.3
+	fstp 	@var2
+	fld 	@_2.7
+	fstp 	@var3
+	fld 	@_2.7
+	fstp 	@var3
+	fld 	@var3
+	fld 	@_3.0
+	fmul
+	fstp 	@Aux1
+	fld 	@var2
+	fld 	@Aux1
+	fsub
+	fstp 	@Aux2
+	fld 	@_2.0
+	fld 	@_1.0
+	fdiv
+	fstp 	@Aux3
+	fld 	@Aux2
+	fld 	@Aux3
+	fadd
+	fstp 	@Aux4
+	fld 	@Aux4
+	fstp 	@var1
+	fld 	@Aux4
+	fstp 	@var1
+	int 21h
+	mov ax, 4C00h
+end

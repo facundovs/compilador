@@ -35,6 +35,12 @@ char * replace(char const * const original,  char const * const pattern,  char c
 	}
 }
 
+char * cortarCadena1(char* cad,int tam){
+	if(strlen(cad)>tam)
+		cad[tam]='\0';
+	return cad;
+}
+
 
 FILE  *yyin;
 unsigned long entero64bits;
@@ -46,7 +52,7 @@ char *puntero;
 DIGITO						[0-9]
 LETRA						[a-zA-Z]
 ID							{LETRA}({LETRA}|{DIGITO}|_)*
-COMENTARIO     		(-\/)([^-/]|[^/-])*(\/-)
+COMENTARIO     		(-\/).*(\/-)
 CONST_CADENA 		\"([^\"\\\\]|\\\\.)*\"
 CONST_ENTERO		{DIGITO}+
 CONST_REAL				([0-9]*\.[0-9]+|[0-9]+)
@@ -94,22 +100,24 @@ CONST_REAL				([0-9]*\.[0-9]+|[0-9]+)
 {ID}							{ strcpy(yylval.cadena,yytext); return ID;}				
 {CONST_ENTERO}	  	{ 
 								//yylval.entero = atoi( yytext ); 
-								strcpy(yylval.cadena,yytext);
+								strcpy(yylval.cadena,cortarCadena1(yytext,46));
 								return CONST_ENTERO;
 					}
 					
-{CONST_REAL}			{ 
+{CONST_REAL}		{ 
 								//yylval.real = atof( yytext );
-								strcpy(yylval.cadena,yytext);
+								strcpy(yylval.cadena,cortarCadena1(yytext,46));
 								return CONST_REAL;
 					}
 
-{CONST_CADENA}	{	
+{CONST_CADENA}		{	
 								strcpy(yylval.cadena,replace(yytext,"\"",""));
 								return CONST_CADENA;
 					}
 				
-{COMENTARIO}
+{COMENTARIO}		{
+
+					}
    		
 "\n"
 "\r\n"

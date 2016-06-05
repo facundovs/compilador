@@ -1,23 +1,8 @@
 programa 
 declaraciones	
-	DIM [a,b,c,d,e,f] AS [entero,cadena,real,entero,cadena,real]
+	DIM [var1,var2,var3] AS [real,real,real]
 fin_declaraciones
-if(AllEqual([a+1],[d+2],[a+d]) or AllEqual([a],[d]))
-	e="hola"
-endif
-a=FILTER(_>15,[a,d])
-while(a<100)
-	while(d>-/ESTE NO LO HACE CUALQUIERA/-200)
-		if(a==d)
-			-/SOY UN COMENTARIO/-
-			b=e++b
-		else
-			if(a==4)
-				e="asd"
-			endif
-		endif
-	endwhile
-endwhile -/SOY OTRO COMENTARIO/-
-e="Chau"
-a=1+3*4/9
+var2=5.3
+var3=2.7
+var1=var2-var3*3.0+2.0/1.0
 fin_programa
