@@ -32,7 +32,8 @@
 	enum tipoDeDato{
 		TipoEntero,
 		TipoReal,
-		TipoCadena
+		TipoCadena,
+		SinTipo
 	};
 
 	enum valorMaximo{
@@ -81,6 +82,7 @@
 	int yyerror();
 	enum tipoDeDato obtenerTipo(int);
 	enum tipoDeDato obtenerTipoConstante(int);
+	enum tipoDeDato obtenerTipoASM(char*);
 	int longLEsValidas();
 	void limpiarVector(int *,int);
 	char * obtenerTipoLiteral(int);
@@ -955,7 +957,7 @@ int existeId(char * id){
 int existeCte(){
 	int  j;
 	char aux[50]="_";
-	strcat(aux,yylval.cadena);
+	strcat(aux,reemplazarCaracter(yylval.cadena," ","_"));
 	for(j = 0; j<indiceConstante; j++){
 		if(strcmp(tablaConstantes[j].nombre,aux) == 0){
 			return 1;
@@ -1244,9 +1246,25 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 
 		//IN-OUT
 			if(strcmp(opr->info.valor,"WRITE")==0){
-				fprintf(pf,"\tmov\tah, 9\n");
-				fprintf(pf,"\tmov \tdx,OFFSET\t@%s\n", op2->info.valor);
-				fprintf(pf,"\tint\t21h\n");
+				if(obtenerTipoASM(op2->info.valor)==TipoEntero)
+					fprintf(pf,"\tdisplayFloat \t@%s,3\n\tnewLine 1\n", op2->info.valor);
+				else 
+					if(obtenerTipoASM(op2->info.valor)==TipoReal)
+						fprintf(pf,"\tdisplayFloat \t@%s,3\n\tnewLine 1\n", op2->info.valor);
+					else
+						if(obtenerTipoASM(op2->info.valor)==TipoCadena)
+							fprintf(pf,"\tdisplayString \t@%s\n", op2->info.valor);
+			}
+
+			if(strcmp(opr->info.valor,"READ")==0){
+				if(obtenerTipoASM(op2->info.valor)==TipoEntero)
+					fprintf(pf,"\tgetFloat \t@%s\\n", op2->info.valor);
+				else 
+					if(obtenerTipoASM(op2->info.valor)==TipoReal)
+						fprintf(pf,"\tgetFloat \t@%s\n", op2->info.valor);
+					else
+						if(obtenerTipoASM(op2->info.valor)==TipoCadena)
+							fprintf(pf,"\tgetString \t@%s\n", op2->info.valor);
 			}
 
 		//COMPARADORES
@@ -1263,10 +1281,10 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 			printf("Error al guardar el arbol\n");
 			return;
 		}
-		//fprintf(pf,"include macros2.asm\t;incluye macros\n");
+		fprintf(pf,"include macros2.asm\n");
 		//fprintf(pf,"include numbers.asm\t;incluye macros\n");
-		//fprintf(pf,"include number.asm\t;incluye el asm para impresion de numeros\n");
-		fprintf(pf,".MODEL LARGE\n.STACK 200h\n\n.DATA\n\tMAXTEXTSIZE equ 32\n");
+		fprintf(pf,"include number.asm\n\n");
+		fprintf(pf,".MODEL LARGE\n.STACK 200h\n.386\n.387\n.DATA\n\n\tMAXTEXTSIZE equ 32\n");
 		int i;
 
 		//DECLARACION DE VARIABLES
@@ -1274,10 +1292,10 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		for(i = 0; i<indicesVariable.nombre; i++){
 			fprintf(pf,"\t@%s ",tablaVariables[i].nombre);
 			if(obtenerTipo(i)==TipoEntero)
-				fprintf(pf,"\tDQ 0\n");
+				fprintf(pf,"\tDD 0\n");
 			else
 				if (obtenerTipo(i)==TipoReal)
-					fprintf(pf,"\tDQ 0\n");
+					fprintf(pf,"\tDD 0\n");
 				else
 					if(obtenerTipo(i)==TipoCadena)
 						fprintf(pf,"\tDB MAXTEXTSIZE dup (?),'$'\n");
@@ -1286,10 +1304,10 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		//DECLARACION DE CONSTANTES
 		for(i = 0; i<indiceConstante; i++){
 			if(obtenerTipoConstante(i)==TipoEntero)
-				fprintf(pf,"\t@%s \tDQ %d.0\n",tablaConstantes[i].nombre,atoi(tablaConstantes[i].valor));
+				fprintf(pf,"\t@%s \tDD %d.0\n",tablaConstantes[i].nombre,atoi(tablaConstantes[i].valor));
 			else
 				if (obtenerTipoConstante(i)==TipoReal)
-					fprintf(pf,"\t@%s \tDQ %s\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
+					fprintf(pf,"\t@%s \tDD %s\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
 				else
 					if(obtenerTipoConstante(i)==TipoCadena)
 						fprintf(pf,"\t@%s \tDB \"%s\", MAXTEXTSIZE ,10,'$'\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
@@ -1299,7 +1317,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		int cantAux=contarAux(arbol);
 		int j;
 		for(j=0;j<cantAux;j++){
-			fprintf(pf,"\t@Aux%d \tDQ 0\n",j+1);
+			fprintf(pf,"\t@Aux%d \tDD 0\n",j+1);
 		}
 		fprintf(pf,"\n.CODE\n.startup\n\tmov AX,@DATA\n\tmov DS,AX\n\n\tFINIT\n\n");
 		nroAux=1;
@@ -1312,6 +1330,37 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		//fprintf(pf,"\tmov ah, 9\n\tmov  dx,OFFSET @MensajeFin\n\tint  21h\n");
 		fprintf(pf,"\tmov ah, 4ch\n\tint 21h\nend");
 		fclose(pf);
+	}
+
+	enum tipoDeDato obtenerTipoASM(char* valor){
+		int i;
+		for(i = 0; i<indicesVariable.nombre; i++){
+			if(strcmp(tablaVariables[i].nombre,valor)==0){
+				if(obtenerTipo(i)==TipoEntero)
+					return TipoEntero;
+				else
+					if (obtenerTipo(i)==TipoReal)
+						return TipoReal;
+					else
+						if(obtenerTipo(i)==TipoCadena)
+							return TipoCadena;
+			}
+		}
+			
+
+		for(i = 0; i<indiceConstante; i++){
+			if(strcmp(tablaConstantes[i].nombre,valor)==0){
+				if(obtenerTipoConstante(i)==TipoEntero)
+					return TipoEntero;	
+				else
+					if (obtenerTipoConstante(i)==TipoReal)
+						return TipoReal;
+					else
+						if(obtenerTipoConstante(i)==TipoCadena)
+							return TipoCadena;
+			}
+		}
+		return SinTipo;
 	}
 
 	void generarArchivoGraphViz(t_nodo *raiz){

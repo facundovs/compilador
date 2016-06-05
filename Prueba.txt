@@ -1,10 +1,22 @@
 programa 
 declaraciones	
-	DIM [var1,var2,var3] AS [real,real,real]
+	DIM [var1,var2,var3,varString] AS [real,real,real,cadena]
 fin_declaraciones
-WRITE "write del inicio del programa"
-var2=5.3
-var3=2.7
-var1=var2-var3
-WRITE "Hola"
+WRITE "Inicio del programa"
+WRITE "Ingrese un nro"
+READ var2
+WRITE "Ingrese otro nro"
+READ var3
+var1=var2+var3
+WRITE "Resultado de la suma"
+WRITE var1
+WRITE "Ingrese un nro"
+READ var1
+WRITE "El nro x2 es"
+var1=var1*2.0
+WRITE var1
+WRITE "Ingrese una cadena"
+READ varString
+WRITE "Se ha leido"
+WRITE varString
 fin_programa
