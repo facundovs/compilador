@@ -1,5 +1,4 @@
 .MODEL LARGE
-.386
 .STACK 200h
 
 .DATA
@@ -7,50 +6,35 @@
 	@var1 	DQ 0
 	@var2 	DQ 0
 	@var3 	DQ 0
-	@_5.3 	DQ 5.3
-	@_2.7 	DQ 2.7
-	@_3.0 	DQ 3.0
-	@_2.0 	DQ 2.0
-	@_1.0 	DQ 1.0
+	@_write_del_inicio_del_programa 	DB "write del inicio del programa", MAXTEXTSIZE ,10,'$'
+	@_5_3 	DQ 5.3
+	@_2_7 	DQ 2.7
+	@_Hola 	DB "Hola", MAXTEXTSIZE ,10,'$'
 	@Aux1 	DQ 0
-	@Aux2 	DQ 0
-	@Aux3 	DQ 0
-	@Aux4 	DQ 0
 
 .CODE
+.startup
 	mov AX,@DATA
 	mov DS,AX
 
 	FINIT
 
-	fld 	@_5.3
+	mov	ah, 9
+	mov 	dx,OFFSET	@_write_del_inicio_del_programa
+	int	21h
+	fld 	@_5_3
 	fstp 	@var2
-	fld 	@_5.3
-	fstp 	@var2
-	fld 	@_2.7
+	fld 	@_2_7
 	fstp 	@var3
-	fld 	@_2.7
-	fstp 	@var3
-	fld 	@var3
-	fld 	@_3.0
-	fmul
-	fstp 	@Aux1
 	fld 	@var2
-	fld 	@Aux1
+	fld 	@var3
 	fsub
-	fstp 	@Aux2
-	fld 	@_2.0
-	fld 	@_1.0
-	fdiv
-	fstp 	@Aux3
-	fld 	@Aux2
-	fld 	@Aux3
-	fadd
-	fstp 	@Aux4
-	fld 	@Aux4
+	fstp 	@Aux1
+	fld 	@Aux1
 	fstp 	@var1
-	fld 	@Aux4
-	fstp 	@var1
+	mov	ah, 9
+	mov 	dx,OFFSET	@_Hola
+	int	21h
+	mov ah, 4ch
 	int 21h
-	mov ax, 4C00h
 end

@@ -2,8 +2,7 @@ NOMBRE                          |	TIPO                            |	VALOR       
 var1                            |	real                            |	----------                      |	----------                      
 var2                            |	real                            |	----------                      |	----------                      
 var3                            |	real                            |	----------                      |	----------                      
-_5.3                            |	const_real                      |	5.3                             |	----------                      
-_2.7                            |	const_real                      |	2.7                             |	----------                      
-_3.0                            |	const_real                      |	3.0                             |	----------                      
-_2.0                            |	const_real                      |	2.0                             |	----------                      
-_1.0                            |	const_real                      |	1.0                             |	----------                      
+_write_del_inicio_del_programa  |	const_cadena                    |	write del inicio del programa   |	29                              
+_5_3                            |	const_real                      |	5.3                             |	----------                      
+_2_7                            |	const_real                      |	2.7                             |	----------                      
+_Hola                           |	const_cadena                    |	Hola                            |	4                               

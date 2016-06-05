@@ -112,6 +112,7 @@
 	int esHoja(t_nodo*);
 	void grabarOperacionAssembler(t_nodo*, t_nodo*, t_nodo*, FILE*);
 	int contarAux(t_nodo*);
+	char * reemplazarCaracter(char const *,  char const *,  char const *);
 
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
 	t_nodo * programa;
@@ -565,7 +566,7 @@ write:
 							int ret=existeCte();
 							if(ret==0){
 								  strcpy(tablaConstantes[indiceConstante].nombre,"_");
-								  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+								  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(yylval.cadena," ","_"));
 								  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 								  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
 								  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
@@ -573,7 +574,7 @@ write:
 							}
 							write=crearHojaT("WRITE");
 							insertarHijo(&write->izq,crearHojaT("stdout"));
-							insertarHijo(&write->der,crearHojaT(obtenerNombre(yylval.cadena)));
+							insertarHijo(&write->der,crearHojaT(obtenerNombre(reemplazarCaracter(yylval.cadena," ","_"))));
 							printf("Write OK\n");
 						}  
 	|	WRITE ID {
@@ -798,7 +799,7 @@ factor:
           printf("Constante real, valor: %s\n", yylval.cadena);
 		  if(existeCte()==0){
 			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
-			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(yylval.cadena,".","_"));
 			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].tipo,"const_real");
 			  tablaConstantes[indiceConstante].longitud=0;
@@ -806,7 +807,7 @@ factor:
 		  }
   		  t_info info;
 		  strcpy(info.valor, "_");
-		  strcat(info.valor,yylval.cadena);
+		  strcat(info.valor,reemplazarCaracter(yylval.cadena,".","_"));
 		  factor = crearHoja(&info);
       }  
 	  | OP_RESTA CONST_REAL {
@@ -820,7 +821,7 @@ factor:
           printf("Constante real, valor: -%s\n", yylval.cadena);
 		  if(existeCte()==0){
 			  strcpy(tablaConstantes[indiceConstante].nombre,"_-");
-			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(yylval.cadena,".","_"));
 			  strcpy(tablaConstantes[indiceConstante].valor,"-");
 			  strcat(tablaConstantes[indiceConstante].valor,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].tipo,"const_real");
@@ -829,7 +830,7 @@ factor:
 		  }
 		  t_info info;
 		  strcpy(info.valor, "_-");
-		  strcat(info.valor,yylval.cadena);
+		  strcat(info.valor,reemplazarCaracter(yylval.cadena,".","_"));
 		  factor = crearHoja(&info);
       } 
 	    | CONST_CADENA {
@@ -842,7 +843,7 @@ factor:
 		int ret=existeCte();
 		 if(ret==0){
 			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
-			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
+			  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(yylval.cadena," ","_"));
 			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
 			  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
@@ -850,7 +851,7 @@ factor:
 		}
 		t_info info;
 		strcpy(info.valor, "_");
-		strcat(info.valor,yylval.cadena);
+		strcat(info.valor,reemplazarCaracter(yylval.cadena," ","_"));
 		factor = crearHoja(&info);
       }
       |P_A expresion P_C  {expresion=factor;}
@@ -1043,6 +1044,36 @@ void grabarTablaDeSimbolos(int error){
 	fclose(pf);
 }
 
+char * reemplazarCaracter(char const * const original,  char const * const pattern,  char const * const replacement) 
+{
+	size_t const replen = strlen(replacement);
+	size_t const patlen = strlen(pattern);
+	size_t const orilen = strlen(original);
+	size_t patcnt = 0;
+	const char * oriptr;
+	const char * patloc;
+	for (oriptr = original; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen){
+		patcnt++;
+	}
+  {
+	size_t const retlen = orilen + patcnt * (replen - patlen);
+    char * const returned = (char *) malloc( sizeof(char) * (retlen + 1) );
+    if (returned != NULL)
+    {
+	char * retptr = returned;
+	for (oriptr = original; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen){
+	size_t const skplen = patloc - oriptr;
+	strncpy(retptr, oriptr, skplen);
+	retptr += skplen;
+	strncpy(retptr, replacement, replen);
+	retptr += replen;
+	}
+	strcpy(retptr, oriptr);
+	}
+	return returned;
+	}
+}
+
 ///////////////////////// FUNCIONES ARBOL //////////////////////////////////////////////
 
 	t_nodo * crearHoja(const t_info *d)
@@ -1211,6 +1242,13 @@ void grabarTablaDeSimbolos(int error){
 				fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
 			}
 
+		//IN-OUT
+			if(strcmp(opr->info.valor,"WRITE")==0){
+				fprintf(pf,"\tmov\tah, 9\n");
+				fprintf(pf,"\tmov \tdx,OFFSET\t@%s\n", op2->info.valor);
+				fprintf(pf,"\tint\t21h\n");
+			}
+
 		//COMPARADORES
 
 		//MODIFICACION DE NODO Y ELIMINACION DE HIJOS HOJAS
@@ -1225,10 +1263,14 @@ void grabarTablaDeSimbolos(int error){
 			printf("Error al guardar el arbol\n");
 			return;
 		}
-		fprintf(pf,".MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n\tMAXTEXTSIZE equ 32\n");
+		//fprintf(pf,"include macros2.asm\t;incluye macros\n");
+		//fprintf(pf,"include numbers.asm\t;incluye macros\n");
+		//fprintf(pf,"include number.asm\t;incluye el asm para impresion de numeros\n");
+		fprintf(pf,".MODEL LARGE\n.STACK 200h\n\n.DATA\n\tMAXTEXTSIZE equ 32\n");
 		int i;
 
 		//DECLARACION DE VARIABLES
+		//fprintf(pf,"\t@MensajeFin DB 'Fin de ejecucion',MAXTEXTSIZE,10,'$'\t;Mensaje que se imprimira al final de la ejecucion\n");
 		for(i = 0; i<indicesVariable.nombre; i++){
 			fprintf(pf,"\t@%s ",tablaVariables[i].nombre);
 			if(obtenerTipo(i)==TipoEntero)
@@ -1250,7 +1292,7 @@ void grabarTablaDeSimbolos(int error){
 					fprintf(pf,"\t@%s \tDQ %s\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
 				else
 					if(obtenerTipoConstante(i)==TipoCadena)
-						fprintf(pf,"\t@%s \tDB \"%s\",'$', MAXTEXTSIZE dup (?)\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
+						fprintf(pf,"\t@%s \tDB \"%s\", MAXTEXTSIZE ,10,'$'\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
 		}
 		
 		//DECLARACION DE AUXILIARES
@@ -1259,14 +1301,16 @@ void grabarTablaDeSimbolos(int error){
 		for(j=0;j<cantAux;j++){
 			fprintf(pf,"\t@Aux%d \tDQ 0\n",j+1);
 		}
-		fprintf(pf,"\n.CODE\n\tmov AX,@DATA\n\tmov DS,AX\n\n\tFINIT\n\n");
+		fprintf(pf,"\n.CODE\n.startup\n\tmov AX,@DATA\n\tmov DS,AX\n\n\tFINIT\n\n");
 		nroAux=1;
 
 		//GENERACION DE CODIGO
 		recorrerGenerandoCodigo(arbol, pf);
 
 		//FIN DE ARCHIVO
-		fprintf(pf,"\tint 21h\n\tmov ax, 4C00h\nend");
+		//fprintf(pf,";A contiinuacion se imprime un mensaje informando el final de la ejecucion\n");
+		//fprintf(pf,"\tmov ah, 9\n\tmov  dx,OFFSET @MensajeFin\n\tint  21h\n");
+		fprintf(pf,"\tmov ah, 4ch\n\tint 21h\nend");
 		fclose(pf);
 	}
 

@@ -1,10 +1,11 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
+sentencia                       	sentencia                       	WRITE                           
 sentencia                       	sentencia                       	=                               
-sentencia                       	=                               	=                               
-=                               	var2                            	_5.3                            
-=                               	var3                            	_2.7                            
-=                               	var1                            	+                               
-+                               	-                               	/                               
--                               	var2                            	*                               
-*                               	var3                            	_3.0                            
-/                               	_2.0                            	_1.0                            
+sentencia                       	sentencia                       	=                               
+sentencia                       	WRITE                           	=                               
+WRITE                           	stdout                          	_write_del_inicio_del_programa  
+=                               	var2                            	_5_3                            
+=                               	var3                            	_2_7                            
+=                               	var1                            	-                               
+-                               	var2                            	var3                            
+WRITE                           	stdout                          	_Hola                           
