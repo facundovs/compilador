@@ -1170,51 +1170,53 @@ void grabarTablaDeSimbolos(int error){
 		char aux2[10];
 		itoa(nroAux,aux2,10);
 	   	strcat(aux,aux2);
-		//Realizar operacion
-		if(strcmp(opr->info.valor,"*")==0){
-			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
-			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
-			fprintf(pf,"\tfmul\n");
-			//Guardar el resultado en @aux
-			fprintf(pf,"\tfstp \t@%s\n", aux);
-			nroAux++;
-		}
-		if(strcmp(opr->info.valor,"+")==0){
-			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
-			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
-			fprintf(pf,"\tfadd\n");
-			//Guardar el resultado en @aux
-			fprintf(pf,"\tfstp \t@%s\n", aux);
-			nroAux++;
-		}
-		if(strcmp(opr->info.valor,"/")==0){
-			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
-			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
-			fprintf(pf,"\tfdiv\n");
-			//Guardar el resultado en @aux
-			fprintf(pf,"\tfstp \t@%s\n", aux);
-			nroAux++;
-		}
-		if(strcmp(opr->info.valor,"-")==0){
-			fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
-			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
-			fprintf(pf,"\tfsub\n");
-			//Guardar el resultado en @aux
-			fprintf(pf,"\tfstp \t@%s\n", aux);
-			nroAux++;
-		}
-		if(strcmp(opr->info.valor,"=")==0){
-			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
-			fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
-		}
-		if(strcmp(opr->info.valor,"=")==0){
-			fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
-			fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
-		}
-		//Modificar nodo
-		strcpy(opr->info.valor,aux);
-		opr->izq=NULL;
-		opr->der=NULL;
+
+		//OPERADORES ARITMETICOS
+			if(strcmp(opr->info.valor,"*")==0){
+				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+				fprintf(pf,"\tfmul\n");
+				//Guardar el resultado en @aux
+				fprintf(pf,"\tfstp \t@%s\n", aux);
+				nroAux++;
+			}
+			if(strcmp(opr->info.valor,"+")==0){
+				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+				fprintf(pf,"\tfadd\n");
+				//Guardar el resultado en @aux
+				fprintf(pf,"\tfstp \t@%s\n", aux);
+				nroAux++;
+			}
+			if(strcmp(opr->info.valor,"/")==0){
+				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+				fprintf(pf,"\tfdiv\n");
+				//Guardar el resultado en @aux
+				fprintf(pf,"\tfstp \t@%s\n", aux);
+				nroAux++;
+			}
+			if(strcmp(opr->info.valor,"-")==0){
+				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+				fprintf(pf,"\tfsub\n");
+				//Guardar el resultado en @aux
+				fprintf(pf,"\tfstp \t@%s\n", aux);
+				nroAux++;
+			}
+
+		//ASIGNACION
+			if(strcmp(opr->info.valor,"=")==0){
+				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+				fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
+			}
+
+		//COMPARADORES
+
+		//MODIFICACION DE NODO Y ELIMINACION DE HIJOS HOJAS
+			strcpy(opr->info.valor,aux);
+			opr->izq=NULL;
+			opr->der=NULL;
 	}
 
 	void generarAssembler(t_nodo* arbol){
@@ -1225,6 +1227,8 @@ void grabarTablaDeSimbolos(int error){
 		}
 		fprintf(pf,".MODEL LARGE\n.386\n.STACK 200h\n\n.DATA\n\tMAXTEXTSIZE equ 32\n");
 		int i;
+
+		//DECLARACION DE VARIABLES
 		for(i = 0; i<indicesVariable.nombre; i++){
 			fprintf(pf,"\t@%s ",tablaVariables[i].nombre);
 			if(obtenerTipo(i)==TipoEntero)
@@ -1236,6 +1240,8 @@ void grabarTablaDeSimbolos(int error){
 					if(obtenerTipo(i)==TipoCadena)
 						fprintf(pf,"\tDB MAXTEXTSIZE dup (?),'$'\n");
 		}
+
+		//DECLARACION DE CONSTANTES
 		for(i = 0; i<indiceConstante; i++){
 			if(obtenerTipoConstante(i)==TipoEntero)
 				fprintf(pf,"\t@%s \tDQ %d.0\n",tablaConstantes[i].nombre,atoi(tablaConstantes[i].valor));
@@ -1247,7 +1253,7 @@ void grabarTablaDeSimbolos(int error){
 						fprintf(pf,"\t@%s \tDB \"%s\",'$', MAXTEXTSIZE dup (?)\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
 		}
 		
-		//FIN DE LA CABECERA
+		//DECLARACION DE AUXILIARES
 		int cantAux=contarAux(arbol);
 		int j;
 		for(j=0;j<cantAux;j++){
@@ -1255,7 +1261,10 @@ void grabarTablaDeSimbolos(int error){
 		}
 		fprintf(pf,"\n.CODE\n\tmov AX,@DATA\n\tmov DS,AX\n\n\tFINIT\n\n");
 		nroAux=1;
+
+		//GENERACION DE CODIGO
 		recorrerGenerandoCodigo(arbol, pf);
+
 		//FIN DE ARCHIVO
 		fprintf(pf,"\tint 21h\n\tmov ax, 4C00h\nend");
 		fclose(pf);
