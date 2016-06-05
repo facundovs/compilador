@@ -1,8 +1,24 @@
-CODIGO PARA EL .BAT
-	• Para generar la imagen se debe tener instalado el GraphViz.
-	• El archivo graphInfo.txt es utilizado por el GraphViz para generar la imagen del arbol.
-	• Asegurarse de reemplazar "C:\"Program Files (x86)"\Graphviz2.34\bin\" por el directorio a la carpeta bin del GraphViz.
-	• Revisar que no falte el "dot" al final del directorio.
+IMPORTANTE:
+	
+	//Graficado del arbol
+		• Para generar la imagen se debe tener instalado el GraphViz.
+		• El archivo graphInfo.txt es utilizado por el GraphViz para generar la imagen del arbol.
+		• Asegurarse de reemplazar "C:\"Program Files (x86)"\Graphviz2.34\bin\" por el directorio a la carpeta bin del GraphViz.
+		• Revisar que no falte el "dot" al final del directorio.
+	
+	//Ejecución del programa
+		•Para ejecutar el programa generado, se debera contar con el tasm4 y el DOSbox.
+		•Descomprimir el tasm4 en un directorio facil de acceder (c:\tasm4).
+		•Instalar el DOSbox.
+		•Copiar el archivo assembler generado (Final.txt) en la carpeta tasm4
+		•Abrir el DOSbox y ejecutar los siguientes comandos:
+				mount c c:\tasm4
+				c:
+				tasm Final.txt
+				tlink Final.obj
+				Final.exe			
+	
+CODIGO PARA EL .BAT:
 	
 c:\GnuWin32\bin\flex Lexico.l
 pause
