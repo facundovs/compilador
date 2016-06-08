@@ -1,14 +1,13 @@
 NOMBRE                          |	TIPO                            |	VALOR                           |	LONGITUD                        
-var1                            |	real                            |	----------                      |	----------                      
-var2                            |	real                            |	----------                      |	----------                      
-var3                            |	real                            |	----------                      |	----------                      
+var1                            |	entero                          |	----------                      |	----------                      
+var2                            |	entero                          |	----------                      |	----------                      
+var3                            |	entero                          |	----------                      |	----------                      
 varString1                      |	cadena                          |	----------                      |	----------                      
 varString2                      |	cadena                          |	----------                      |	----------                      
 varString3                      |	cadena                          |	----------                      |	----------                      
 _Inicio_del_programa            |	const_cadena                    |	Inicio del programa             |	19                              
-_Uno_                           |	const_cadena                    |	Uno                             |	4                               
-_c1                             |	const_cadena                    |	c1                              |	2                               
-_Dos                            |	const_cadena                    |	Dos                             |	3                               
-_c2                             |	const_cadena                    |	c2                              |	2                               
-_c3                             |	const_cadena                    |	c3                              |	2                               
+_4                              |	const_entero                    |	4                               |	----------                      
+_5                              |	const_entero                    |	5                               |	----------                      
+_1                              |	const_entero                    |	1                               |	----------                      
+_2                              |	const_entero                    |	2                               |	----------                      
 _Fin_del_programa               |	const_cadena                    |	Fin del programa                |	16                              

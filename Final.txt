@@ -15,11 +15,10 @@ include number.asm
 	@varString2 	DB MAXTEXTSIZE dup (?),'$'
 	@varString3 	DB MAXTEXTSIZE dup (?),'$'
 	@_Inicio_del_programa 	DB "Inicio del programa",'$',31 dup(?)
-	@_Uno_ 	DB "Uno ",'$',46 dup(?)
-	@_c1 	DB "c1",'$',48 dup(?)
-	@_Dos 	DB "Dos",'$',47 dup(?)
-	@_c2 	DB "c2",'$',48 dup(?)
-	@_c3 	DB "c3",'$',48 dup(?)
+	@_4 	DD 4.0
+	@_5 	DD 5.0
+	@_1 	DD 1.0
+	@_2 	DD 2.0
 	@_Fin_del_programa 	DB "Fin del programa",'$',34 dup(?)
 	@Aux1 	DD 0
 
@@ -32,44 +31,31 @@ include number.asm
 
 	displayString 	@_Inicio_del_programa
 	newLine 1
-	mov ax, @DATA
-	mov ds, ax
-	mov es, ax
-	mov si, OFFSET	@_Uno_
-	mov di, OFFSET	@varString1
-	call copiar
-	displayString 	@varString1
-	newLine 1
-	displayString 	@_c1
-	newLine 1
-	mov ax, @DATA
-	mov ds, ax
-	mov es, ax
-	mov si, OFFSET	@_Dos
-	mov di, OFFSET	@varString2
-	call copiar
-	displayString 	@varString2
-	newLine 1
-	displayString 	@_c2
-	newLine 1
-	mov ax, @DATA
-	mov ds, ax
-	mov es, ax
-	mov si, OFFSET	@varString1
-	mov di, OFFSET	@Aux1
-	call copiar
-	mov si, OFFSET	@varString2
-	mov di, OFFSET	@Aux1
-	call concat
-	mov ax, @DATA
-	mov ds, ax
-	mov es, ax
-	mov si, OFFSET	@Aux1
-	mov di, OFFSET	@varString3
-	call copiar
-	displayString 	@_c3
-	newLine 1
-	displayString 	@varString3
+	fld 	@_4
+	fstp 	@var1
+	fld 	@_5
+	fstp 	@var2
+	fld 	@_1
+	fstp 	@var3
+cond_if_1:
+	fld 	@var1
+	fld 	@var2
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	jbe		else_end_if_1
+then_if_1:
+	fld 	@_2
+	fstp 	@var3
+	fld 	@var3
+	fld 	@_1
+	fadd
+	fstp 	@Aux1
+	fld 	@Aux1
+	fstp 	@var3
+else_end_if_1:
+	displayFloat 	@var3,3
 	newLine 1
 	displayString 	@_Fin_del_programa
 	newLine 1
@@ -132,4 +118,5 @@ concat proc
 	mov byte ptr[di],al
 	ret
 concat endp
+
 end

@@ -1,13 +1,15 @@
 programa 
 declaraciones	
-	DIM [var1,var2,var3,varString1,varString2,varString3] AS [real,real,real,cadena,cadena,cadena]
+	DIM [var1,var2,var3,varString1,varString2,varString3] AS [entero,entero,entero,cadena,cadena,cadena]
 fin_declaraciones
 WRITE "Inicio del programa"
-varString1="Uno "
-WRITE varString1
-varString2="Dos"
-WRITE varString2
-varString3=varString1++varString2
-WRITE varString3
+var1=4
+var2=5
+var3=1
+if(var2>var1)
+	var3=2
+	var3=var3+1
+endif
+WRITE var3
 WRITE "Fin del programa"
 fin_programa

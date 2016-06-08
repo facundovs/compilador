@@ -174,6 +174,7 @@
 	t_pila pilasAllEqual[TAM];
 	int nroNodo=0;
 	int nroAux;
+	int nroIf;
 	unsigned long entero64bits;
 %}
 
@@ -1201,10 +1202,16 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 	}
 
 	void grabarOperacionAssembler(t_nodo* op1, t_nodo *op2, t_nodo *opr, FILE* pf){
+		//aux
 		char aux[50]="Aux\0";
 		char aux2[10];
 		itoa(nroAux,aux2,10);
 	   	strcat(aux,aux2);
+	   	//if
+	   	char auxIf[50]="_if_\0";
+		char auxiIf2[10];
+		itoa(nroIf,auxiIf2,10);
+	   	strcat(auxIf,auxiIf2);
 
 		//OPERADORES ARITMETICOS
 			if(strcmp(opr->info.valor,"*")==0){
@@ -1239,9 +1246,33 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 				fprintf(pf,"\tfstp \t@%s\n", aux);
 				nroAux++;
 			}
+		
+		//COMPARADORES
+			if(strcmp(opr->info.valor,">")==0){
+				fprintf(pf,"cond%s:\n",auxIf);
+				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
+				fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\telse_end%s\n",auxIf);
+				fprintf(pf,"then%s:\n",auxIf);
+			}
+
+		//IF - WHILE
+			if(strcmp(opr->info.valor,"if")==0){
+				fprintf(pf,"else_end%s:\n",auxIf);
+				nroIf++;
+			}
+
+			if(strcmp(opr->info.valor,"bloque if")==0){
+				fprintf(pf,"else_end%s:\n",auxIf);
+				nroAux++;
+			}
 
 		//CONCATENACION
 			if(strcmp(opr->info.valor,"++")==0){
+				if(strlen(op1->info.valor)+strlen(op2->info.valor)>=50){
+					printf("*ADVERTENCIA: La concatenacion de cadenas excede el tamaño maximo (50)\n");
+
+				}
 				fprintf(pf,"\tmov ax, @DATA\n\tmov ds, ax\n\tmov es, ax\n");
 				fprintf(pf,"\tmov si, OFFSET\t@%s\n", op1->info.valor);
 				fprintf(pf,"\tmov di, OFFSET\t@%s\n",aux);
@@ -1273,10 +1304,10 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		//IN-OUT
 			if(strcmp(opr->info.valor,"WRITE")==0){
 				if(obtenerTipoASM(op2->info.valor)==TipoEntero)
-					fprintf(pf,"\tdisplayFloat \t@%s,3n\tnewLine 1\n", op2->info.valor);
+					fprintf(pf,"\tdisplayFloat \t@%s,3\n\tnewLine 1\n", op2->info.valor);
 				else 
 					if(obtenerTipoASM(op2->info.valor)==TipoReal)
-						fprintf(pf,"\tdisplayFloat \t@%s,3n\tnewLine 1\n", op2->info.valor);
+						fprintf(pf,"\tdisplayFloat \t@%s,3\n\tnewLine 1\n", op2->info.valor);
 					else
 						if(obtenerTipoASM(op2->info.valor)==TipoCadena)
 							fprintf(pf,"\tdisplayString \t@%s\n\tnewLine 1\n", op2->info.valor);
@@ -1292,8 +1323,6 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 						if(obtenerTipoASM(op2->info.valor)==TipoCadena)
 							fprintf(pf,"\tgetString \t@%s\n", op2->info.valor);
 			}
-
-		//COMPARADORES
 
 		//MODIFICACION DE NODO Y ELIMINACION DE HIJOS HOJAS
 			strcpy(opr->info.valor,aux);
@@ -1347,6 +1376,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		nroAux=1;
 
 		//GENERACION DE CODIGO
+		nroIf=1;
 		recorrerGenerandoCodigo(arbol, pf);
 		fprintf(pf,"\tmov ah, 4ch\n\tint 21h\n");
 
