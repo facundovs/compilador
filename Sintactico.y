@@ -115,6 +115,7 @@
 	void grabarOperacionAssembler(t_nodo*, t_nodo*, t_nodo*, FILE*);
 	int contarAux(t_nodo*);
 	char * reemplazarCaracter(char const *,  char const *,  char const *);
+	void grabarManejoDeCadenas(FILE*);
 
 ///////////////////// DECLARACION DE PUNTEROS GCI //////////////////
 	t_nodo * programa;
@@ -1144,7 +1145,8 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 	int contarAux(t_nodo* nodo){
 		if(nodo){
 			if(strcmp(nodo->info.valor,"*") ==0||strcmp(nodo->info.valor,"-")==0
-				||strcmp(nodo->info.valor,"+") ==0||strcmp(nodo->info.valor,"/")==0)
+				||strcmp(nodo->info.valor,"+") ==0||strcmp(nodo->info.valor,"/")==0
+				||strcmp(nodo->info.valor,"++") ==0)
 				return 1+contarAux(nodo->izq)+contarAux(nodo->der);
 			else 
 				return contarAux(nodo->izq)+contarAux(nodo->der);
@@ -1238,22 +1240,46 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 				nroAux++;
 			}
 
+		//CONCATENACION
+			if(strcmp(opr->info.valor,"++")==0){
+				fprintf(pf,"\tmov ax, @DATA\n\tmov ds, ax\n\tmov es, ax\n");
+				fprintf(pf,"\tmov si, OFFSET\t@%s\n", op1->info.valor);
+				fprintf(pf,"\tmov di, OFFSET\t@%s\n",aux);
+				fprintf(pf,"\tcall copiar\n");
+				fprintf(pf,"\tmov si, OFFSET\t@%s\n",op2->info.valor);
+				fprintf(pf,"\tmov di, OFFSET\t@%s\n",aux);
+				fprintf(pf,"\tcall concat\n");
+				strcpy(aux,"Aux\0");
+				itoa(nroAux,aux2,10);
+	   			strcat(aux,aux2);
+				nroAux++;
+			}
+
 		//ASIGNACION
 			if(strcmp(opr->info.valor,"=")==0){
-				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
-				fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
+				if(obtenerTipoASM(op1->info.valor)==TipoCadena){
+					fprintf(pf,"\tmov ax, @DATA\n\tmov ds, ax\n\tmov es, ax\n");
+					fprintf(pf,"\tmov si, OFFSET\t@%s\n",op2->info.valor);
+					fprintf(pf,"\tmov di, OFFSET\t@%s\n",op1->info.valor);
+					fprintf(pf,"\tcall copiar\n");
+				}
+				else{
+					fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
+					fprintf(pf,"\tfstp \t@%s\n", op1->info.valor);
+				}
+
 			}
 
 		//IN-OUT
 			if(strcmp(opr->info.valor,"WRITE")==0){
 				if(obtenerTipoASM(op2->info.valor)==TipoEntero)
-					fprintf(pf,"\tdisplayFloat \t@%s,3\n\tnewLine 1\n", op2->info.valor);
+					fprintf(pf,"\tdisplayFloat \t@%s,3n\tnewLine 1\n", op2->info.valor);
 				else 
 					if(obtenerTipoASM(op2->info.valor)==TipoReal)
-						fprintf(pf,"\tdisplayFloat \t@%s,3\n\tnewLine 1\n", op2->info.valor);
+						fprintf(pf,"\tdisplayFloat \t@%s,3n\tnewLine 1\n", op2->info.valor);
 					else
 						if(obtenerTipoASM(op2->info.valor)==TipoCadena)
-							fprintf(pf,"\tdisplayString \t@%s\n", op2->info.valor);
+							fprintf(pf,"\tdisplayString \t@%s\n\tnewLine 1\n", op2->info.valor);
 			}
 
 			if(strcmp(opr->info.valor,"READ")==0){
@@ -1282,13 +1308,11 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 			return;
 		}
 		fprintf(pf,"include macros2.asm\n");
-		//fprintf(pf,"include numbers.asm\t;incluye macros\n");
 		fprintf(pf,"include number.asm\n\n");
-		fprintf(pf,".MODEL LARGE\n.STACK 200h\n.386\n.387\n.DATA\n\n\tMAXTEXTSIZE equ 32\n");
+		fprintf(pf,".MODEL LARGE\n.STACK 200h\n.386\n.387\n.DATA\n\n\tMAXTEXTSIZE equ 50\n");
 		int i;
 
 		//DECLARACION DE VARIABLES
-		//fprintf(pf,"\t@MensajeFin DB 'Fin de ejecucion',MAXTEXTSIZE,10,'$'\t;Mensaje que se imprimira al final de la ejecucion\n");
 		for(i = 0; i<indicesVariable.nombre; i++){
 			fprintf(pf,"\t@%s ",tablaVariables[i].nombre);
 			if(obtenerTipo(i)==TipoEntero)
@@ -1310,7 +1334,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"\t@%s \tDD %s\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
 				else
 					if(obtenerTipoConstante(i)==TipoCadena)
-						fprintf(pf,"\t@%s \tDB \"%s\", MAXTEXTSIZE ,10,'$'\n",tablaConstantes[i].nombre,tablaConstantes[i].valor);
+						fprintf(pf,"\t@%s \tDB \"%s\",'$',%d dup(?)\n",tablaConstantes[i].nombre,tablaConstantes[i].valor,50-strlen(tablaConstantes[i].valor));
 		}
 		
 		//DECLARACION DE AUXILIARES
@@ -1324,12 +1348,20 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 
 		//GENERACION DE CODIGO
 		recorrerGenerandoCodigo(arbol, pf);
+		fprintf(pf,"\tmov ah, 4ch\n\tint 21h\n");
+
+		//PROCEDIMIENTOS
+		grabarManejoDeCadenas(pf);
 
 		//FIN DE ARCHIVO
-		//fprintf(pf,";A contiinuacion se imprime un mensaje informando el final de la ejecucion\n");
-		//fprintf(pf,"\tmov ah, 9\n\tmov  dx,OFFSET @MensajeFin\n\tint  21h\n");
-		fprintf(pf,"\tmov ah, 4ch\n\tint 21h\nend");
+		fprintf(pf,"\nend");
 		fclose(pf);
+	}
+
+	void grabarManejoDeCadenas(FILE *pf){
+		fprintf(pf,"\nstrlen proc\n\tmov bx, 0\n\tstrl01:\n\tcmp BYTE PTR [si+bx],'$'\n\tje strend\n\tinc bx\n\tjmp strl01\n\tstrend:\n\tret\nstrlen endp\n");
+		fprintf(pf,"\ncopiar proc\n\tcall strlen\n\tcmp bx , MAXTEXTSIZE\n\tjle copiarSizeOk\n\tmov bx , MAXTEXTSIZE\n\tcopiarSizeOk:\n\tmov cx , bx\n\tcld\n\trep movsb\n\tmov al , '$'\n\tmov byte ptr[di],al\n\tret\ncopiar endp\n");
+		fprintf(pf,"\nconcat proc\n\tpush ds\n\tpush si\n\tcall strlen\n\tmov dx , bx\n\tmov si , di\n\tpush es\n\tpop ds\n\tcall strlen\n\tadd di, bx\n\tadd bx, dx\n\tcmp bx , MAXTEXTSIZE\n\tjg concatSizeMal\n\tconcatSizeOk:\n\tmov cx , dx\n\tjmp concatSigo\n\tconcatSizeMal:\n\tsub bx , MAXTEXTSIZE\n\tsub dx , bx\n\tmov cx , dx\n\tconcatSigo:\n\tpush ds\n\tpop es\n\tpop si\n\tpop ds\n\tcld\n\trep movsb\n\tmov al , '$'\n\tmov byte ptr[di],al\n\tret\nconcat endp\n");
 	}
 
 	enum tipoDeDato obtenerTipoASM(char* valor){

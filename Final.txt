@@ -7,21 +7,21 @@ include number.asm
 .387
 .DATA
 
-	MAXTEXTSIZE equ 32
+	MAXTEXTSIZE equ 50
 	@var1 	DD 0
 	@var2 	DD 0
 	@var3 	DD 0
-	@varString 	DB MAXTEXTSIZE dup (?),'$'
-	@_Inicio_del_programa 	DB "Inicio del programa", MAXTEXTSIZE ,10,'$'
-	@_Ingrese_un_nro 	DB "Ingrese un nro", MAXTEXTSIZE ,10,'$'
-	@_Ingrese_otro_nro 	DB "Ingrese otro nro", MAXTEXTSIZE ,10,'$'
-	@_Resultado_de_la_suma 	DB "Resultado de la suma", MAXTEXTSIZE ,10,'$'
-	@_El_nro_x2_es 	DB "El nro x2 es", MAXTEXTSIZE ,10,'$'
-	@_2_0 	DD 2.0
-	@_Ingrese_una_cadena 	DB "Ingrese una cadena", MAXTEXTSIZE ,10,'$'
-	@_Se_ha_leido 	DB "Se ha leido", MAXTEXTSIZE ,10,'$'
+	@varString1 	DB MAXTEXTSIZE dup (?),'$'
+	@varString2 	DB MAXTEXTSIZE dup (?),'$'
+	@varString3 	DB MAXTEXTSIZE dup (?),'$'
+	@_Inicio_del_programa 	DB "Inicio del programa",'$',31 dup(?)
+	@_Uno_ 	DB "Uno ",'$',46 dup(?)
+	@_c1 	DB "c1",'$',48 dup(?)
+	@_Dos 	DB "Dos",'$',47 dup(?)
+	@_c2 	DB "c2",'$',48 dup(?)
+	@_c3 	DB "c3",'$',48 dup(?)
+	@_Fin_del_programa 	DB "Fin del programa",'$',34 dup(?)
 	@Aux1 	DD 0
-	@Aux2 	DD 0
 
 .CODE
 .startup
@@ -31,34 +31,105 @@ include number.asm
 	FINIT
 
 	displayString 	@_Inicio_del_programa
-	displayString 	@_Ingrese_un_nro
-	getFloat 	@var2
-	displayString 	@_Ingrese_otro_nro
-	getFloat 	@var3
-	fld 	@var2
-	fld 	@var3
-	fadd
-	fstp 	@Aux1
-	fld 	@Aux1
-	fstp 	@var1
-	displayString 	@_Resultado_de_la_suma
-	displayFloat 	@var1,3
 	newLine 1
-	displayString 	@_Ingrese_un_nro
-	getFloat 	@var1
-	displayString 	@_El_nro_x2_es
-	fld 	@var1
-	fld 	@_2_0
-	fmul
-	fstp 	@Aux2
-	fld 	@Aux2
-	fstp 	@var1
-	displayFloat 	@var1,3
+	mov ax, @DATA
+	mov ds, ax
+	mov es, ax
+	mov si, OFFSET	@_Uno_
+	mov di, OFFSET	@varString1
+	call copiar
+	displayString 	@varString1
 	newLine 1
-	displayString 	@_Ingrese_una_cadena
-	getString 	@varString
-	displayString 	@_Se_ha_leido
-	displayString 	@varString
+	displayString 	@_c1
+	newLine 1
+	mov ax, @DATA
+	mov ds, ax
+	mov es, ax
+	mov si, OFFSET	@_Dos
+	mov di, OFFSET	@varString2
+	call copiar
+	displayString 	@varString2
+	newLine 1
+	displayString 	@_c2
+	newLine 1
+	mov ax, @DATA
+	mov ds, ax
+	mov es, ax
+	mov si, OFFSET	@varString1
+	mov di, OFFSET	@Aux1
+	call copiar
+	mov si, OFFSET	@varString2
+	mov di, OFFSET	@Aux1
+	call concat
+	mov ax, @DATA
+	mov ds, ax
+	mov es, ax
+	mov si, OFFSET	@Aux1
+	mov di, OFFSET	@varString3
+	call copiar
+	displayString 	@_c3
+	newLine 1
+	displayString 	@varString3
+	newLine 1
+	displayString 	@_Fin_del_programa
+	newLine 1
 	mov ah, 4ch
 	int 21h
+
+strlen proc
+	mov bx, 0
+	strl01:
+	cmp BYTE PTR [si+bx],'$'
+	je strend
+	inc bx
+	jmp strl01
+	strend:
+	ret
+strlen endp
+
+copiar proc
+	call strlen
+	cmp bx , MAXTEXTSIZE
+	jle copiarSizeOk
+	mov bx , MAXTEXTSIZE
+	copiarSizeOk:
+	mov cx , bx
+	cld
+	rep movsb
+	mov al , '$'
+	mov byte ptr[di],al
+	ret
+copiar endp
+
+concat proc
+	push ds
+	push si
+	call strlen
+	mov dx , bx
+	mov si , di
+	push es
+	pop ds
+	call strlen
+	add di, bx
+	add bx, dx
+	cmp bx , MAXTEXTSIZE
+	jg concatSizeMal
+	concatSizeOk:
+	mov cx , dx
+	jmp concatSigo
+	concatSizeMal:
+	sub bx , MAXTEXTSIZE
+	sub dx , bx
+	mov cx , dx
+	concatSigo:
+	push ds
+	pop es
+	pop si
+	pop ds
+	cld
+	rep movsb
+	mov al , '$'
+	mov byte ptr[di],al
+	ret
+concat endp
 end

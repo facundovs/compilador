@@ -2,12 +2,13 @@ NOMBRE                          |	TIPO                            |	VALOR       
 var1                            |	real                            |	----------                      |	----------                      
 var2                            |	real                            |	----------                      |	----------                      
 var3                            |	real                            |	----------                      |	----------                      
-varString                       |	cadena                          |	----------                      |	----------                      
+varString1                      |	cadena                          |	----------                      |	----------                      
+varString2                      |	cadena                          |	----------                      |	----------                      
+varString3                      |	cadena                          |	----------                      |	----------                      
 _Inicio_del_programa            |	const_cadena                    |	Inicio del programa             |	19                              
-_Ingrese_un_nro                 |	const_cadena                    |	Ingrese un nro                  |	14                              
-_Ingrese_otro_nro               |	const_cadena                    |	Ingrese otro nro                |	16                              
-_Resultado_de_la_suma           |	const_cadena                    |	Resultado de la suma            |	20                              
-_El_nro_x2_es                   |	const_cadena                    |	El nro x2 es                    |	12                              
-_2_0                            |	const_real                      |	2.0                             |	----------                      
-_Ingrese_una_cadena             |	const_cadena                    |	Ingrese una cadena              |	18                              
-_Se_ha_leido                    |	const_cadena                    |	Se ha leido                     |	11                              
+_Uno_                           |	const_cadena                    |	Uno                             |	4                               
+_c1                             |	const_cadena                    |	c1                              |	2                               
+_Dos                            |	const_cadena                    |	Dos                             |	3                               
+_c2                             |	const_cadena                    |	c2                              |	2                               
+_c3                             |	const_cadena                    |	c3                              |	2                               
+_Fin_del_programa               |	const_cadena                    |	Fin del programa                |	16                              

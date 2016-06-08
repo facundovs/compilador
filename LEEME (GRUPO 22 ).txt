@@ -14,7 +14,7 @@ IMPORTANTE:
 		•Abrir el DOSbox y ejecutar los siguientes comandos:
 				mount c c:\tasm4
 				c:
-				tasm Final.txt
+				tasm Final.txt /m2
 				tlink Final.obj
 				Final.exe			
 	
