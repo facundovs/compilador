@@ -15,7 +15,7 @@ IMPORTANTE:
 				mount c c:\tasm4
 				c:
 				tasm Final.txt /m2
-				tlink Final.obj
+				tlink Final.obj numbers.obj
 				Final.exe			
 	
 CODIGO PARA EL .BAT:
