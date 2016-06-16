@@ -19,8 +19,11 @@ include number.asm
 	@_5 	DD 5.0
 	@_1 	DD 1.0
 	@_2 	DD 2.0
+	@_3 	DD 3.0
+	@_Var_2_es_5 	DB "Var 2 es 5",'$',40 dup(?)
+	@_var1_no_es_4 	DB "var1 no es 4",'$',38 dup(?)
+	@_var1_es_4 	DB "var1 es 4",'$',41 dup(?)
 	@_Fin_del_programa 	DB "Fin del programa",'$',34 dup(?)
-	@Aux1 	DD 0
 
 .CODE
 .startup
@@ -37,6 +40,7 @@ include number.asm
 	fstp 	@var2
 	fld 	@_1
 	fstp 	@var3
+if_1:
 cond_if_1:
 	fld 	@var1
 	fld 	@var2
@@ -44,17 +48,53 @@ cond_if_1:
 	fstsw	ax
 	fwait
 	sahf
-	jbe		else_end_if_1
-then_if_1:
+	jbe		else_if_1
 	fld 	@_2
 	fstp 	@var3
-	fld 	@var3
+else_if_1:
+if_2:
+cond_if_2:
 	fld 	@_1
-	fadd
-	fstp 	@Aux1
-	fld 	@Aux1
+	fld 	@var3
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	jbe		else_if_2
+	fld 	@_3
 	fstp 	@var3
-else_end_if_1:
+else_if_2:
+	fld 	@_4
+	fstp 	@var3
+end_if_2:
+end_if_1:
+if_3:
+cond_if_3:
+	fld 	@_5
+	fld 	@var2
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	jne		end_if_3
+	displayString 	@_Var_2_es_5
+	newLine 1
+if_4:
+cond_if_4:
+	fld 	@_4
+	fld 	@var1
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	je		else_if_4
+	displayString 	@_var1_no_es_4
+	newLine 1
+else_if_4:
+	displayString 	@_var1_es_4
+	newLine 1
+end_if_4:
+end_if_3:
 	displayFloat 	@var3,3
 	newLine 1
 	displayString 	@_Fin_del_programa

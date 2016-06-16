@@ -10,4 +10,8 @@ _4                              |	const_entero                    |	4           
 _5                              |	const_entero                    |	5                               |	----------                      
 _1                              |	const_entero                    |	1                               |	----------                      
 _2                              |	const_entero                    |	2                               |	----------                      
+_3                              |	const_entero                    |	3                               |	----------                      
+_Var_2_es_5                     |	const_cadena                    |	Var 2 es 5                      |	10                              
+_var1_no_es_4                   |	const_cadena                    |	var1 no es 4                    |	12                              
+_var1_es_4                      |	const_cadena                    |	var1 es 4                       |	9                               
 _Fin_del_programa               |	const_cadena                    |	Fin del programa                |	16                              
