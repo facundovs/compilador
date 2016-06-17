@@ -1211,12 +1211,24 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 	    		t_info info;
 	    		info.nro=contIf;
 	    		ponerEnPila(&pilaNroIf,crearHoja(&info));
-	    		fprintf(pf,"if_%d:\n",contIf);
+	    		if(strcmp(nodo->izq->info.valor,"AllEqual")!=0)
+		    		fprintf(pf,"if_%d:\n",contIf);
 	    		esCondWhile=0;
 	    		if(strcmp(nodo->der->info.valor,"bloque if")==0){
 	    			nroElse++;
 	    		}
 	    	}
+	    	/*if(strcmp(nodo->info.valor,"AllEqual")==0){
+	    		contIf++;
+	    		t_info info;
+	    		info.nro=contIf;
+	    		ponerEnPila(&pilaNroIf,crearHoja(&info));
+	    		fprintf(pf,"if_%d:\n",contIf);
+	    		esCondWhile=0;
+	    		if(strcmp(nodo->der->info.valor,"bloque if")==0){
+	    			nroElse++;
+	    		}
+	    	}*/
 	    	if(strcmp(nodo->info.valor,"while")==0){
 	    		contWhile++;
 	    		t_info info;
@@ -1311,14 +1323,14 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
 				if(esCondWhile==0){//if
 					if(nroElse>0){
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjle\t\telse_if_%d\n",contIf);
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\telse_if_%d\n",contIf);
 						nroElse--;
 					}
 					else
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjle\t\tend_if_%d\n",contIf);
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\tend_if_%d\n",contIf);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjle\t\tend_while_%d\n",contWhile);
+					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\tend_while_%d\n",contWhile);
 				}
 			}
 			if(strcmp(opr->info.valor,"<=")==0){
@@ -1473,7 +1485,10 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 			}
 
 		//MODIFICACION DE NODO Y ELIMINACION DE HIJOS HOJAS
-			strcpy(opr->info.valor,aux);
+			if(strcmp(opr->info.valor,"FILTER")==0)
+				strcpy(opr->info.valor,"@filter");
+			else
+				strcpy(opr->info.valor,aux);
 			opr->izq=NULL;
 			opr->der=NULL;
 	}
@@ -1486,7 +1501,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		}
 		fprintf(pf,"include macros2.asm\n");
 		fprintf(pf,"include number.asm\n\n");
-		fprintf(pf,".MODEL LARGE\n.STACK 200h\n.386\n.387\n.DATA\n\n\tMAXTEXTSIZE equ 50\n");
+		fprintf(pf,".MODEL LARGE\n.STACK 200h\n.386\n.387\n.DATA\n\n\tMAXTEXTSIZE equ 50\n\t@true equ 1\n\t@false equ 0\n");
 		int i;
 
 		//DECLARACION DE VARIABLES
@@ -1518,8 +1533,11 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		int cantAux=contarAux(arbol);
 		int j;
 		for(j=0;j<cantAux;j++){
-			fprintf(pf,"\t@Aux%d \tDD 0\n",j+1);
+			fprintf(pf,"\t@Aux%d \tDD 0.0\n",j+1);
 		}
+		fprintf(pf,"\t@@filter \tDD 0.0\n");
+		fprintf(pf,"\t@@allequal \tDD 0.0\n");
+		fprintf(pf,"\t@null \tDD -1.0\n");
 		fprintf(pf,"\n.CODE\n.startup\n\tmov AX,@DATA\n\tmov DS,AX\n\n\tFINIT\n\n");
 		nroAux=1;
 

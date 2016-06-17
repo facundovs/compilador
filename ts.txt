@@ -7,9 +7,8 @@ varString2                      |	cadena                          |	----------  
 varString3                      |	cadena                          |	----------                      |	----------                      
 _Inicio_del_programa            |	const_cadena                    |	Inicio del programa             |	19                              
 _0                              |	const_entero                    |	0                               |	----------                      
-_2                              |	const_entero                    |	2                               |	----------                      
-_1                              |	const_entero                    |	1                               |	----------                      
-_while_1                        |	const_cadena                    |	while 1                         |	7                               
-_while_2                        |	const_cadena                    |	while 2                         |	7                               
-_while_3                        |	const_cadena                    |	while 3                         |	7                               
+_5                              |	const_entero                    |	5                               |	----------                      
+_3                              |	const_entero                    |	3                               |	----------                      
+_TRUE                           |	const_cadena                    |	TRUE                            |	4                               
+_FALSE                          |	const_cadena                    |	FALSE                           |	5                               
 _Fin_del_programa               |	const_cadena                    |	Fin del programa                |	16                              
