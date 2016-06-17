@@ -1444,7 +1444,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		//GENERACION DE CODIGO
 		nroIf=0;
 		recorrerGenerandoCodigo(arbol, pf);
-		fprintf(pf,"\tmov ah, 4ch\n\tint 21h\n");
+		fprintf(pf,"\tmov ah, 4ch\n\tint 21h\n\n;FIN DEL PROGRAMA DE USUARIO\n");
 
 		//PROCEDIMIENTOS
 		grabarManejoDeCadenas(pf);

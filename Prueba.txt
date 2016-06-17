@@ -6,18 +6,18 @@ WRITE "Inicio del programa"
 var1=4
 var2=5
 var3=1
-if(var2>var1)
+if(var2>var1) -/if1/-
 	var3=2
 else
-	if(var3>1)
+	if(var3>1) -/if2/-
 		var3=3
 	else
 		var3=4
 	endif
 endif
-if(var2==5)
+if(var2==5) -/if3/-
 	WRITE "Var 2 es 5"
-	if(var1!=4)
+	if(var1!=4) -/if4/-
 		WRITE "var1 no es 4"
 	else
 		WRITE "var1 es 4"
