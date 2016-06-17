@@ -8,21 +8,16 @@ include number.asm
 .DATA
 
 	MAXTEXTSIZE equ 50
-	@var1 	DD 0
-	@var2 	DD 0
-	@var3 	DD 0
+	@var1 	DD 0.0
+	@var2 	DD 0.0
+	@var3 	DD 0.0
 	@varString1 	DB MAXTEXTSIZE dup (?),'$'
 	@varString2 	DB MAXTEXTSIZE dup (?),'$'
 	@varString3 	DB MAXTEXTSIZE dup (?),'$'
 	@_Inicio_del_programa 	DB "Inicio del programa",'$',31 dup(?)
-	@_4 	DD 4.0
-	@_5 	DD 5.0
 	@_1 	DD 1.0
 	@_2 	DD 2.0
 	@_3 	DD 3.0
-	@_Var_2_es_5 	DB "Var 2 es 5",'$',40 dup(?)
-	@_var1_no_es_4 	DB "var1 no es 4",'$',38 dup(?)
-	@_var1_es_4 	DB "var1 es 4",'$',41 dup(?)
 	@_Fin_del_programa 	DB "Fin del programa",'$',34 dup(?)
 
 .CODE
@@ -34,69 +29,58 @@ include number.asm
 
 	displayString 	@_Inicio_del_programa
 	newLine 1
-	fld 	@_4
-	fstp 	@var1
-	fld 	@_5
-	fstp 	@var2
 	fld 	@_1
+	fstp 	@var1
+	fld 	@_2
+	fstp 	@var2
+	fld 	@_2
 	fstp 	@var3
 if_1:
 cond_if_1:
+	fld 	@_1
 	fld 	@var1
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	jbe		end_if_1
+if_2:
+cond_if_2:
+	fld 	@_2
 	fld 	@var2
 	fcomp
 	fstsw	ax
 	fwait
 	sahf
-	jbe		else_if_1
-	fld 	@_2
-	fstp 	@var3
-else_if_1:
-if_2:
-cond_if_2:
-	fld 	@_1
+	jbe		end_if_2
+	displayFloat 	@_1,3
+	newLine 1
+end_if_2:
+if_3:
+cond_if_3:
+	fld 	@_3
 	fld 	@var3
 	fcomp
 	fstsw	ax
 	fwait
 	sahf
-	jbe		else_if_2
-	fld 	@_3
-	fstp 	@var3
-else_if_2:
-	fld 	@_4
-	fstp 	@var3
+	jbe		end_if_3
+	displayFloat 	@_2,3
+	newLine 1
 end_if_2:
 end_if_1:
-if_3:
-cond_if_3:
-	fld 	@_5
-	fld 	@var2
-	fcomp
-	fstsw	ax
-	fwait
-	sahf
-	jne		end_if_3
-	displayString 	@_Var_2_es_5
-	newLine 1
 if_4:
 cond_if_4:
-	fld 	@_4
+	fld 	@_2
 	fld 	@var1
 	fcomp
 	fstsw	ax
 	fwait
 	sahf
-	je		else_if_4
-	displayString 	@_var1_no_es_4
+	jle		end_if_4
+	displayFloat 	@_3,3
 	newLine 1
-else_if_4:
-	displayString 	@_var1_es_4
-	newLine 1
-end_if_4:
-end_if_3:
-	displayFloat 	@var3,3
-	newLine 1
+end_if_1:
 	displayString 	@_Fin_del_programa
 	newLine 1
 	mov ah, 4ch

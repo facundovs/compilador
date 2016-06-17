@@ -1,32 +1,24 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
 sentencia                       	sentencia                       	WRITE                           
-sentencia                       	sentencia                       	WRITE                           
 sentencia                       	sentencia                       	if                              
 sentencia                       	sentencia                       	if                              
 sentencia                       	sentencia                       	=                               
 sentencia                       	sentencia                       	=                               
 sentencia                       	WRITE                           	=                               
 WRITE                           	stdout                          	_Inicio_del_programa            
-=                               	var1                            	_4                              
-=                               	var2                            	_5                              
-=                               	var3                            	_1                              
-if                              	>                               	bloque if                       
->                               	var2                            	var1                            
-bloque if                       	=                               	if                              
+=                               	var1                            	_1                              
+=                               	var2                            	_2                              
 =                               	var3                            	_2                              
-if                              	>                               	bloque if                       
->                               	var3                            	_1                              
-bloque if                       	=                               	=                               
-=                               	var3                            	_3                              
-=                               	var3                            	_4                              
-if                              	==                              	sentencia                       
-==                              	var2                            	_5                              
-sentencia                       	WRITE                           	if                              
-WRITE                           	stdout                          	_Var_2_es_5                     
-if                              	!=                              	bloque if                       
-!=                              	var1                            	_4                              
-bloque if                       	WRITE                           	WRITE                           
-WRITE                           	stdout                          	_var1_no_es_4                   
-WRITE                           	stdout                          	_var1_es_4                      
-WRITE                           	stdout                          	var3                            
+if                              	>                               	sentencia                       
+>                               	var1                            	_1                              
+sentencia                       	if                              	if                              
+if                              	>                               	WRITE                           
+>                               	var2                            	_2                              
+WRITE                           	stdout                          	_1                              
+if                              	>                               	WRITE                           
+>                               	var3                            	_3                              
+WRITE                           	stdout                          	_2                              
+if                              	<                               	WRITE                           
+<                               	var1                            	_2                              
+WRITE                           	stdout                          	_3                              
 WRITE                           	stdout                          	_Fin_del_programa               
