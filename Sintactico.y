@@ -59,6 +59,7 @@
 	typedef struct
 	{
 		char valor[31];
+		int nro;
 		int nroNodo;
 	}t_info;
 
@@ -167,6 +168,8 @@
 	t_pila pilabloques;
 	t_pila pilabloqueif;
 	t_pila pilaFilter;
+	t_pila pilaNroIf;
+	t_pila pilaNroWhile;
 	t_nodo comparacion1;
 	t_nodo all_equal1;
 	//
@@ -176,7 +179,6 @@
 	int nroAux;
 	int nroElse=0;
 	int contIf=0;
-	int nroIf=0; //cant de
 	int nroWhile=0;
 	int contWhile=0;
 	int esCondWhile; //1=while   0=if
@@ -1206,6 +1208,9 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 	    {
 	    	if(strcmp(nodo->info.valor,"if")==0){
 	    		contIf++;
+	    		t_info info;
+	    		info.nro=contIf;
+	    		ponerEnPila(&pilaNroIf,crearHoja(&info));
 	    		fprintf(pf,"if_%d:\n",contIf);
 	    		esCondWhile=0;
 	    		if(strcmp(nodo->der->info.valor,"bloque if")==0){
@@ -1213,14 +1218,17 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 	    		}
 	    	}
 	    	if(strcmp(nodo->info.valor,"while")==0){
-	    		nroWhile=++contWhile;
-	    		fprintf(pf,"while_%d:\n",nroWhile);
+	    		contWhile++;
+	    		t_info info;
+	    		info.nro=contWhile;
+	    		ponerEnPila(&pilaNroWhile,crearHoja(&info));
+	    		fprintf(pf,"while_%d:\n",contWhile);
 	    		esCondWhile=1;
 	    	}
 	    	recorrerGenerandoCodigo(nodo->izq,pf);
 	    	if(strcmp(nodo->info.valor,"bloque if")==0){
-	    		fprintf(pf,"\tjmp\t end_if_%d\n",contIf-nroIf);
-	    		fprintf(pf,"else_if_%d:\n",contIf-nroIf);
+	    		fprintf(pf,"\tjmp\t end_if_%d\n",contIf);
+	    		fprintf(pf,"else_if_%d:\n",contIf);
 	    	}
 	    	recorrerGenerandoCodigo(nodo->der,pf);
 	    	if(esHoja(nodo)==0&&esHoja(nodo->izq)&&esHoja(nodo->der)){ //Si solo tiene hijos hojas
@@ -1276,7 +1284,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d:\n",contIf);
 				}
 				else{
-					fprintf(pf,"cond_while_%d:\n",nroWhile);
+					fprintf(pf,"cond_while_%d:\n",contWhile);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
@@ -1289,7 +1297,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\tend_if_%d\n",contIf);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\tend_while_%d\n",nroWhile);
+					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\tend_while_%d\n",contWhile);
 				}
 			}
 			if(strcmp(opr->info.valor,"<")==0){
@@ -1297,7 +1305,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d:\n",contIf);
 				}
 				else{
-					fprintf(pf,"cond_while_%d:\n",nroWhile);
+					fprintf(pf,"cond_while_%d:\n",contWhile);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
@@ -1310,7 +1318,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjle\t\tend_if_%d\n",contIf);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjle\t\tend_while_%d\n",nroWhile);
+					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjle\t\tend_while_%d\n",contWhile);
 				}
 			}
 			if(strcmp(opr->info.valor,"<=")==0){
@@ -1318,7 +1326,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d:\n",contIf);
 				}
 				else{
-					fprintf(pf,"cond_while_%d:\n",nroWhile);
+					fprintf(pf,"cond_while_%d:\n",contWhile);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
@@ -1331,7 +1339,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_if_%d\n",contIf);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_while_%d\n",nroWhile);
+					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_while_%d\n",contWhile);
 				}
 			}
 			if(strcmp(opr->info.valor,">=")==0){
@@ -1339,7 +1347,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d:\n",contIf);
 				}
 				else{
-					fprintf(pf,"cond_while_%d:\n",nroWhile);
+					fprintf(pf,"cond_while_%d:\n",contWhile);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
@@ -1352,7 +1360,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\tend_if_%d\n",contIf);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\tend_while_%d\n",nroWhile);
+					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\tend_while_%d\n",contWhile);
 				}
 			}
 			if(strcmp(opr->info.valor,"==")==0){
@@ -1360,7 +1368,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d:\n",contIf);
 				}
 				else{
-					fprintf(pf,"cond_while_%d:\n",nroWhile);
+					fprintf(pf,"cond_while_%d:\n",contWhile);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
@@ -1373,7 +1381,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\tend_if_%d\n",contIf);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\tend_while_%d\n",nroWhile);
+					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\tend_while_%d\n",contWhile);
 				}
 			}
 			if(strcmp(opr->info.valor,"!=")==0){
@@ -1381,7 +1389,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d:\n",contIf);
 				}
 				else{
-					fprintf(pf,"cond_while_%d:\n",nroWhile);
+					fprintf(pf,"cond_while_%d:\n",contWhile);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
@@ -1394,19 +1402,18 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\tend_if_%d\n",contIf);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\tend_while_%d\n",nroWhile);
+					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\tend_while_%d\n",contWhile);
 				}
 			}
 
 		//IF - WHILE
 			if(strcmp(opr->info.valor,"if")==0){
-				fprintf(pf,"end_if_%d:\n",contIf-nroIf);
-				nroIf++;
+				fprintf(pf,"end_if_%d:\n",sacar_de_pila2(&pilaNroIf)->info.nro);
 			}
 			if(strcmp(opr->info.valor,"while")==0){
-				fprintf(pf,"\tjmp cond_while_%d\n",nroWhile);
-				fprintf(pf,"end_while_%d:\n",nroWhile);
-				nroWhile--;
+				int nro=sacar_de_pila2(&pilaNroWhile)->info.nro;
+				fprintf(pf,"\tjmp cond_while_%d\n",nro);
+				fprintf(pf,"end_while_%d:\n",nro);
 			}
 		//CONCATENACION
 			if(strcmp(opr->info.valor,"++")==0){

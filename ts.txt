@@ -6,7 +6,10 @@ varString1                      |	cadena                          |	----------  
 varString2                      |	cadena                          |	----------                      |	----------                      
 varString3                      |	cadena                          |	----------                      |	----------                      
 _Inicio_del_programa            |	const_cadena                    |	Inicio del programa             |	19                              
-_1                              |	const_entero                    |	1                               |	----------                      
+_0                              |	const_entero                    |	0                               |	----------                      
 _2                              |	const_entero                    |	2                               |	----------                      
-_3                              |	const_entero                    |	3                               |	----------                      
+_1                              |	const_entero                    |	1                               |	----------                      
+_while_1                        |	const_cadena                    |	while 1                         |	7                               
+_while_2                        |	const_cadena                    |	while 2                         |	7                               
+_while_3                        |	const_cadena                    |	while 3                         |	7                               
 _Fin_del_programa               |	const_cadena                    |	Fin del programa                |	16                              
