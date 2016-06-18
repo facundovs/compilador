@@ -6,9 +6,8 @@ varString1                      |	cadena                          |	----------  
 varString2                      |	cadena                          |	----------                      |	----------                      
 varString3                      |	cadena                          |	----------                      |	----------                      
 _Inicio_del_programa            |	const_cadena                    |	Inicio del programa             |	19                              
-_0                              |	const_entero                    |	0                               |	----------                      
-_5                              |	const_entero                    |	5                               |	----------                      
-_3                              |	const_entero                    |	3                               |	----------                      
 _TRUE                           |	const_cadena                    |	TRUE                            |	4                               
-_FALSE                          |	const_cadena                    |	FALSE                           |	5                               
+_FALSE_1                        |	const_cadena                    |	FALSE 1                         |	7                               
+_ACA_TERMINA_EL_IF_2            |	const_cadena                    |	ACA TERMINA EL IF 2             |	19                              
+_FALSE_2                        |	const_cadena                    |	FALSE 2                         |	7                               
 _Fin_del_programa               |	const_cadena                    |	Fin del programa                |	16                              

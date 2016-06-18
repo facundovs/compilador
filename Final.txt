@@ -17,13 +17,11 @@ include number.asm
 	@varString2 	DB MAXTEXTSIZE dup (?),'$'
 	@varString3 	DB MAXTEXTSIZE dup (?),'$'
 	@_Inicio_del_programa 	DB "Inicio del programa",'$',31 dup(?)
-	@_0 	DD 0.0
-	@_5 	DD 5.0
-	@_3 	DD 3.0
 	@_TRUE 	DB "TRUE",'$',46 dup(?)
-	@_FALSE 	DB "FALSE",'$',45 dup(?)
+	@_FALSE_1 	DB "FALSE 1",'$',43 dup(?)
+	@_ACA_TERMINA_EL_IF_2 	DB "ACA TERMINA EL IF 2",'$',31 dup(?)
+	@_FALSE_2 	DB "FALSE 2",'$',43 dup(?)
 	@_Fin_del_programa 	DB "Fin del programa",'$',34 dup(?)
-	@Aux1 	DD 0.0
 	@@filter 	DD 0.0
 	@@allequal 	DD 0.0
 	@null 	DD -1.0
@@ -37,35 +35,36 @@ include number.asm
 
 	displayString 	@_Inicio_del_programa
 	newLine 1
-	fld 	@_0
-	fstp 	@var1
-	fld 	@_5
-	fstp 	@var2
-	fld 	@_3
-	fstp 	@var3
-if_2:
-	fld 	@var1
-	fld 	@_3
-	fadd
-	fstp 	@Aux1
-cond_if_2:
+if_1:
+cond_if_1:
 	fld 	@var3
-	fld 	@Aux1
+	fld 	@var1
 	fcomp
 	fstsw	ax
 	fwait
 	sahf
-	jne		else_if_2
-	fld 	@true
-	fstp 	@@allequal
-	fld 	@false
-	fstp 	@@allequal
-end_if_2:
+	jbe		else_if_1
+if_2:
+cond_if_2:
+	fld 	@var1
+	fld 	@var3
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	jae		else_if_2
 	displayString 	@_TRUE
 	newLine 1
 	jmp	 end_if_2
 else_if_2:
-	displayString 	@_FALSE
+	displayString 	@_FALSE_1
+	newLine 1
+end_if_2:
+	displayString 	@_ACA_TERMINA_EL_IF_2
+	newLine 1
+	jmp	 end_if_1
+else_if_1:
+	displayString 	@_FALSE_2
 	newLine 1
 end_if_1:
 	displayString 	@_Fin_del_programa
