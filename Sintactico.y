@@ -1483,7 +1483,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 
 			if(strcmp(opr->info.valor,"READ")==0){
 				if(obtenerTipoASM(op2->info.valor)==TipoEntero)
-					fprintf(pf,"\tgetFloat \t@%s\\n", op2->info.valor);
+					fprintf(pf,"\tgetFloat \t@%s\n", op2->info.valor);
 				else 
 					if(obtenerTipoASM(op2->info.valor)==TipoReal)
 						fprintf(pf,"\tgetFloat \t@%s\n", op2->info.valor);

@@ -1,14 +1,22 @@
 NOMBRE                          |	TIPO                            |	VALOR                           |	LONGITUD                        
-var1                            |	entero                          |	----------                      |	----------                      
-var2                            |	entero                          |	----------                      |	----------                      
-var3                            |	entero                          |	----------                      |	----------                      
-varString1                      |	cadena                          |	----------                      |	----------                      
-varString2                      |	cadena                          |	----------                      |	----------                      
-varString3                      |	cadena                          |	----------                      |	----------                      
+a                               |	entero                          |	----------                      |	----------                      
+b                               |	entero                          |	----------                      |	----------                      
+c                               |	cadena                          |	----------                      |	----------                      
+d                               |	cadena                          |	----------                      |	----------                      
+e                               |	entero                          |	----------                      |	----------                      
 _Inicio_del_programa            |	const_cadena                    |	Inicio del programa             |	19                              
-_0                              |	const_entero                    |	0                               |	----------                      
+_10                             |	const_entero                    |	10                              |	----------                      
+_20                             |	const_entero                    |	20                              |	----------                      
+_cadena                         |	const_cadena                    |	cadena                          |	6                               
+__de_prueba                     |	const_cadena                    |	 de prueba                      |	10                              
 _2                              |	const_entero                    |	2                               |	----------                      
+_0                              |	const_entero                    |	0                               |	----------                      
+_1                              |	const_entero                    |	1                               |	----------                      
+_a_es_igual_a_cero              |	const_cadena                    |	a es igual a cero               |	17                              
+_a_es_distinto_de_cero          |	const_cadena                    |	a es distinto de cero           |	21                              
+_Ingrese_un_valor_para_e        |	const_cadena                    |	Ingrese un valor para e         |	23                              
 _3                              |	const_entero                    |	3                               |	----------                      
+_5                              |	const_entero                    |	5                               |	----------                      
 _4                              |	const_entero                    |	4                               |	----------                      
 _TRUE                           |	const_cadena                    |	TRUE                            |	4                               
 _FALSE                          |	const_cadena                    |	FALSE                           |	5                               

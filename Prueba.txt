@@ -1,15 +1,51 @@
 programa 
-declaraciones	
-	DIM [var1,var2,var3,varString1,varString2,varString3] AS [entero,entero,entero,cadena,cadena,cadena]
-fin_declaraciones
-WRITE "Inicio del programa"
-var1=0
-var2=2
-var3=3
-if(AllEqual([var1+2,var3],[var2,var1+4]))
-	WRITE "TRUE"
-else
-	WRITE "FALSE"
-endif
-WRITE "Fin del programa"
+	declaraciones	
+		DIM [a,b,c,d,e] AS [entero,entero,cadena,cadena,entero]
+	fin_declaraciones
+
+	WRITE "Inicio del programa"
+	a=10
+	-/a=1000000000000000000000000000000000000/-
+	b=20
+	c="cadena"
+	-/c="cadenaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/-
+	d=" de prueba"
+	-/d=30/-
+	e=2
+	-/f=30/-
+	-/Esto es un -/comentario anidado/-/-
+	-/if(a<b and b==20)/-
+	if(a<b)
+		while(a!=0)
+			while(e>1)
+				e=e-1
+			endwhile
+			a=a-1
+		endwhile
+		if(a==0)
+			WRITE "a es igual a cero"
+		else
+			WRITE "a es distinto de cero"
+		endif
+	endif
+	c=c++d
+	WRITE c
+	WRITE "Ingrese un valor para e"
+	READ e
+
+	-/PRUEBA ALLEQUAL/-
+	a=1
+	b=3
+	e=5
+	if(AllEqual([a+2,e-4],[b,a]))
+		WRITE "TRUE"
+	else
+		WRITE "FALSE"
+	endif
+
+	-/PRUEBA FILTER/-
+	a=FILTER(_<4,[e,b])
+	WRITE a
+
+	WRITE "Fin del programa"
 fin_programa
