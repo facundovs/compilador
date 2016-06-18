@@ -3,16 +3,13 @@ declaraciones
 	DIM [var1,var2,var3,varString1,varString2,varString3] AS [entero,entero,entero,cadena,cadena,cadena]
 fin_declaraciones
 WRITE "Inicio del programa"
-
-if(var1>var3)
-	if(var3<var1)
-		WRITE "TRUE"
-	else
-		WRITE "FALSE 1"
-	endif
-	WRITE "ACA TERMINA EL IF 2"
+var1=0
+var2=2
+var3=3
+if(AllEqual([var1+2,var3],[var2,var1+4]))
+	WRITE "TRUE"
 else
-	WRITE "FALSE 2"
+	WRITE "FALSE"
 endif
 WRITE "Fin del programa"
 fin_programa

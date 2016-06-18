@@ -1,16 +1,27 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
 sentencia                       	sentencia                       	WRITE                           
-sentencia                       	WRITE                           	if                              
+sentencia                       	sentencia                       	if                              
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	WRITE                           	=                               
 WRITE                           	stdout                          	_Inicio_del_programa            
-if                              	>                               	bloque if                       
->                               	var1                            	var3                            
-bloque if                       	sentencia                       	WRITE                           
-sentencia                       	if                              	WRITE                           
-if                              	<                               	bloque if                       
-<                               	var3                            	var1                            
+=                               	var1                            	_0                              
+=                               	var2                            	_2                              
+=                               	var3                            	_3                              
+if                              	AllEqual                        	bloque if                       
+AllEqual                        	if                              	@allequal                       
+if                              	==                              	bloque if                       
+==                              	var3                            	+                               
++                               	var1                            	_4                              
+bloque if                       	if                              	=                               
+if                              	==                              	bloque if                       
+==                              	+                               	var2                            
++                               	var1                            	_2                              
+bloque if                       	=                               	=                               
+=                               	@allequal                       	true                            
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
 bloque if                       	WRITE                           	WRITE                           
 WRITE                           	stdout                          	_TRUE                           
-WRITE                           	stdout                          	_FALSE_1                        
-WRITE                           	stdout                          	_ACA_TERMINA_EL_IF_2            
-WRITE                           	stdout                          	_FALSE_2                        
+WRITE                           	stdout                          	_FALSE                          
 WRITE                           	stdout                          	_Fin_del_programa               

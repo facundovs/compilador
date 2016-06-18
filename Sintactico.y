@@ -521,7 +521,7 @@ allequal:
 			t_nodo *nodo_resultado_true=crearNodo(&asignacion,crearHojaT("@allequal"),crearHojaT("true"));
 			t_nodo *nodo_resultado_false=crearNodo(&asignacion,crearHojaT("@allequal"),crearHojaT("false"));
 			t_info info_bloque_if;
-			strcpy(info_bloque_if.valor,"bloque_if");
+			strcpy(info_bloque_if.valor,"bloque if");
 			t_nodo *bloque_if=crearNodo(&info_bloque_if,nodo_resultado_true,nodo_resultado_false);
 			t_nodo *copia_bloque_if=copiarNodo(bloque_if);
 			all_equal=crearNodo(&nodo_allEqual,NULL,crearHojaT("@allequal"));
@@ -1209,7 +1209,6 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 	    		t_info info;
 	    		info.nro=contIf;
 	    		ponerEnPila(&pilaNroIf,crearHoja(&info));
-	    		printf("PUESTO EN PILA %d\n",contIf);
 	    		if(strcmp(nodo->izq->info.valor,"AllEqual")!=0)
 		    		fprintf(pf,"if_%d:\n",contIf);
 	    		esCondWhile=0;
@@ -1421,7 +1420,6 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 			if(strcmp(opr->info.valor,"if")==0){
 				int auxIf=sacar_de_pila2(&pilaNroIf)->info.nro;
 				fprintf(pf,"end_if_%d:\n",auxIf);
-				printf("SACADO DE PILA %d\n",auxIf);
 			}
 			if(strcmp(opr->info.valor,"while")==0){
 				int nro=sacar_de_pila2(&pilaNroWhile)->info.nro;
@@ -1429,7 +1427,12 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 				fprintf(pf,"end_while_%d:\n",nro);
 			}
 			if(strcmp(opr->info.valor,"AllEqual")==0){
-				fprintf(pf,"\tfld\t@@allequal\n\tfld\t@true\n\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\tend_if_%d\n",/*sacar_de_pila2(&pilaNroIf)->info.nro*/contIf);
+				if(nroElse>0){
+						fprintf(pf,"\tfld\t@@allequal\n\tfld\t@true\n\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						nroElse--;
+					}
+					else
+						fprintf(pf,"\tfld\t@@allequal\n\tfld\t@true\n\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\tend_if_%d\n",(*pilaNroIf).info.info.nro);
 				//fprintf(pf,"end_if_%d:\n",sacar_de_pila2(&pilaNroIf)->info.nro);
 			}
 		//CONCATENACION
@@ -1506,7 +1509,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 		}
 		fprintf(pf,"include macros2.asm\n");
 		fprintf(pf,"include number.asm\n\n");
-		fprintf(pf,".MODEL LARGE\n.STACK 200h\n.386\n.387\n.DATA\n\n\tMAXTEXTSIZE equ 50\n\t@true equ 1\n\t@false equ 0\n");
+		fprintf(pf,".MODEL LARGE\n.STACK 200h\n.386\n.387\n.DATA\n\n\tMAXTEXTSIZE equ 50\n\t@true dd 1.0\n\t@false dd 0.0\n");
 		int i;
 
 		//DECLARACION DE VARIABLES
