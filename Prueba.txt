@@ -2,50 +2,13 @@ programa
 	declaraciones	
 		DIM [a,b,c,d,e] AS [entero,entero,cadena,cadena,entero]
 	fin_declaraciones
-
+	a=5
+	b=6
 	WRITE "Inicio del programa"
-	a=10
-	-/a=1000000000000000000000000000000000000/-
-	b=20
-	c="cadena"
-	-/c="cadenaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/-
-	d=" de prueba"
-	-/d=30/-
-	e=2
-	-/f=30/-
-	-/Esto es un -/comentario anidado/-/-
-	-/if(a<b and b==20)/-
-	if(a<b)
-		while(a!=0)
-			while(e>1)
-				e=e-1
-			endwhile
-			a=a-1
-		endwhile
-		if(a==0)
-			WRITE "a es igual a cero"
-		else
-			WRITE "a es distinto de cero"
-		endif
-	endif
-	c=c++d
-	WRITE c
-	WRITE "Ingrese un valor para e"
-	READ e
-
-	-/PRUEBA ALLEQUAL/-
-	a=1
-	b=3
-	e=5
-	if(AllEqual([a+2,e-4],[b,a]))
-		WRITE "TRUE"
+	if (a>4 and a>1)
+		WRITE "true"
 	else
-		WRITE "FALSE"
+		WRITE "false"
 	endif
-
-	-/PRUEBA FILTER/-
-	a=FILTER(_<4,[e,b])
-	WRITE a
-
 	WRITE "Fin del programa"
 fin_programa
