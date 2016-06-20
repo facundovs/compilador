@@ -18,11 +18,14 @@ include number.asm
 	@_5 	DD 5.0
 	@_6 	DD 6.0
 	@_Inicio_del_programa 	DB "Inicio del programa",'$',31 dup(?)
-	@_4 	DD 4.0
+	@_0 	DD 0.0
 	@_1 	DD 1.0
-	@_true 	DB "true",'$',46 dup(?)
-	@_false 	DB "false",'$',45 dup(?)
+	@_7 	DD 7.0
 	@_Fin_del_programa 	DB "Fin del programa",'$',34 dup(?)
+	@Aux1 	DD 0.0
+	@Aux2 	DD 0.0
+	@Aux3 	DD 0.0
+	@Aux4 	DD 0.0
 	@@filter 	DD 0.0
 	@@allequal 	DD 0.0
 	@null 	DD -1.0
@@ -40,31 +43,78 @@ include number.asm
 	fstp 	@b
 	displayString 	@_Inicio_del_programa
 	newLine 1
-if_1:
-cond_if_1_1:
-	fld 	@_4
+while_1:
+cond_while_1_1:
+	fld 	@_0
 	fld 	@a
 	fcomp
 	fstsw	ax
 	fwait
 	sahf
-	jbe		else_if_1
-cond_if_1_2:
+	ja		true_while_1
+cond_while_1_2:
+	fld 	@_0
+	fld 	@b
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	jbe		end_while_1
+true_while_1:
+	fld 	@a
 	fld 	@_1
+	fsub
+	fstp 	@Aux1
+	fld 	@Aux1
+	fstp 	@a
+	fld 	@b
+	fld 	@_1
+	fsub
+	fstp 	@Aux2
+	fld 	@Aux2
+	fstp 	@b
+	jmp cond_while_1_1
+end_while_1:
+	displayFloat 	@a,3
+	newLine 1
+	displayFloat 	@b,3
+	newLine 1
+while_2:
+cond_while_2_1:
+	fld 	@_5
 	fld 	@a
 	fcomp
 	fstsw	ax
 	fwait
 	sahf
-	jbe		else_if_1
-true_if_1:
-	displayString 	@_true
+	jne		true_while_2
+cond_while_2_2:
+	fld 	@_7
+	fld 	@b
+	fcomp
+	fstsw	ax
+	fwait
+	sahf
+	jne		end_while_2
+true_while_2:
+	fld 	@a
+	fld 	@_1
+	fadd
+	fstp 	@Aux3
+	fld 	@Aux3
+	fstp 	@a
+	fld 	@b
+	fld 	@_1
+	fadd
+	fstp 	@Aux4
+	fld 	@Aux4
+	fstp 	@b
+	jmp cond_while_2_1
+end_while_2:
+	displayFloat 	@a,3
 	newLine 1
-	jmp	 end_if_1
-else_if_1:
-	displayString 	@_false
+	displayFloat 	@b,3
 	newLine 1
-end_if_1:
 	displayString 	@_Fin_del_programa
 	newLine 1
 	mov ah, 4ch

@@ -5,10 +5,17 @@ programa
 	a=5
 	b=6
 	WRITE "Inicio del programa"
-	if (a>4 and a>1)
-		WRITE "true"
-	else
-		WRITE "false"
-	endif
+		while(a>0 or b>0)
+			a=a-1
+			b=b-1
+		endwhile
+		WRITE a
+		WRITE b
+		while(a!=5 or b==7)
+			a=a+1
+			b=b+1
+		endwhile
+		WRITE a
+		WRITE b
 	WRITE "Fin del programa"
 fin_programa

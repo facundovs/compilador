@@ -1314,7 +1314,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d_%d:\n",(*pilaNroIf).info.info.nro,contCondiciones++);
 				}
 				else{
-					fprintf(pf,"cond_while_%d_%d:\n",contWhile,contCondiciones++);
+					fprintf(pf,"cond_while_%d_%d:\n",(*pilaNroWhile).info.info.nro,contCondiciones++);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
@@ -1334,9 +1334,9 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 				}
 				else{
 					if(! esOr)
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
 					else
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\ttrue_while_%d\n",(*pilaNroWhile).info.info.nro);
 				}
 				esOr=0;
 			}
@@ -1345,105 +1345,155 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 					fprintf(pf,"cond_if_%d_%d:\n",(*pilaNroIf).info.info.nro,contCondiciones++);
 				}
 				else{
-					fprintf(pf,"cond_while_%d_%d:\n",contWhile,contCondiciones++);
+					fprintf(pf,"cond_while_%d_%d:\n",(*pilaNroWhile).info.info.nro,contCondiciones++);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
 				if(esCondWhile==0){//if
 					if(nroElse>0){
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 						nroElse--;
 					}
 					else
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\tend_while_%d\n",contWhile);
+					if(! esOr)
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
+					else
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\ttrue_while_%d\n",(*pilaNroWhile).info.info.nro);
 				}
+				esOr=0;
 			}
 			if(strcmp(opr->info.valor,"<=")==0){
 				if(esCondWhile==0){//if
 					fprintf(pf,"cond_if_%d_%d:\n",(*pilaNroIf).info.info.nro,contCondiciones++);
 				}
 				else{
-					fprintf(pf,"cond_while_%d_%d:\n",contWhile,contCondiciones++);
+					fprintf(pf,"cond_while_%d_%d:\n",(*pilaNroWhile).info.info.nro,contCondiciones++);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
 				if(esCondWhile==0){//if
 					if(nroElse>0){
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 						nroElse--;
 					}
 					else
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_while_%d\n",contWhile);
+					if(! esOr)
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tja\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
+					else
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjbe\t\ttrue_while_%d\n",(*pilaNroWhile).info.info.nro);
 				}
+				esOr=0;
 			}
 			if(strcmp(opr->info.valor,">=")==0){
 				if(esCondWhile==0){//if
 					fprintf(pf,"cond_if_%d_%d:\n",(*pilaNroIf).info.info.nro,contCondiciones++);
 				}
 				else{
-					fprintf(pf,"cond_while_%d_%d:\n",contWhile,contCondiciones++);
+					fprintf(pf,"cond_while_%d_%d:\n",(*pilaNroWhile).info.info.nro,contCondiciones++);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
 				if(esCondWhile==0){//if
 					if(nroElse>0){
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 						nroElse--;
 					}
 					else
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\tend_while_%d\n",contWhile);
+					if(! esOr)
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjb\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
+					else
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjae\t\ttrue_while_%d\n",(*pilaNroWhile).info.info.nro);
 				}
+				esOr=0;
 			}
 			if(strcmp(opr->info.valor,"==")==0){
 				if(esCondWhile==0){//if
 					fprintf(pf,"cond_if_%d_%d:\n",(*pilaNroIf).info.info.nro,contCondiciones++);
 				}
 				else{
-					fprintf(pf,"cond_while_%d_%d:\n",contWhile,contCondiciones++);
+					fprintf(pf,"cond_while_%d_%d:\n",(*pilaNroWhile).info.info.nro,contCondiciones++);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
 				if(esCondWhile==0){//if
 					if(nroElse>0){
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 						nroElse--;
 					}
 					else
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\tend_while_%d\n",contWhile);
+					if(! esOr)
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
+					else
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\ttrue_while_%d\n",(*pilaNroWhile).info.info.nro);
 				}
+				esOr=0;
 			}
 			if(strcmp(opr->info.valor,"!=")==0){
 				if(esCondWhile==0){//if
 					fprintf(pf,"cond_if_%d_%d:\n",(*pilaNroIf).info.info.nro,contCondiciones++);
 				}
 				else{
-					fprintf(pf,"cond_while_%d_%d:\n",contWhile,contCondiciones++);
+					fprintf(pf,"cond_while_%d_%d:\n",(*pilaNroWhile).info.info.nro,contCondiciones++);
 				}
 				fprintf(pf,"\tfld \t@%s\n", op2->info.valor);
 				fprintf(pf,"\tfld \t@%s\n", op1->info.valor);
 				if(esCondWhile==0){//if
 					if(nroElse>0){
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\telse_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 						nroElse--;
 					}
 					else
-						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						if(! esOr)
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\tend_if_%d\n",(*pilaNroIf).info.info.nro);
+						else
+							fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\ttrue_if_%d\n",(*pilaNroIf).info.info.nro);
 				}
 				else{
-					fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\tend_while_%d\n",contWhile);
+					if(! esOr)
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tje\t\tend_while_%d\n",(*pilaNroWhile).info.info.nro);
+					else
+						fprintf(pf,"\tfcomp\n\tfstsw\tax\n\tfwait\n\tsahf\n\tjne\t\ttrue_while_%d\n",(*pilaNroWhile).info.info.nro);
 				}
+				esOr=0;
 			}
 
 		//ENDS:  IF - WHILE -ALLEQUAL
@@ -1453,7 +1503,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 			}
 			if(strcmp(opr->info.valor,"while")==0){
 				int nro=sacar_de_pila2(&pilaNroWhile)->info.nro;
-				fprintf(pf,"\tjmp cond_while_%d\n",nro);
+				fprintf(pf,"\tjmp cond_while_%d_1\n",nro);
 				fprintf(pf,"end_while_%d:\n",nro);
 			}
 			if(strcmp(opr->info.valor,"AllEqual")==0){

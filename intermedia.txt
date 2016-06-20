@@ -1,16 +1,36 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
 sentencia                       	sentencia                       	WRITE                           
-sentencia                       	sentencia                       	if                              
+sentencia                       	sentencia                       	WRITE                           
+sentencia                       	sentencia                       	WRITE                           
+sentencia                       	sentencia                       	while                           
+sentencia                       	sentencia                       	WRITE                           
+sentencia                       	sentencia                       	WRITE                           
+sentencia                       	sentencia                       	while                           
 sentencia                       	sentencia                       	WRITE                           
 sentencia                       	=                               	=                               
 =                               	a                               	_5                              
 =                               	b                               	_6                              
 WRITE                           	stdout                          	_Inicio_del_programa            
-if                              	and                             	bloque if                       
-and                             	>                               	>                               
->                               	a                               	_4                              
->                               	a                               	_1                              
-bloque if                       	WRITE                           	WRITE                           
-WRITE                           	stdout                          	_true                           
-WRITE                           	stdout                          	_false                          
+while                           	or                              	sentencia                       
+or                              	>                               	>                               
+>                               	a                               	_0                              
+>                               	b                               	_0                              
+sentencia                       	=                               	=                               
+=                               	a                               	-                               
+-                               	a                               	_1                              
+=                               	b                               	-                               
+-                               	b                               	_1                              
+WRITE                           	stdout                          	a                               
+WRITE                           	stdout                          	b                               
+while                           	or                              	sentencia                       
+or                              	!=                              	==                              
+!=                              	a                               	_5                              
+==                              	b                               	_7                              
+sentencia                       	=                               	=                               
+=                               	a                               	+                               
++                               	a                               	_1                              
+=                               	b                               	+                               
++                               	b                               	_1                              
+WRITE                           	stdout                          	a                               
+WRITE                           	stdout                          	b                               
 WRITE                           	stdout                          	_Fin_del_programa               

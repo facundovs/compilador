@@ -7,8 +7,7 @@ e                               |	entero                          |	----------  
 _5                              |	const_entero                    |	5                               |	----------                      
 _6                              |	const_entero                    |	6                               |	----------                      
 _Inicio_del_programa            |	const_cadena                    |	Inicio del programa             |	19                              
-_4                              |	const_entero                    |	4                               |	----------                      
+_0                              |	const_entero                    |	0                               |	----------                      
 _1                              |	const_entero                    |	1                               |	----------                      
-_true                           |	const_cadena                    |	true                            |	4                               
-_false                          |	const_cadena                    |	false                           |	5                               
+_7                              |	const_entero                    |	7                               |	----------                      
 _Fin_del_programa               |	const_cadena                    |	Fin del programa                |	16                              
