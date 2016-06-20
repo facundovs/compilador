@@ -1,36 +1,80 @@
 PADRE                           |	HIJO IZQ                        |	HIJO DER                        
 sentencia                       	sentencia                       	WRITE                           
 sentencia                       	sentencia                       	WRITE                           
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	if                              
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	READ                            
 sentencia                       	sentencia                       	WRITE                           
-sentencia                       	sentencia                       	while                           
 sentencia                       	sentencia                       	WRITE                           
-sentencia                       	sentencia                       	WRITE                           
-sentencia                       	sentencia                       	while                           
-sentencia                       	sentencia                       	WRITE                           
-sentencia                       	=                               	=                               
-=                               	a                               	_5                              
-=                               	b                               	_6                              
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	if                              
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	sentencia                       	=                               
+sentencia                       	WRITE                           	=                               
 WRITE                           	stdout                          	_Inicio_del_programa            
-while                           	or                              	sentencia                       
-or                              	>                               	>                               
->                               	a                               	_0                              
->                               	b                               	_0                              
-sentencia                       	=                               	=                               
+=                               	a                               	_10                             
+=                               	b                               	_20                             
+=                               	c                               	_cadena                         
+=                               	d                               	__de_prueba                     
+=                               	e                               	_2                              
+if                              	and                             	sentencia                       
+and                             	<                               	==                              
+<                               	a                               	b                               
+==                              	b                               	_20                             
+sentencia                       	while                           	if                              
+while                           	!=                              	sentencia                       
+!=                              	a                               	_0                              
+sentencia                       	while                           	=                               
+while                           	>                               	=                               
+>                               	e                               	_1                              
+=                               	e                               	-                               
+-                               	e                               	_1                              
 =                               	a                               	-                               
 -                               	a                               	_1                              
-=                               	b                               	-                               
--                               	b                               	_1                              
+if                              	==                              	bloque if                       
+==                              	a                               	_0                              
+bloque if                       	WRITE                           	WRITE                           
+WRITE                           	stdout                          	_a_es_igual_a_cero              
+WRITE                           	stdout                          	_a_es_distinto_de_cero          
+=                               	c                               	++                              
+++                              	c                               	d                               
+WRITE                           	stdout                          	c                               
+WRITE                           	stdout                          	_Ingrese_un_valor_para_e        
+READ                            	stdin                           	e                               
+=                               	a                               	_1                              
+=                               	b                               	_3                              
+=                               	e                               	_5                              
+if                              	AllEqual                        	bloque if                       
+AllEqual                        	if                              	@allequal                       
+if                              	==                              	bloque if                       
+==                              	-                               	a                               
+-                               	e                               	_4                              
+bloque if                       	if                              	=                               
+if                              	==                              	bloque if                       
+==                              	+                               	b                               
++                               	a                               	_2                              
+bloque if                       	=                               	=                               
+=                               	@allequal                       	true                            
+=                               	@allequal                       	false                           
+=                               	@allequal                       	false                           
+bloque if                       	WRITE                           	WRITE                           
+WRITE                           	stdout                          	_TRUE                           
+WRITE                           	stdout                          	_FALSE                          
+=                               	a                               	FILTER                          
+FILTER                          	if                              	@filter                         
+if                              	<                               	bloque if                       
+<                               	e                               	_4                              
+bloque if                       	=                               	if                              
+=                               	@filter                         	e                               
+if                              	<                               	bloque if                       
+<                               	b                               	_4                              
+bloque if                       	=                               	=                               
+=                               	@filter                         	b                               
+=                               	@filter                         	null                            
 WRITE                           	stdout                          	a                               
-WRITE                           	stdout                          	b                               
-while                           	or                              	sentencia                       
-or                              	!=                              	==                              
-!=                              	a                               	_5                              
-==                              	b                               	_7                              
-sentencia                       	=                               	=                               
-=                               	a                               	+                               
-+                               	a                               	_1                              
-=                               	b                               	+                               
-+                               	b                               	_1                              
-WRITE                           	stdout                          	a                               
-WRITE                           	stdout                          	b                               
 WRITE                           	stdout                          	_Fin_del_programa               

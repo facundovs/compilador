@@ -580,7 +580,10 @@ write:
 							int ret=existeCte();
 							if(ret==0){
 								  strcpy(tablaConstantes[indiceConstante].nombre,"_");
-								  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(yylval.cadena," ","_"));
+								  char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
+			  					  auxChar=reemplazarCaracter(auxChar,":","_");
+			  					  auxChar=reemplazarCaracter(auxChar,";","_");
+			  					  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(auxChar," ","_"));
 								  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 								  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
 								  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
@@ -590,7 +593,10 @@ write:
 							insertarHijo(&write->izq,crearHojaT("stdout"));
 							t_info info;
 							strcpy(info.valor,"_");
-							strcat(info.valor,reemplazarCaracter(yylval.cadena," ","_"));
+							char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
+			  				auxChar=reemplazarCaracter(auxChar,":","_");
+			  				auxChar=reemplazarCaracter(auxChar,";","_");
+							strcat(info.valor,reemplazarCaracter(auxChar," ","_"));
 							insertarHijo(&write->der,crearHoja(&info));
 							printf("Write OK\n");
 						}  
@@ -858,9 +864,12 @@ factor:
 				yyerrormsj(yylval.cadena,ErrorLexico,ErrorStringFueraDeRango);
          printf("CADENA es: %s\n",yylval.cadena);
 		int ret=existeCte();
-		 if(ret==0){
+		if(ret==0){
 			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
-			  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(yylval.cadena," ","_"));
+			  char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
+			  auxChar=reemplazarCaracter(auxChar,":","_");
+			  auxChar=reemplazarCaracter(auxChar,";","_");
+			  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(auxChar," ","_"));
 			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
 			  tablaConstantes[indiceConstante].longitud=strlen(yylval.cadena);
@@ -868,7 +877,10 @@ factor:
 		}
 		t_info info;
 		strcpy(info.valor, "_");
-		strcat(info.valor,reemplazarCaracter(yylval.cadena," ","_"));
+		char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
+		auxChar=reemplazarCaracter(auxChar,":","_");
+		auxChar=reemplazarCaracter(auxChar,";","_");
+		strcat(info.valor,reemplazarCaracter(auxChar," ","_"));
 		factor = crearHoja(&info);
       }
       |P_A expresion P_C  {expresion=factor;}
@@ -972,7 +984,10 @@ int existeId(char * id){
 int existeCte(){
 	int  j;
 	char aux[50]="_";
-	strcat(aux,reemplazarCaracter(yylval.cadena," ","_"));
+	char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
+	auxChar=reemplazarCaracter(auxChar,":","_");
+	auxChar=reemplazarCaracter(auxChar,";","_");
+	strcat(aux,reemplazarCaracter(auxChar," ","_"));
 	for(j = 0; j<indiceConstante; j++){
 		if(strcmp(tablaConstantes[j].nombre,aux) == 0){
 			return 1;
