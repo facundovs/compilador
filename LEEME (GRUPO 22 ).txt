@@ -10,28 +10,11 @@ IMPORTANTE:
 		•Para ejecutar el programa generado, se debera contar con el tasm4 y el DOSbox.
 		•Descomprimir el tasm4 en un directorio facil de acceder (c:\tasm4).
 		•Instalar el DOSbox.
-		•Copiar el archivo assembler generado (Final.txt) en la carpeta tasm4
+		•Copiar los siguientes archivos en la carpeta c:\tasm4
+				-macros2.asm number.asm numbers.asm
+				-compilar.bat
+		•Ejecutar Grupo22.bat
 		•Abrir el DOSbox y ejecutar los siguientes comandos:
 				mount c c:\tasm4
 				c:
-				tasm Final.txt /m2
-				tlink Final.obj numbers.obj
-				Final.exe			
-	
-CODIGO PARA EL .BAT:
-	
-c:\GnuWin32\bin\flex Lexico.l
-pause
-c:\GnuWin32\bin\bison -dyv Sintactico.y
-pause
-c:\MinGW\bin\gcc.exe lex.yy.c y.tab.c -o TPFinal.exe
-pause
-TPfinal.exe "prueba.txt"
-C:\"Program Files (x86)"\Graphviz2.34\bin\dot -Tpng graphInfo.txt > intermedia.png
-pause
-del lex.yy.c
-del y.tab.c
-del y.output
-del y.tab.h
-del TPFinal.exe
-pause
+				compilar.bat

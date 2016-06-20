@@ -645,12 +645,10 @@ lista_exp:
 expresiones:
 		expresion {
 			ponerEnPila(&(pilasAllEqual[cantListasAllEqual]),expresion);
-			printf("Expresion: %s\n",expresion->info.valor);
 		cantExpLE[contadorListaExp] ++;
 		}
 		|expresiones COMA  expresion { 
 			cantExpLE[contadorListaExp] ++;
-			printf("Expresion en lista: %s\n",expresion->info.valor);
 			ponerEnPila(&(pilasAllEqual[cantListasAllEqual]),expresion);
 		}
 		;
@@ -1597,7 +1595,7 @@ char * reemplazarCaracter(char const * const original,  char const * const patte
 	}
 
 	void generarAssembler(t_nodo* arbol){
-		FILE*pf=fopen("Final.txt","w+");
+		FILE*pf=fopen("Final.asm","w+");
 		if(!pf){
 			printf("Error al guardar el arbol\n");
 			return;
