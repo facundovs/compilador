@@ -4,7 +4,7 @@ programa
 	fin_declaraciones
 
 	WRITE "Inicio del programa"
-	
+	a=-10
 	a=10
 	-/a=1000000000000000000000000000000000000/-
 	b=20
@@ -32,7 +32,8 @@ programa
 	WRITE c
 	WRITE "Ingrese un valor para e"
 	READ e
-
+	WRITE "Se ha leido: "
+	WRITE e
 	-/PRUEBA ALLEQUAL/-
 	a=1
 	b=3

@@ -16,6 +16,7 @@ include number.asm
 	@d 	DB MAXTEXTSIZE dup (?),'$'
 	@e 	DD 0.0
 	@_Inicio_del_programa 	DB "Inicio del programa",'$',31 dup(?)
+	@_m10 	DD -10.0
 	@_10 	DD 10.0
 	@_20 	DD 20.0
 	@_cadena 	DB "cadena",'$',44 dup(?)
@@ -26,6 +27,7 @@ include number.asm
 	@_a_es_igual_a_cero 	DB "a es igual a cero",'$',33 dup(?)
 	@_a_es_distinto_de_cero 	DB "a es distinto de cero",'$',29 dup(?)
 	@_Ingrese_un_valor_para_e 	DB "Ingrese un valor para e",'$',27 dup(?)
+	@_Se_ha_leidodp_ 	DB "Se ha leido: ",'$',37 dup(?)
 	@_3 	DD 3.0
 	@_5 	DD 5.0
 	@_4 	DD 4.0
@@ -50,6 +52,8 @@ include number.asm
 
 	displayString 	@_Inicio_del_programa
 	newLine 1
+	fld 	@_m10
+	fstp 	@a
 	fld 	@_10
 	fstp 	@a
 	fld 	@_20
@@ -160,6 +164,10 @@ end_if_1:
 	displayString 	@_Ingrese_un_valor_para_e
 	newLine 1
 	getFloat 	@e
+	displayString 	@_Se_ha_leidodp_
+	newLine 1
+	displayFloat 	@e,3
+	newLine 1
 	fld 	@_1
 	fstp 	@a
 	fld 	@_3

@@ -580,9 +580,10 @@ write:
 							int ret=existeCte();
 							if(ret==0){
 								  strcpy(tablaConstantes[indiceConstante].nombre,"_");
-								  char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
-			  					  auxChar=reemplazarCaracter(auxChar,":","_");
-			  					  auxChar=reemplazarCaracter(auxChar,";","_");
+								  char*auxChar=reemplazarCaracter(yylval.cadena,".","p");
+								  auxChar=reemplazarCaracter(auxChar,":","dp");
+								  auxChar=reemplazarCaracter(auxChar,";","pc");
+								  auxChar=reemplazarCaracter(auxChar,"-","m");
 			  					  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(auxChar," ","_"));
 								  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 								  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
@@ -593,9 +594,10 @@ write:
 							insertarHijo(&write->izq,crearHojaT("stdout"));
 							t_info info;
 							strcpy(info.valor,"_");
-							char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
-			  				auxChar=reemplazarCaracter(auxChar,":","_");
-			  				auxChar=reemplazarCaracter(auxChar,";","_");
+							char*auxChar=reemplazarCaracter(yylval.cadena,".","p");
+							auxChar=reemplazarCaracter(auxChar,":","dp");
+							auxChar=reemplazarCaracter(auxChar,";","pc");
+							auxChar=reemplazarCaracter(auxChar,"-","m");
 							strcat(info.valor,reemplazarCaracter(auxChar," ","_"));
 							insertarHijo(&write->der,crearHoja(&info));
 							printf("Write OK\n");
@@ -797,7 +799,7 @@ factor:
 		  }
           printf("Constante entera, valor: -%s\n", yylval.cadena);
 		  if(existeCte()==0){
-			  strcpy(tablaConstantes[indiceConstante].nombre,"_-");
+			  strcpy(tablaConstantes[indiceConstante].nombre,"_m");
 			  strcat(tablaConstantes[indiceConstante].nombre,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].valor,"-");
 			  strcat(tablaConstantes[indiceConstante].valor,yylval.cadena);
@@ -806,7 +808,7 @@ factor:
 			  indiceConstante++;
 		  }
 		  t_info info;
-		  strcpy(info.valor, "_-");
+		  strcpy(info.valor, "_m");
 		  strcat(info.valor,yylval.cadena);
 		  factor = crearHoja(&info);
       }
@@ -841,7 +843,7 @@ factor:
 		  }
           printf("Constante real, valor: -%s\n", yylval.cadena);
 		  if(existeCte()==0){
-			  strcpy(tablaConstantes[indiceConstante].nombre,"_-");
+			  strcpy(tablaConstantes[indiceConstante].nombre,"_m");
 			  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(yylval.cadena,".","_"));
 			  strcpy(tablaConstantes[indiceConstante].valor,"-");
 			  strcat(tablaConstantes[indiceConstante].valor,yylval.cadena);
@@ -864,9 +866,10 @@ factor:
 		int ret=existeCte();
 		if(ret==0){
 			  strcpy(tablaConstantes[indiceConstante].nombre,"_");
-			  char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
-			  auxChar=reemplazarCaracter(auxChar,":","_");
-			  auxChar=reemplazarCaracter(auxChar,";","_");
+			  char*auxChar=reemplazarCaracter(yylval.cadena,".","p");
+			  auxChar=reemplazarCaracter(auxChar,":","dp");
+			  auxChar=reemplazarCaracter(auxChar,";","pc");
+			  auxChar=reemplazarCaracter(auxChar,"-","m");
 			  strcat(tablaConstantes[indiceConstante].nombre,reemplazarCaracter(auxChar," ","_"));
 			  strcpy(tablaConstantes[indiceConstante].valor,yylval.cadena);
 			  strcpy(tablaConstantes[indiceConstante].tipo,"const_cadena");
@@ -875,9 +878,10 @@ factor:
 		}
 		t_info info;
 		strcpy(info.valor, "_");
-		char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
-		auxChar=reemplazarCaracter(auxChar,":","_");
-		auxChar=reemplazarCaracter(auxChar,";","_");
+		char*auxChar=reemplazarCaracter(yylval.cadena,".","p");
+		auxChar=reemplazarCaracter(auxChar,":","dp");
+		auxChar=reemplazarCaracter(auxChar,";","pc");
+		auxChar=reemplazarCaracter(auxChar,"-","m");
 		strcat(info.valor,reemplazarCaracter(auxChar," ","_"));
 		factor = crearHoja(&info);
       }
@@ -982,9 +986,10 @@ int existeId(char * id){
 int existeCte(){
 	int  j;
 	char aux[50]="_";
-	char*auxChar=reemplazarCaracter(yylval.cadena,".","_");
-	auxChar=reemplazarCaracter(auxChar,":","_");
-	auxChar=reemplazarCaracter(auxChar,";","_");
+	char*auxChar=reemplazarCaracter(yylval.cadena,".","p");
+	auxChar=reemplazarCaracter(auxChar,":","dp");
+	auxChar=reemplazarCaracter(auxChar,";","pc");
+	auxChar=reemplazarCaracter(auxChar,"-","m");
 	strcat(aux,reemplazarCaracter(auxChar," ","_"));
 	for(j = 0; j<indiceConstante; j++){
 		if(strcmp(tablaConstantes[j].nombre,aux) == 0){
